@@ -115,28 +115,94 @@ button{font:inherit;color:inherit}
   position:absolute;z-index:48;pointer-events:none;white-space:nowrap;
   font-family:Georgia,"Times New Roman",serif;
   font-variant-numeric:tabular-nums lining-nums;
-  font-size:clamp(23px,6.6vw,37px);font-weight:700;
+  font-size:clamp(23px,6.6vw,38px);font-weight:700;
   transform:translate(-50%,-50%) scale(.78);
   opacity:0;
-  animation:ptBurst .74s cubic-bezier(.16,.82,.28,1) forwards
+  animation:ptBurst .78s cubic-bezier(.16,.82,.28,1) forwards;
+  isolation:isolate;
+}
+.pt-float::before,
+.pt-float::after{
+  content:"";
+  position:absolute;
+  left:50%;top:50%;
+  transform:translate(-50%,-50%);
+  z-index:-2;
+  pointer-events:none;
+  border-radius:50%;
+}
+.pt-float::before{
+  width:150%;height:185%;
+  filter:blur(13px);
+  opacity:.72;
+}
+.pt-float::after{
+  width:118%;height:130%;
+  filter:blur(5px);
+  opacity:.55;
 }
 .pt-float.blue{
-  color:#dff9ff;
-  text-shadow:0 0 5px #3fc7ff,0 0 13px rgba(55,191,255,.78),0 2px 3px rgba(0,0,0,.5)
+  color:#e8fbff;
+  text-shadow:
+    0 0 4px #ffffff,
+    0 0 9px #4bc8ff,
+    0 0 18px rgba(58,190,255,.95),
+    0 2px 3px rgba(0,0,0,.45)
+}
+.pt-float.blue::before{
+  background:radial-gradient(circle,rgba(82,204,255,.78) 0%,rgba(47,154,255,.42) 45%,rgba(47,154,255,0) 74%);
+}
+.pt-float.blue::after{
+  background:radial-gradient(circle,rgba(221,250,255,.82) 0%,rgba(106,215,255,.26) 55%,transparent 76%);
 }
 .pt-float.gold{
-  color:#fff1b1;
-  text-shadow:0 0 5px #ffbb45,0 0 14px rgba(255,183,51,.74),0 2px 3px rgba(0,0,0,.5)
+  color:#fff3bc;
+  text-shadow:
+    0 0 4px #ffffff,
+    0 0 9px #ffc75d,
+    0 0 18px rgba(255,174,39,.95),
+    0 2px 3px rgba(0,0,0,.46)
+}
+.pt-float.gold::before{
+  background:radial-gradient(circle,rgba(255,211,86,.84) 0%,rgba(255,159,24,.42) 46%,rgba(255,159,24,0) 75%);
+}
+.pt-float.gold::after{
+  background:radial-gradient(circle,rgba(255,248,210,.84) 0%,rgba(255,201,92,.28) 56%,transparent 76%);
 }
 .pt-float.white{
   color:#fff;
-  text-shadow:0 0 6px #a7eaff,0 0 13px rgba(118,215,255,.58),0 2px 3px rgba(0,0,0,.5)
+  text-shadow:
+    0 0 5px #fff,
+    0 0 10px #c7f4ff,
+    0 0 18px rgba(135,225,255,.82),
+    0 2px 3px rgba(0,0,0,.44)
+}
+.pt-float.white::before{
+  background:radial-gradient(circle,rgba(216,250,255,.78) 0%,rgba(93,211,255,.30) 48%,transparent 76%);
+}
+.pt-float.white::after{
+  background:radial-gradient(circle,rgba(255,255,255,.78) 0%,rgba(170,239,255,.24) 56%,transparent 76%);
+}
+.pt-spark{
+  position:absolute;
+  width:5px;height:5px;
+  pointer-events:none;
+  border-radius:50%;
+  background:#fff;
+  box-shadow:0 0 5px currentColor,0 0 10px currentColor;
+  opacity:0;
+  animation:spark .62s ease-out forwards;
+}
+@keyframes spark{
+  0%{opacity:0;transform:scale(.2)}
+  20%{opacity:1;transform:scale(1)}
+  100%{opacity:0;transform:translateY(-20px) scale(.35)}
 }
 @keyframes ptBurst{
-  0%{opacity:0;transform:translate(-50%,-38%) scale(.68)}
-  16%{opacity:1;transform:translate(-50%,-52%) scale(1.06)}
-  68%{opacity:1;transform:translate(-50%,-92%) scale(1)}
-  100%{opacity:0;transform:translate(-50%,-132%) scale(.94)}
+  0%{opacity:0;transform:translate(-50%,-30%) scale(.68)}
+  15%{opacity:1;transform:translate(-50%,-50%) scale(1.07)}
+  65%{opacity:1;transform:translate(-50%,-91%) scale(1)}
+  100%{opacity:0;transform:translate(-50%,-135%) scale(.94)}
 }
 
 /* core feedback */
@@ -157,76 +223,113 @@ button{font:inherit;color:inherit}
   100%{opacity:0;transform:translate(-50%,-50%) scale(2.05);box-shadow:0 0 0 0 rgba(255,238,166,0),0 0 0 rgba(255,215,96,0)}
 }
 
-/* unified bottom HUD: combo is part of the same panel, not a separate oval */
-.tap-bottom{
-  position:absolute;z-index:32;left:8px;right:8px;
-  bottom:max(7px,env(safe-area-inset-bottom));
-  height:130px;
-  border:1px solid rgba(245,216,143,.82);
-  border-radius:18px 18px 12px 12px;
-  background:
-    linear-gradient(180deg,rgba(8,39,67,.86),rgba(4,22,40,.95));
-  box-shadow:0 -5px 22px rgba(0,0,0,.28),inset 0 0 19px rgba(116,222,255,.06);
-  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
-  display:grid;grid-template-columns:28% 48% 24%;
-  overflow:hidden
+/* bottom HUD: readable layout closer to the approved earlier mock */
+.combo-stage{
+  position:absolute;z-index:33;
+  left:27%;right:27%;
+  bottom:calc(max(7px,env(safe-area-inset-bottom)) + 116px);
+  height:82px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:radial-gradient(ellipse at center,rgba(8,41,70,.96) 0%,rgba(5,26,47,.94) 68%,rgba(4,21,38,.92) 100%);
+  border:1px solid rgba(245,216,143,.84);
+  border-radius:50% / 42%;
+  box-shadow:0 0 20px rgba(70,170,230,.16),inset 0 0 18px rgba(112,219,255,.06);
+  text-shadow:0 2px 4px rgba(0,0,0,.64);
 }
-.combo-box{
-  position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  border-right:1px solid rgba(246,219,153,.26)
-}
-.combo-box small{font-size:8px;opacity:.74;margin-bottom:2px}
-.combo-box strong{
+.combo-stage strong{
   width:100%;text-align:center;
   font-family:Georgia,"Times New Roman",serif;
   font-variant-numeric:tabular-nums lining-nums;
   font-feature-settings:"tnum" 1,"lnum" 1;
-  font-size:clamp(32px,9vw,52px);line-height:.90;
-  color:#fff0b8;font-weight:700;letter-spacing:0
+  font-size:clamp(34px,9.5vw,54px);line-height:.88;
+  color:#fff0b8;font-weight:700;letter-spacing:0;
 }
-.combo-box span{
+.combo-stage span{
   font-family:Georgia,"Times New Roman",serif;
-  font-size:10px;color:#fff0b8;font-weight:700;letter-spacing:.05em
+  font-size:10px;color:#fff0b8;font-weight:700;letter-spacing:.05em;
+  margin-top:3px;
 }
-.combo-glow{
-  position:absolute;left:14%;right:14%;bottom:12px;height:3px;border-radius:3px;
-  background:#7fe7ff;box-shadow:0 0 9px rgba(87,215,255,.8)
+.combo-stage::after{
+  content:"";
+  position:absolute;left:13%;right:13%;bottom:-7px;height:5px;
+  border:1px solid rgba(245,216,143,.72);
+  border-radius:999px;
+  background:linear-gradient(90deg,#48cfff,#e8fdff 62%,rgba(255,255,255,.15) 62%);
+  box-shadow:0 0 10px rgba(82,216,255,.72);
 }
-.reward-box{
-  display:flex;flex-direction:column;justify-content:center;padding:9px 8px
+
+.tap-bottom{
+  position:absolute;z-index:32;
+  left:8px;right:8px;
+  bottom:max(7px,env(safe-area-inset-bottom));
+  height:112px;
+  display:grid;grid-template-columns:29% 47% 24%;
+  overflow:hidden;
+  border:1px solid rgba(245,216,143,.82);
+  border-radius:15px 15px 11px 11px;
+  background:linear-gradient(180deg,rgba(7,37,64,.90),rgba(4,22,40,.96));
+  box-shadow:0 -5px 22px rgba(0,0,0,.28),inset 0 0 18px rgba(116,222,255,.05);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
 }
-.reward-head{
-  display:flex;justify-content:space-between;align-items:center;font-size:8px;margin-bottom:5px
+.progress-box{
+  display:flex;flex-direction:column;justify-content:center;
+  padding:10px 9px;
+  border-right:1px solid rgba(246,219,153,.26);
 }
-.reward-head b{
+.progress-box small{font-size:8px;opacity:.78}
+.progress-box b{
   font-family:Georgia,"Times New Roman",serif;
   font-variant-numeric:tabular-nums lining-nums;
-  font-size:12px;color:#fff0ba
+  color:#fff0ba;
+  font-size:16px;margin-top:4px
 }
 .progress{
   width:100%;height:8px;border-radius:999px;overflow:hidden;
-  border:1px solid rgba(245,216,143,.62);background:rgba(2,15,28,.72)
+  border:1px solid rgba(245,216,143,.62);
+  background:rgba(2,15,28,.72);margin-top:7px
 }
 .progress > i{
   display:block;height:100%;width:0%;
-  background:linear-gradient(90deg,#72dfff,#d8fbff);
+  background:linear-gradient(90deg,#62d8ff,#e6fdff);
   box-shadow:0 0 8px rgba(88,216,255,.72);
   transition:width .12s linear
 }
-.chests{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:8px;text-align:center}
+.reward-box{
+  display:flex;align-items:center;justify-content:center;padding:9px 7px
+}
+.chests{
+  width:100%;
+  display:grid;grid-template-columns:repeat(3,1fr);gap:7px;
+  text-align:center
+}
 .chest{font-size:8px;color:#eef8ff}
-.chest .icon{display:block;font-size:22px;line-height:1;margin-bottom:2px}
-.chest b{font-family:Georgia,"Times New Roman",serif;font-size:10px;color:#fff0ba}
+.chest .icon{
+  width:34px;height:28px;margin:0 auto 4px;
+  display:grid;place-items:center;
+  border:1px solid rgba(245,216,143,.62);
+  border-radius:6px;
+  font-size:15px;
+  box-shadow:inset 0 0 9px rgba(255,255,255,.05),0 3px 8px rgba(0,0,0,.18)
+}
+.chest:nth-child(1) .icon{background:linear-gradient(#a96735,#71421f)}
+.chest:nth-child(2) .icon{background:linear-gradient(#4287ff,#1749a8)}
+.chest:nth-child(3) .icon{background:linear-gradient(#ff5757,#b51818)}
+.chest b{
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:10px;color:#fff0ba
+}
 .bonus-box{
   border-left:1px solid rgba(246,219,153,.26);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:8px 4px
+  display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+  padding:8px 4px;
+  background:radial-gradient(circle at 50% 45%,rgba(97,35,92,.28),transparent 72%)
 }
-.bonus-box small{font-size:8px;opacity:.75}
+.bonus-box small{font-size:8px;opacity:.78}
 .bonus-box strong{
   font-family:Georgia,"Times New Roman",serif;
-  font-size:16px;color:#fff0ba;margin-top:5px
+  font-size:17px;color:#fff0ba;margin-top:5px
 }
-.bonus-box em{font-style:normal;font-size:7px;opacity:.65;margin-top:4px}
+.bonus-box em{font-style:normal;font-size:7px;opacity:.62;margin-top:4px}
 
 /* small toast */
 .toast{
@@ -293,21 +396,24 @@ button{font:inherit;color:inherit}
     <button id="tapZone" class="tap-zone" aria-label="タップしてPTを獲得"></button>
     <div id="tapPulse" class="tap-pulse"></div>
 
+    
+    <div class="combo-stage">
+      <strong id="combo">0</strong>
+      <span>COMBO</span>
+    </div>
+
     <footer class="tap-bottom">
-      <div class="combo-box">
-        <small>連続タップ</small>
-        <strong id="combo">0</strong>
-        <span>COMBO</span>
-        <i class="combo-glow"></i>
+      <div class="progress-box">
+        <small>次の報酬まで</small>
+        <b><span id="progressNow">0</span> / <span id="progressTarget">200</span></b>
+        <div class="progress"><i id="progressFill"></i></div>
       </div>
 
       <div class="reward-box">
-        <div class="reward-head"><span>次の目標まで</span><b><span id="progressNow">0</span> / <span id="progressTarget">200</span></b></div>
-        <div class="progress"><i id="progressFill"></i></div>
         <div class="chests">
-          <div class="chest"><span class="icon">🟫</span><b>200</b></div>
-          <div class="chest"><span class="icon">🟦</span><b>500</b></div>
-          <div class="chest"><span class="icon">🟥</span><b>1,000</b></div>
+          <div class="chest"><span class="icon">◆</span><b>200</b></div>
+          <div class="chest"><span class="icon">◆</span><b>500</b></div>
+          <div class="chest"><span class="icon">◆</span><b>1,000</b></div>
         </div>
       </div>
 
@@ -391,13 +497,23 @@ button{font:inherit;color:inherit}
     const y = base[1] + (Math.random() * 4 - 2);
 
     const node = document.createElement('div');
-    node.className = 'pt-float ' + colors[Math.floor(Math.random() * colors.length)];
+    const tone = colors[Math.floor(Math.random() * colors.length)];
+    node.className = 'pt-float ' + tone;
     node.textContent = '+' + fmt(tapPower) + ' PT';
     node.style.left = x + '%';
     node.style.top = y + '%';
-
     tap.appendChild(node);
     node.addEventListener('animationend', () => node.remove(), {once:true});
+
+    for(let i=0;i<2;i++){
+      const spark = document.createElement('i');
+      spark.className = 'pt-spark';
+      spark.style.left = (x + (Math.random()*8 - 4)) + '%';
+      spark.style.top = (y + (Math.random()*5 - 2.5)) + '%';
+      spark.style.color = tone === 'gold' ? '#ffd56a' : (tone === 'white' ? '#e8fbff' : '#67d7ff');
+      tap.appendChild(spark);
+      spark.addEventListener('animationend', () => spark.remove(), {once:true});
+    }
 
     const existing = tap.querySelectorAll('.pt-float');
     if(existing.length > 12){
