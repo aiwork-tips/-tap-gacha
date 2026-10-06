@@ -350,6 +350,176 @@ button{font:inherit;color:inherit}
   body{display:grid;place-items:center;background:#030910}
   #app{width:min(500px,100vw);height:min(100dvh,960px);box-shadow:0 0 60px rgba(0,0,0,.65)}
 }
+
+/* ===== v12 alignment / numeric / chest separation overrides ===== */
+
+/* Use lining numerals: all digits share the same baseline/height.
+   This prevents specific digits (notably 8) from appearing raised. */
+.power-number,
+.wallet-number,
+.combo-number-safe,
+.progress-number,
+.chest-threshold,
+.bonus-number{
+  font-family:"Times New Roman","Hiragino Mincho ProN","Yu Mincho",serif !important;
+  font-variant-numeric:lining-nums tabular-nums !important;
+  font-feature-settings:"lnum" 1,"tnum" 1 !important;
+}
+
+/* Top HUD: keep every label/value inside the painted blue safe area. */
+.back-content{
+  left:25%;
+  right:8%;
+  top:30%;
+  bottom:23%;
+  font-size:9px;
+}
+.back-content .home-ico{font-size:15px}
+
+.power-content{
+  left:0;right:0;top:0;bottom:0;
+  display:block;
+}
+.power-content small{
+  position:absolute;
+  left:24%;right:24%;
+  top:30%;height:11%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:7px;line-height:1;
+  white-space:nowrap;
+}
+.power-number{
+  position:absolute;
+  left:20%;right:20%;
+  top:41%;height:25%;
+  display:flex;align-items:center;justify-content:center;
+  line-height:1;
+}
+.power-content em{
+  position:absolute;
+  left:30%;right:30%;
+  top:68%;height:9%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:6.5px;line-height:1;
+  white-space:nowrap;
+}
+
+.wallet-toprow{
+  left:27%;right:7%;
+  top:23%;height:31%;
+  display:grid;
+  grid-template-columns:39% minmax(0,1fr);
+  align-items:center;
+  gap:1px;
+}
+.wallet-toprow small{
+  font-size:6.5px;
+  align-self:center;
+}
+.wallet-number{
+  font-size:19px;
+  align-items:center;
+  justify-content:flex-end;
+  line-height:1;
+}
+.wallet-bottomrow{
+  left:31%;right:12%;
+  bottom:13%;height:24%;
+  justify-content:flex-end;
+  gap:4px;
+  font-size:10px;
+}
+.wallet-bottomrow .key-ico{font-size:12px}
+
+/* Combo number stays optically centered with the new lining numerals. */
+.combo-number-safe{
+  top:30%;
+  height:34%;
+}
+.combo-label-safe{
+  top:67%;
+}
+
+/* Chests: smaller, but visually separated from the colorful background. */
+.reward-center-tint{
+  background:rgba(2,22,52,.58);
+}
+
+.chest-button{
+  height:74px;
+  isolation:isolate;
+}
+.chest-button::before{
+  content:"";
+  position:absolute;
+  z-index:-1;
+  left:50%;
+  top:29px;
+  width:56px;
+  height:46px;
+  transform:translate(-50%,-50%);
+  border-radius:50%;
+  background:
+    radial-gradient(ellipse at center,
+      rgba(1,10,28,.94) 0%,
+      rgba(3,26,57,.84) 43%,
+      rgba(14,71,110,.28) 63%,
+      rgba(14,71,110,0) 78%);
+  box-shadow:
+    0 0 10px rgba(54,170,229,.22),
+    inset 0 0 10px rgba(0,0,0,.35);
+  pointer-events:none;
+}
+.chest-img{
+  top:5px;
+  width:50px;
+  height:50px;
+  filter:
+    brightness(1.06)
+    saturate(1.10)
+    contrast(1.09)
+    drop-shadow(0 3px 4px rgba(0,0,0,.55));
+}
+.chest-threshold{
+  bottom:1px;
+  font-size:9px;
+  color:#fff2c4;
+  text-shadow:
+    0 1px 2px rgba(0,0,0,.95),
+    0 0 5px rgba(19,65,104,.8);
+}
+.chest-button.locked{
+  opacity:.88;
+}
+.chest-button.locked .chest-img{
+  filter:
+    brightness(.92)
+    saturate(.90)
+    contrast(1.12)
+    drop-shadow(0 3px 5px rgba(0,0,0,.68));
+}
+.chest-button.ready .chest-img.closed{
+  filter:
+    brightness(1.12)
+    saturate(1.16)
+    contrast(1.08)
+    drop-shadow(0 0 8px rgba(255,226,119,.95))
+    drop-shadow(0 4px 5px rgba(0,0,0,.42));
+}
+.chest-button.ready::after{
+  top:28px;
+  width:52px;
+  height:42px;
+}
+.chest-button.opened .chest-img.open{
+  filter:
+    brightness(1.10)
+    saturate(1.12)
+    contrast(1.08)
+    drop-shadow(0 0 9px rgba(128,231,255,.82))
+    drop-shadow(0 4px 5px rgba(0,0,0,.45));
+}
+
 </style>
 </head>
 <body>
