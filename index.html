@@ -629,6 +629,226 @@ button{font:inherit;color:inherit}
   height:56%;
 }
 
+
+/* ===== v14: fit all text and chests to the actual painted safe areas ===== */
+
+/* ---- TOP LEFT ---- */
+.back-content{
+  left:28%;
+  right:8%;
+  top:36%;
+  bottom:29%;
+  transform:none;
+  font-size:9px;
+  line-height:1;
+}
+.back-content .home-ico{
+  font-size:14px;
+}
+
+/* ---- TOP CENTER ----
+   Keep all three rows within the blue oval, not on its gold ornaments. */
+.power-content{
+  left:0;
+  right:0;
+  top:0;
+  bottom:0;
+  display:block;
+}
+.power-content small{
+  left:25%;
+  right:25%;
+  top:35%;
+  height:9%;
+  transform:none;
+  font-size:7px;
+  line-height:1;
+}
+.power-number{
+  left:22%;
+  right:22%;
+  top:44%;
+  height:20%;
+  transform:none;
+  line-height:1;
+}
+.power-content em{
+  left:31%;
+  right:31%;
+  top:65%;
+  height:8%;
+  transform:none;
+  font-size:6.5px;
+  line-height:1;
+}
+
+/* ---- TOP RIGHT ----
+   More width goes to the dynamic PT number so 5-7 digits stay inside. */
+.wallet-toprow{
+  left:28%;
+  right:10%;
+  top:29%;
+  height:23%;
+  transform:none;
+  display:block;
+}
+.wallet-toprow small{
+  position:absolute;
+  left:0;
+  top:0;
+  width:27%;
+  height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  font-size:6.2px;
+  line-height:1;
+}
+.wallet-number{
+  position:absolute;
+  left:27%;
+  right:0;
+  top:0;
+  height:100%;
+  transform:none;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  line-height:1;
+}
+.wallet-bottomrow{
+  left:30%;
+  right:14%;
+  bottom:17%;
+  height:19%;
+  transform:none;
+  justify-content:flex-end;
+  gap:4px;
+  font-size:9.5px;
+}
+.wallet-bottomrow .key-ico{
+  font-size:11px;
+}
+
+/* ---- COMBO ---- */
+.combo-number-safe{
+  top:30%;
+  height:33%;
+  transform:none;
+}
+.combo-label-safe{
+  top:66%;
+  height:13%;
+}
+
+/* ---- LOWER LEFT ----
+   Label is pulled inside the blue panel instead of sitting on the top border. */
+.progress-safe{
+  left:3.5%;
+  top:30%;
+  width:25.2%;
+  height:50%;
+  grid-template-rows:10px 26px 10px;
+  padding:0 4px;
+}
+.progress-safe small{
+  padding-left:1px;
+  font-size:6.5px;
+  line-height:1;
+}
+.progress-number{
+  transform:none;
+  line-height:1;
+}
+.progress-track-live{
+  transform:none;
+  height:7px;
+}
+
+/* ---- LOWER CENTER / CHESTS ----
+   Match the actual three small slots painted into the frame. */
+.chest-zone{
+  left:34.1%;
+  top:21%;
+  width:31.8%;
+  height:61%;
+  gap:8px;
+  padding:0 1px;
+}
+.chest-button{
+  height:57px;
+}
+.chest-img{
+  top:4px;
+  width:30px;
+  height:30px;
+}
+.chest-button::before{
+  top:19px;
+  width:36px;
+  height:28px;
+  background:
+    radial-gradient(ellipse at center,
+      rgba(1,10,28,.96) 0%,
+      rgba(3,26,57,.84) 45%,
+      rgba(29,112,159,.22) 66%,
+      rgba(29,112,159,0) 80%);
+}
+.chest-threshold{
+  bottom:2px;
+  transform:none;
+  font-size:8px;
+  line-height:1;
+}
+.chest-button.ready::after{
+  top:19px;
+  width:36px;
+  height:29px;
+}
+.chest-button.locked{
+  opacity:.92;
+}
+
+/* ---- LOWER RIGHT ---- */
+.bonus-safe{
+  left:72.1%;
+  top:31%;
+  width:23.4%;
+  height:48%;
+  grid-template-rows:11px 30px;
+}
+.bonus-safe small{
+  font-size:7px;
+  line-height:1;
+}
+.bonus-number{
+  transform:none;
+  line-height:1;
+}
+
+/* Keep the three lower panels legible without turning them opaque. */
+.reward-left-tint{
+  left:2.7%;
+  top:25%;
+  width:26.5%;
+  height:56%;
+  background:rgba(3,30,60,.53);
+}
+.reward-center-tint{
+  left:31.9%;
+  top:20%;
+  width:36.2%;
+  height:62%;
+  background:rgba(2,22,52,.62);
+}
+.reward-right-tint{
+  left:70.7%;
+  top:25%;
+  width:26.4%;
+  height:56%;
+  background:rgba(23,28,72,.52);
+}
+
 </style>
 </head>
 <body>
@@ -781,9 +1001,9 @@ button{font:inherit;color:inherit}
   }
   function fitAll(){
     fitText(powerBox,34,18);
-    fitText(ptEl,26,13);
+    fitText(ptEl,20,10);
     fitText(comboEl,56,24);
-    fitText(progressBox,21,11);
+    fitText(progressBox,19,10);
     fitText(document.getElementById('bonusBox'),26,13);
   }
 
