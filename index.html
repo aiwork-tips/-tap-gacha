@@ -520,6 +520,115 @@ button{font:inherit;color:inherit}
     drop-shadow(0 4px 5px rgba(0,0,0,.45));
 }
 
+
+/* ===== v13 optical alignment / chest sizing / spacing polish ===== */
+
+/* Individual optical baseline compensation.
+   Lining numerals fix glyph height; these offsets fix how each field
+   sits visually inside its own artwork. */
+.power-number{
+  transform:translateY(1px);
+}
+.wallet-number{
+  transform:translateY(2px);
+}
+.combo-number-safe{
+  transform:translateY(2px);
+}
+.progress-number{
+  transform:translateY(1px);
+}
+.bonus-number{
+  transform:translateY(1px);
+}
+.chest-threshold{
+  transform:translateY(1px);
+}
+
+/* Top HUD vertical balance */
+.back-content{
+  transform:translateY(1px);
+}
+.power-content small{
+  transform:translateY(1px);
+}
+.power-content em{
+  transform:translateY(-1px);
+}
+.wallet-toprow{
+  transform:translateY(1px);
+}
+.wallet-bottomrow{
+  transform:translateY(-1px);
+}
+
+/* Chests: one more step smaller, more breathing room */
+.chest-zone{
+  left:32.4%;
+  top:10%;
+  width:34.6%;
+  height:79%;
+  grid-template-columns:repeat(3,1fr);
+  gap:5px;
+  padding:0 3px;
+}
+.chest-button{
+  height:72px;
+}
+.chest-img{
+  top:7px;
+  width:43px;
+  height:43px;
+}
+.chest-button::before{
+  top:28px;
+  width:49px;
+  height:40px;
+  background:
+    radial-gradient(ellipse at center,
+      rgba(1,10,28,.96) 0%,
+      rgba(3,26,57,.86) 45%,
+      rgba(23,96,143,.24) 65%,
+      rgba(23,96,143,0) 80%);
+}
+.chest-threshold{
+  bottom:0px;
+  font-size:8.5px;
+}
+.chest-button.ready::after{
+  top:27px;
+  width:47px;
+  height:39px;
+}
+
+/* Make the center panel read as a deliberate pedestal without becoming opaque */
+.reward-center-tint{
+  left:32%;
+  width:36%;
+  background:rgba(2,22,52,.62);
+  box-shadow:inset 0 0 16px rgba(67,177,231,.08);
+}
+
+/* Give labels more breathing room under the three chests */
+.reward-hud{
+  height:94px;
+}
+
+/* Progress left panel optical centering */
+.progress-safe{
+  top:24%;
+  height:57%;
+}
+.progress-track-live{
+  transform:translateY(1px);
+}
+
+/* Bonus optical centering */
+.bonus-safe{
+  top:25%;
+  height:56%;
+}
+
 </style>
 </head>
 <body>
@@ -650,8 +759,12 @@ button{font:inherit;color:inherit}
   let floatIndex = 0;
 
   const slots = [
-    [18,30],[79,31],[12,40],[87,42],[24,50],[76,51],
-    [15,60],[84,60],[31,68],[68,68],[43,57],[57,46]
+    [15,30],[84,30],
+    [11,41],[89,42],
+    [17,53],[83,54],
+    [22,64],[78,65],
+    [31,69],[69,69],
+    [28,48],[73,49]
   ];
   const colors = ['blue','gold','white','blue','gold'];
 
@@ -731,8 +844,8 @@ button{font:inherit;color:inherit}
   function spawnPT(){
     const base = slots[floatIndex % slots.length];
     floatIndex++;
-    const x = base[0] + (Math.random()*6 - 3);
-    const y = base[1] + (Math.random()*4 - 2);
+    const x = base[0] + (Math.random()*4 - 2);
+    const y = base[1] + (Math.random()*3 - 1.5);
     const tone = colors[Math.floor(Math.random()*colors.length)];
 
     const node = document.createElement('div');
