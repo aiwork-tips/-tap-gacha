@@ -1638,8 +1638,6 @@ button{font:inherit;color:inherit}
 
   const fmt = n => Number(n).toLocaleString('ja-JP');
 
-  if(keysEl) keysEl.textContent = fmt(gameSave.keys || 0);
-
   function fitText(el,max,min){
     if(!el) return;
     let s = max;
@@ -1654,6 +1652,7 @@ button{font:inherit;color:inherit}
   const progressLabel = document.querySelector('.v15-progress-label');
   const bonusBox = document.getElementById('bonusBox');
   const keysEl = document.getElementById('keys');
+  if(keysEl) keysEl.textContent = fmt(gameSave.keys || 0);
   // インラインstyleで指定するのでCSSのfont-sizeより優先される
   function fitSvg(el,maxW,base,min){
     if(!el) return;
