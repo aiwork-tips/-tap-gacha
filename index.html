@@ -1259,6 +1259,25 @@ button{font:inherit;color:inherit}
   animation:gachaFlash .55s ease-out;
 }
 
+
+/* ===== v3.2: 10-pull result clipping fix ===== */
+.gacha-result{
+  align-items:flex-start;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+}
+.gacha-idle{
+  margin:auto 0;
+}
+.gacha-card-grid.single{
+  margin:auto 0;
+}
+.gacha-card-grid:not(.single){
+  align-content:start;
+  padding-top:2px;
+  padding-bottom:10px;
+}
+
 </style>
 </head>
 <body>
@@ -1874,6 +1893,7 @@ button{font:inherit;color:inherit}
   function renderSmallResults(results){
     const single = results.length === 1 ? ' single' : '';
     gachaResultEl.innerHTML = `<div class="gacha-card-grid${single}">${results.map(resultCardHtml).join('')}</div>`;
+    gachaResultEl.scrollTop = 0;
   }
 
   function renderSummary(results, pulls){
@@ -1908,6 +1928,7 @@ button{font:inherit;color:inherit}
         <div class="summary-list">${rows}</div>
         <div class="summary-note">${note}</div>
       </div>`;
+    gachaResultEl.scrollTop = 0;
   }
 
   function flashGacha(hasStar3){
