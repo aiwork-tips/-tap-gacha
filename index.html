@@ -7,7 +7,7 @@
 <meta content="#071827" name="theme-color"/>
 <meta content="yes" name="apple-mobile-web-app-capable"/>
 <meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
-<title>タップ育成ガチャ -覚醒- | Clean UI v8</title>
+<title>タップ育成ガチャ -覚醒- | Home v11.2</title>
 <!-- Unified Save Rev.3: tapgacha_save_v3 / legacy gV2 preserved read-only -->
 <style>
 :root{
@@ -2550,6 +2550,95 @@ button{font:inherit;color:inherit}
 @media(max-height:710px){
   #homeScreen .kit-top{height:13.6%!important}
   #homeScreen #goTap.kit-awakening{top:65.3%!important;height:11.2%!important}
+}
+
+/* === v11.2 APPROVED HOME: calm typography, larger core, legible navigation ===
+   Presentation-only overrides. All game logic and persistent save keys untouched. */
+#homeScreen .kit-top {
+  height:13.7%!important;
+  grid-template-columns:31.5% 32.5% 36%!important;
+}
+#homeScreen .kit-rank-number,
+#homeScreen #homeTapPower,
+#homeScreen #homePT,
+#homeScreen #homeKeys{
+  font-family:Georgia,"Times New Roman",serif!important;
+  font-weight:400!important;
+  font-variant-numeric:lining-nums tabular-nums!important;
+  letter-spacing:-.035em!important;
+  color:#fff5db!important;
+  text-shadow:0 1px 3px rgba(1,20,42,.74)!important;
+}
+#homeScreen .kit-rank-number{
+  top:55.5%!important;
+  left:51.5%!important;right:8%!important;
+  font-size:clamp(17px,5.1vw,26px)!important;
+}
+#homeScreen #homeTapPower{
+  top:55.5%!important;
+  font-size:clamp(22px,6.15vw,32px)!important;
+}
+#homeScreen .kit-wallet .kit-pt-label,
+#homeScreen .kit-wallet .kit-keys-label{
+  left:29%!important;
+  font-size:clamp(8px,2.05vw,10px)!important;
+  font-weight:500!important;
+  text-shadow:0 1px 3px rgba(0,19,40,.75)!important;
+}
+#homeScreen #homePT,#homeScreen #homeKeys{
+  left:52%!important;right:10%!important;
+  font-size:clamp(15px,4vw,21px)!important;
+}
+#homeScreen .kit-top .kit-hud-art{
+  filter:drop-shadow(0 1px 2px rgba(3,25,49,.35))!important;
+}
+/* A gently prominent primary route, below the wolf but clear of the lower menus. */
+#homeScreen #goTap.kit-awakening{
+  left:18.5%!important;width:63%!important;
+  top:64.8%!important;height:12.1%!important;
+  filter:drop-shadow(0 3px 4px rgba(4,28,55,.37))!important;
+}
+#homeScreen #goTap.kit-awakening>.v11-core-crystal{
+  width:18%!important;height:62%!important;left:9.5%!important;top:19%!important;
+  opacity:.80!important;
+  filter:drop-shadow(0 0 3px rgba(77,202,255,.30))!important;
+}
+/* Lift small facilities clear of the taller shared nav and increase their tappable area. */
+#homeScreen .kit-mission,#homeScreen .kit-gift{
+  top:76.5%!important;width:39%!important;height:9.2%!important;
+}
+#homeScreen .kit-mission{left:4.5%!important}
+#homeScreen .kit-gift{right:4.5%!important}
+/* The bottom bar icons are painted assets. Scale the *actual art*, not just its hit boxes. */
+#homeScreen .kit-shared-nav.home-nav,
+#gachaScreen .kit-shared-nav.gacha-bottom-nav,
+#characterScreen .kit-shared-nav.character-bottom-nav{
+  height:13.4%!important;
+  background-color:#071d35!important;
+}
+.kit-shared-nav>button{
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  overflow:visible!important;
+}
+.kit-shared-nav>button>img{
+  position:relative!important;
+  display:block!important;
+  width:112%!important;height:105%!important;
+  max-width:none!important;
+  flex:none!important;
+  object-fit:contain!important;
+  filter:drop-shadow(0 1px 1px rgba(0,0,0,.28))!important;
+}
+.kit-shared-nav>button.kit-selected{z-index:2!important}
+@media (max-width:360px){
+  #homeScreen #homePT,#homeScreen #homeKeys{font-size:clamp(13px,3.65vw,18px)!important;right:9%!important}
+  #homeScreen #goTap.kit-awakening{left:18%!important;width:64%!important}
+}
+@media (max-height:710px){
+  #homeScreen .kit-top{height:13.4%!important}
+  #homeScreen #goTap.kit-awakening{top:64.5%!important;height:11.6%!important}
+  #homeScreen .kit-mission,#homeScreen .kit-gift{top:75.9%!important}
+  #homeScreen .kit-shared-nav.home-nav,#gachaScreen .kit-shared-nav.gacha-bottom-nav,#characterScreen .kit-shared-nav.character-bottom-nav{height:13.3%!important}
 }
 </style>
 </head>
