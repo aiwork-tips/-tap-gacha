@@ -2823,6 +2823,29 @@ button{font:inherit;color:inherit}
   }
 }
 
+
+/* v11.6: final conservative alignment corrections */
+#homeScreen #goTap.kit-awakening > .v11-core-crystal {
+  left:11%!important;
+  top:22%!important;
+  width:16%!important;
+  height:56%!important;
+  opacity:.88!important;
+  filter:drop-shadow(0 0 2px rgba(78,202,255,.25))!important;
+}
+/* Artwork contains rasterized text; enlarge its painted area without overlap. */
+#homeScreen .kit-mission,#homeScreen .kit-gift {
+  top:74.6%!important;
+  width:48.5%!important;
+  height:12%!important;
+  object-fit:fill!important;
+}
+#homeScreen .kit-mission{left:0%!important;right:auto!important}
+#homeScreen .kit-gift{right:0%!important;left:auto!important}
+@media(max-width:360px){
+  #homeScreen .kit-mission,#homeScreen .kit-gift{width:48.5%!important;height:11.7%!important;top:74.6%!important}
+}
+
 </style>
 </head>
 <body>
