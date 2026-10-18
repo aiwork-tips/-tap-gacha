@@ -7,7 +7,7 @@
 <meta content="#071827" name="theme-color"/>
 <meta content="yes" name="apple-mobile-web-app-capable"/>
 <meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
-<title>タップ育成ガチャ -覚醒- | Home v11.4</title>
+<title>タップ育成ガチャ -覚醒- | Home v11.5</title>
 <!-- Unified Save Rev.3: tapgacha_save_v3 / legacy gV2 preserved read-only -->
 <style>
 :root{
@@ -2786,6 +2786,43 @@ button{font:inherit;color:inherit}
   #homeScreen #goTap.kit-awakening{top:62.5%!important;height:12.0%!important}
   #homeScreen .kit-mission,#homeScreen .kit-gift{top:74.5%!important;height:11.35%!important}
 }
+
+/* === v11.5 final home visual adjustments === */
+/* Contain the decorative crystal within the left side of the awakening button. */
+#homeScreen #goTap.kit-awakening > .v11-core-crystal {
+  left:6.5%!important;
+  top:19%!important;
+  width:19.5%!important;
+  height:62%!important;
+  opacity:.92!important;
+  object-fit:contain!important;
+  filter:drop-shadow(0 0 3px rgba(78,202,255,.30))!important;
+}
+/* Preserve button width and move attention to the readable facility artwork. */
+#homeScreen .kit-mission,
+#homeScreen .kit-gift {
+  top:74.8%!important;
+  width:47%!important;
+  height:11.7%!important;
+}
+#homeScreen .kit-mission {left:0%!important;right:auto!important}
+#homeScreen .kit-gift {right:0%!important;left:auto!important}
+@media (max-width:360px) {
+  #homeScreen .kit-mission,
+  #homeScreen .kit-gift {
+    width:47%!important;
+    height:11.4%!important;
+    top:74.8%!important;
+  }
+}
+@media (max-height:710px) {
+  #homeScreen .kit-mission,
+  #homeScreen .kit-gift {
+    top:74.2%!important;
+    height:11.4%!important;
+  }
+}
+
 </style>
 </head>
 <body>
