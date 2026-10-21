@@ -3407,6 +3407,7 @@ button{font:inherit;color:inherit}
 
   // ---------- Character training ----------
   const SHARD_TIERS = [[10,3],[30,5],[50,8],[80,10],[150,12]];
+  const limitBreakKeyCost = cap => Number.isSafeInteger(cap) && cap >= 50 && cap % 50 === 0 ? cap / 50 : 0;
   let selectedCharId = null;
   const charEl = id => document.getElementById(id);
   const levelCost = level => {
@@ -3471,7 +3472,7 @@ button{font:inherit;color:inherit}
     const levelBtn=charEl('charLevelUp'),breakBtn=charEl('charLimitBreak');
     levelBtn.disabled=!owned||lv>=cap||shards<need;
     levelBtn.textContent=lv>=cap?'レベル上限':`レベルアップ（欠片 ${need}）`;
-    const keysNeeded=cap===50?1:cap===100?2:0;
+    const keysNeeded=limitBreakKeyCost(cap);
     breakBtn.disabled=!owned||lv<cap||keysNeeded===0||Number(gameSave.keys||0)<keysNeeded;
     breakBtn.textContent=keysNeeded?`上限解放（鍵 ${keysNeeded}個）`:'上限解放完了';
     charEl('charBuyKey').disabled=pt<5000;
@@ -3506,10 +3507,10 @@ button{font:inherit;color:inherit}
     const rec=currentRecord(selectedCharId);
     if(!rec.owned)return;
     const cap=Number(rec.cap||50);
-    const needed=cap===50?1:cap===100?2:0;
+    const needed=limitBreakKeyCost(cap);
     if(!needed||Number(rec.level||1)<cap){showToast('上限に到達していません');return;}
     if(Number(gameSave.keys||0)<needed){showToast('鍵が足りません');return;}
-    gameSave.keys-=needed;rec.cap=cap===50?100:150;
+    gameSave.keys-=needed;rec.cap=cap+50;
     rec.keysUsed=Number(rec.keysUsed||0)+needed;
     collection[selectedCharId]=rec;
     keysEl.textContent=fmt(gameSave.keys);saveUnified();renderCharacters();
