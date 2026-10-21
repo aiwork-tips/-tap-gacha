@@ -2901,6 +2901,23 @@ button{font:inherit;color:inherit}
   line-height:1.12!important;
 }
 </style>
+
+<!-- Development-build identifier: purely presentational; remove for public release if desired. -->
+<style id="dev-build-label-style">
+#devBuildLabel{
+  position:absolute;
+  right:8px;
+  bottom:max(2px, env(safe-area-inset-bottom, 0px));
+  z-index:999;
+  pointer-events:none;
+  user-select:none;
+  color:rgba(225,238,250,.76);
+  text-shadow:0 1px 3px rgba(0,12,32,.95);
+  font:500 10px/1.15 -apple-system,BlinkMacSystemFont,"Hiragino Sans",sans-serif;
+  letter-spacing:.25px;
+  white-space:nowrap;
+}
+</style>
 </head>
 <body>
 <main id="app">
@@ -3086,6 +3103,7 @@ button{font:inherit;color:inherit}
 </section>
 
 <div class="toast" id="toast"></div>
+<div id="devBuildLabel" aria-label="開発検証版 Ver.11.8 DEV-01">Ver.11.8 · DEV-01</div>
 </main>
 <script>
 (() => {
