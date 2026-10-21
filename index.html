@@ -2907,16 +2907,20 @@ button{font:inherit;color:inherit}
 #devBuildLabel{
   position:absolute;
   right:8px;
-  bottom:max(2px, env(safe-area-inset-bottom, 0px));
+  bottom:calc(13.4% + 4px);
   z-index:999;
   pointer-events:none;
   user-select:none;
-  color:rgba(225,238,250,.76);
+  color:rgba(225,238,250,.85);
+  background:rgba(5,23,41,.66);
+  border-radius:3px;
+  padding:2px 4px;
   text-shadow:0 1px 3px rgba(0,12,32,.95);
   font:500 10px/1.15 -apple-system,BlinkMacSystemFont,"Hiragino Sans",sans-serif;
   letter-spacing:.25px;
   white-space:nowrap;
 }
+@media(max-height:710px){#devBuildLabel{bottom:calc(13.3% + 4px)}}
 </style>
 </head>
 <body>
@@ -3103,7 +3107,7 @@ button{font:inherit;color:inherit}
 </section>
 
 <div class="toast" id="toast"></div>
-<div id="devBuildLabel" aria-label="開発検証版 Ver.11.8 DEV-01">Ver.11.8 · DEV-01</div>
+<div id="devBuildLabel" aria-label="開発検証版 Ver.11.8 DEV-02">Ver.11.8 · DEV-02</div>
 </main>
 <script>
 (() => {
@@ -3539,10 +3543,22 @@ button{font:inherit;color:inherit}
   charEl('charLimitBreak').addEventListener('click',limitBreakCharacter);
   charEl('charBuyKey').addEventListener('click',()=>{
     if(pt<5000){showToast('PTが足りません');return;}
-    pt-=5000;gameSave.keys=Number(gameSave.keys||0)+1;
+    const previousPt=pt;
+    const previousKeys=Number(gameSave.keys||0);
+    pt=previousPt-5000;
+    gameSave.keys=previousKeys+1;
+    if(!saveUnified()){
+      // セーブできなかった購入は不成立。表示・終了時再保存も元の残高へ戻す。
+      pt=previousPt;
+      gameSave.points=previousPt;
+      gameSave.keys=previousKeys;
+      renderCharacters();
+      showToast('保存できないため購入を中止しました');
+      return;
+    }
     keysEl.textContent=fmt(gameSave.keys);
     ptEl.textContent=fmt(pt);
-    saveUnified();renderCharacters();renderGachaWallet();updateGachaButtons();
+    renderCharacters();renderGachaWallet();updateGachaButtons();
     showToast('上限解放の鍵を獲得！');
   });
   charEl('characterGrid').addEventListener('click',e=>{
