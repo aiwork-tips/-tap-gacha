@@ -3172,9 +3172,26 @@ button{font:inherit;color:inherit}
     };
   }
 
+  let saveRecoveryBlocked = false;
+  let saveWriteError = null;
+  function validSaveNumber(v, min){
+    return typeof v === 'number' && Number.isFinite(v) && v >= min;
+  }
   function buildUnifiedSave(){
-    const existing = safeJsonParse(localStorage.getItem(SAVE_KEY));
+    const rawUnified = localStorage.getItem(SAVE_KEY);
+    const existing = safeJsonParse(rawUnified);
+    if(rawUnified !== null && (!existing || Array.isArray(existing) || typeof existing !== 'object')){
+      saveRecoveryBlocked = true; // 破損した原本を絶対に上書きしない
+      console.warn('統合セーブの形式が不正です。原本を保護し、保存を停止しました。');
+      return makeBaseSave();
+    }
     if(existing && typeof existing === 'object'){
+      if(!validSaveNumber(existing.points,0) || !validSaveNumber(existing.tapPower,1) ||
+         !validSaveNumber(existing.keys,0)){
+        saveRecoveryBlocked = true;
+        console.warn('統合セーブの数値が不正です。原本を保護し、保存を停止しました。');
+        return makeBaseSave();
+      }
       const base = makeBaseSave();
       return {
         ...base,
@@ -3297,13 +3314,28 @@ button{font:inherit;color:inherit}
     gameSave.characters = normalizeRosterIds(collection || {});
     gameSave.keys = Math.max(0,Number(gameSave.keys || 0));
 
-    localStorage.setItem(SAVE_KEY, JSON.stringify(gameSave));
-
-    // 移行期間中は現行個別キーにもミラー。
-    // 旧 gV2 自体は一切上書きしない。
-    localStorage.setItem('tapgacha_pt', String(gameSave.points));
-    localStorage.setItem('tapgacha_power', String(gameSave.tapPower));
-    localStorage.setItem('tapgacha_collection', JSON.stringify(gameSave.characters));
+    if(saveRecoveryBlocked){
+      console.warn('破損したセーブの保護中につき保存を中止しました。');
+      return false;
+    }
+    try{
+      // 正本を先に確定。ミラー書き込み失敗は正本を壊さない。
+      localStorage.setItem(SAVE_KEY, JSON.stringify(gameSave));
+    }catch(e){
+      saveWriteError = e;
+      console.error('統合セーブの保存に失敗しました。',e);
+      return false;
+    }
+    try{
+      // 移行期間中は現行個別キーにもミラー。旧 gV2 は上書きしない。
+      localStorage.setItem('tapgacha_pt', String(gameSave.points));
+      localStorage.setItem('tapgacha_power', String(gameSave.tapPower));
+      localStorage.setItem('tapgacha_collection', JSON.stringify(gameSave.characters));
+    }catch(e){
+      console.warn('統合セーブは成功しましたが、互換ミラーの保存に失敗しました。',e);
+    }
+    saveWriteError = null;
+    return true;
   }
 
   saveUnified();
