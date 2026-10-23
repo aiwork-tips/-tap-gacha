@@ -7,7 +7,7 @@
 <meta content="#071827" name="theme-color"/>
 <meta content="yes" name="apple-mobile-web-app-capable"/>
 <meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
-<title>Ver.11.8 DEV-06 · タップ育成ガチャ -覚醒-</title>
+<title>Ver.11.8 SHOP-RC01 · タップ育成ガチャ -覚醒-</title>
 <!-- Unified Save Rev.3: tapgacha_save_v3 / legacy gV2 preserved read-only -->
 <style>
 :root{
@@ -2954,7 +2954,7 @@ button{font:inherit;color:inherit}
 @media(max-width:360px){#shopScreen .shop-page{padding-left:11px;padding-right:11px;gap:13px}#shopScreen .shop-head{grid-template-columns:76px 1fr 76px}#shopScreen .shop-back{font-size:11px}#shopScreen .shop-item-head{gap:9px}}
 </style>
 <style id="dev05-shop-style">
-/* DEV-06: illustration-based art direction; HTML owns text, prices and behaviors. */
+/* SHOP-RC01: illustration-based art direction; HTML owns text, prices and behaviors. */
 #shopScreen{background:#d9ecf8!important}
 #shopScreen .shop-art{opacity:1!important;filter:none!important;object-fit:cover!important;object-position:center 42%!important}
 #shopScreen .shop-shade{background:linear-gradient(180deg,rgba(244,250,253,.27) 0%,rgba(232,243,252,.04) 34%,rgba(230,243,252,.16) 100%)!important}
@@ -2980,7 +2980,7 @@ button{font:inherit;color:inherit}
 @media(max-width:370px){#shopScreen .shop-head{grid-template-columns:87px minmax(0,1fr) 0px!important}#shopScreen h1{font-size:18px!important}#shopScreen .shop-back{font-size:11px!important}#shopScreen .shop-filter{font-size:10px!important}}
 </style>
 <style id="dev06-shop-style">
-/* DEV-06 icon standard: 512x512 source, one reusable 1:1 frame, responsive size.
+/* SHOP-RC01 icon standard: 512x512 source, one reusable 1:1 frame, responsive size.
    Item art, labels, item quantities and purchase behavior are kept separate. */
 #shopScreen .shop-head{align-items:center!important}
 #shopScreen .shop-header{padding-bottom:12px!important}
@@ -3005,7 +3005,71 @@ button{font:inherit;color:inherit}
 #shopScreen .shop-products{padding-bottom:9px!important}
 @media(max-width:370px){#shopScreen .shop-product{grid-template-columns:clamp(88px,26vw,98px) minmax(0,1fr)!important;padding:12px 9px 13px!important;gap:9px!important;min-height:183px!important}#shopScreen .shop-item-detail{min-height:156px!important}#shopScreen .shop-cost b{font-size:14px!important}#shopScreen .shop-item-name{font-size:16px!important}}
 </style>
-</head>
+<style id="shop-dev07-polish">
+
+/* SHOP-RC01: SHOP ONLY. Layout polish: no changes to assets, economy, save or game logic. */
+/* Pull the item list closer to the category row while preserving tap target sizes. */
+#shopScreen .shop-header{padding-bottom:6px!important}
+#shopScreen .shop-filters{margin-top:8px!important;gap:6px!important;align-items:center!important}
+#shopScreen .shop-scroll{padding-top:5px!important}
+/* Use one quiet dark header band instead of dark text on a variable-brightness castle backdrop. */
+#shopScreen .shop-products-title{
+ display:flex!important;align-items:center!important;justify-content:space-between!important;
+ gap:8px!important;min-height:32px!important;
+ margin:0 0 10px!important;padding:5px 10px!important;
+ background:linear-gradient(90deg,rgba(7,47,84,.94),rgba(12,67,108,.82))!important;
+ color:#fff0c9!important;text-shadow:0 1px 2px #03162b!important;
+ border:1px solid rgba(224,189,116,.72)!important;border-radius:8px!important;
+ letter-spacing:.035em!important;font-size:13px!important;line-height:1.2!important;
+}
+#shopScreen .shop-products-title span{
+ color:#d7eaf8!important;opacity:1!important;text-shadow:0 1px 2px #05223f!important;
+ font-size:10px!important;white-space:nowrap!important;letter-spacing:0!important;
+}
+/* Align title, body, price, and button as one consistent vertical column. */
+#shopScreen .shop-product{column-gap:11px!important;row-gap:0!important;align-items:stretch!important}
+#shopScreen .shop-item-detail{display:flex!important;flex-direction:column!important;min-width:0!important}
+#shopScreen .shop-item-headline{min-height:28px!important;gap:5px!important;align-items:center!important}
+#shopScreen .shop-item-name{line-height:1.24!important;margin:0 0 3px!important}
+#shopScreen .shop-item-info{flex:1 1 auto!important;margin:4px 0 9px!important;line-height:1.5!important;overflow-wrap:anywhere!important}
+#shopScreen .shop-cost{margin-top:auto!important;min-height:39px!important}
+#shopScreen .shop-purchase{
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ width:calc(100% - 8px)!important;min-height:43px!important;
+ margin:9px auto 0!important;line-height:1.2!important;
+}
+#shopScreen .shop-notice{margin:5px 0 0!important;line-height:1.35!important}
+@media(max-width:370px){
+ #shopScreen .shop-products-title{font-size:12px!important;padding-left:7px!important;padding-right:7px!important}
+ #shopScreen .shop-products-title span{font-size:9px!important}
+ #shopScreen .shop-product{column-gap:9px!important}
+ #shopScreen .shop-item-info{line-height:1.48!important}
+}
+</style>
+<style id="shop-rc01-hardening">
+/* SHOP-RC01 final layout hardening. Shop only; single 0-PT restore fix in game logic. */
+/* Reserve the full height of the shared bottom navigation so the item list does not slide behind it. */
+#shopScreen .shop-page {padding-bottom:27.5%!important;}
+#shopScreen .shop-product { overflow: visible!important; }
+/* Match the visual mass of the icon with the entire content column, not just the title. */
+#shopScreen .shop-icon { align-self: center!important; justify-self: center!important; }
+#shopScreen .shop-item-detail { overflow: visible!important; }
+#shopScreen .shop-item-name { overflow-wrap: anywhere!important; }
+#shopScreen .shop-item-info { text-wrap: pretty; overflow-wrap: anywhere!important; }
+#shopScreen .shop-cost { overflow:hidden; }
+#shopScreen .shop-cost b { text-overflow:ellipsis; min-width:0; }
+#shopScreen .shop-purchase { touch-action: manipulation; }
+#shopScreen .shop-filter, #shopScreen .shop-back { touch-action: manipulation; }
+/* Keep focus navigation visible while retaining the image-backed jewel frames. */
+#shopScreen button:focus-visible {outline:2px solid #e5c56f;outline-offset:2px;}
+@media (max-width: 350px) {
+  #shopScreen .shop-item-name { font-size: clamp(14px,4.4vw,18px)!important; }
+  #shopScreen .shop-product { column-gap:7px!important; }
+  #shopScreen .shop-cost {padding-inline:6px!important;}
+  #shopScreen .shop-cost span {font-size:9px!important;}
+  #shopScreen .shop-cost b {font-size:14px!important;}
+}
+</style></head>
 <body>
 <main id="app">
 <section class="screen active" id="homeScreen" aria-label="ホーム画面">
@@ -3191,7 +3255,7 @@ button{font:inherit;color:inherit}
 
 
 
-<!-- DEV-06: image-derived shop assets + reusable scrollable product cards. Gameplay state unchanged. -->
+<!-- SHOP-RC01: image-derived shop assets + reusable scrollable product cards. Gameplay state unchanged. -->
 <style id="dev04-shop-style">
 #shopScreen{background:#dbecf9;color:#0b2b4a;overflow:hidden}
 #shopScreen .shop-art{opacity:1;filter:none;object-fit:cover}
@@ -3308,13 +3372,13 @@ button{font:inherit;color:inherit}
       <div class="shop-bridge"><button type="button" class="shop-to-character" id="shopGoCharacter">キャラ育成へ →</button></div>
       <div class="shop-future">現在購入できるのは「上限解放の鍵」のみです。<br>新アイテムの価格・効果は後日決定します。</div>
     </div>
-    <span class="shop-version">Ver.11.8 · DEV-06</span>
+    <span class="shop-version">Ver.11.8 · SHOP-RC01</span>
   </div>
 </section>
 
 
 <div class="toast" id="toast"></div>
-<div id="devBuildLabel" aria-label="開発検証版 Ver.11.8 DEV-06">Ver.11.8 · DEV-06</div>
+<div id="devBuildLabel" aria-label="開発検証版 Ver.11.8 SHOP-RC01">Ver.11.8 · SHOP-RC01</div>
 </main>
 <script>
 (() => {
@@ -3535,7 +3599,7 @@ button{font:inherit;color:inherit}
   let gameSave = buildUnifiedSave();
   let collection = normalizeRosterIds(gameSave.characters || {});
   let tapPower = Math.max(1,Number(gameSave.tapPower || 25));
-  let pt = Math.max(0,Number(gameSave.points || 12450));
+  let pt = Math.max(0,Number(gameSave.points ?? 12450));
 
   function saveUnified(){
     gameSave.schemaVersion = SAVE_SCHEMA_VERSION;
@@ -3788,7 +3852,7 @@ button{font:inherit;color:inherit}
   document.getElementById('shopBuyKey').addEventListener('click',buyLimitKey);
   document.getElementById('shopBackHome').addEventListener('click',()=>showScreen('home'));
   document.getElementById('shopGoCharacter').addEventListener('click',()=>showScreen('character'));
-  // DEV-06: filter scrollable product cards; never mutate stored gameplay state.
+  // SHOP-RC01: filter scrollable product cards; never mutate stored gameplay state.
   const shopFilterButtons=[...document.querySelectorAll('#shopScreen [data-shop-filter]')];
   shopFilterButtons.forEach(button=>button.addEventListener('click',()=>{
     const category=button.dataset.shopFilter;
