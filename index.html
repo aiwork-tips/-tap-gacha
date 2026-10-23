@@ -7,7 +7,7 @@
 <meta content="#071827" name="theme-color"/>
 <meta content="yes" name="apple-mobile-web-app-capable"/>
 <meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
-<title>Ver.11.8 SHOP-RC01 · タップ育成ガチャ -覚醒-</title>
+<title>Ver.11.8 SHOP-RC02 · タップ育成ガチャ -覚醒-</title>
 <!-- Unified Save Rev.3: tapgacha_save_v3 / legacy gV2 preserved read-only -->
 <style>
 :root{
@@ -3372,13 +3372,13 @@ button{font:inherit;color:inherit}
       <div class="shop-bridge"><button type="button" class="shop-to-character" id="shopGoCharacter">キャラ育成へ →</button></div>
       <div class="shop-future">現在購入できるのは「上限解放の鍵」のみです。<br>新アイテムの価格・効果は後日決定します。</div>
     </div>
-    <span class="shop-version">Ver.11.8 · SHOP-RC01</span>
+    <span class="shop-version">Ver.11.8 · SHOP-RC02</span>
   </div>
 </section>
 
 
 <div class="toast" id="toast"></div>
-<div id="devBuildLabel" aria-label="開発検証版 Ver.11.8 SHOP-RC01">Ver.11.8 · SHOP-RC01</div>
+<div id="devBuildLabel" aria-label="開発検証版 Ver.11.8 SHOP-RC02">Ver.11.8 · SHOP-RC02</div>
 </main>
 <script>
 (() => {
@@ -4392,5 +4392,20 @@ button{font:inherit;color:inherit}
   schedule();
 })();
 </script>
+
+<!-- SHOP-RC02: ensure product scrolling ends exactly at the top of the shared navigation, regardless of iPhone viewport ratio. -->
+<style id="shop-rc02-viewport-fix">
+/* The old 27.5% vertical padding was calculated from screen WIDTH, while the bottom nav is 12.6% of HEIGHT.
+   On shorter iPhone viewports this exposed a horizontal band of the decorative background and cut the next product card early. */
+#shopScreen .shop-page {
+  bottom: max(12.6%, 60px) !important;
+  padding-bottom: 0 !important;
+}
+#shopScreen .shop-scroll {
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  overscroll-behavior-y: contain;
+}
+</style>
 </body>
 </html>
