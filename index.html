@@ -7,7 +7,7 @@
 <meta content="#071827" name="theme-color"/>
 <meta content="yes" name="apple-mobile-web-app-capable"/>
 <meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
-<title>Ver.11.8 ALIGN-RC01 · タップ育成ガチャ -覚醒-</title>
+<title>Ver.11.8 ALIGN-RC02 · タップ育成ガチャ -覚醒-</title>
 <!-- Unified Save Rev.3: tapgacha_save_v3 / legacy gV2 preserved read-only -->
 <style>
 :root{
@@ -3071,7 +3071,7 @@ button{font:inherit;color:inherit}
 }
 </style><style>
 
-/* ALIGN-RC01: responsive mission board. Independent layout; no decorative image receptacles. */
+/* ALIGN-RC02: responsive mission board. Independent layout; no decorative image receptacles. */
 #questScreen{background:#dceef9;color:#16385b;overflow:hidden;font-family:-apple-system,'Hiragino Kaku Gothic ProN',sans-serif}
 #questScreen .quest-backdrop{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 44%;pointer-events:none}
 #questScreen .quest-version{position:absolute;top:3px;right:10px;z-index:9;pointer-events:none;padding:2px 5px;font-size:9px;font-weight:700;color:#285577;background:rgba(244,252,255,.7);border-radius:3px}
@@ -3127,7 +3127,7 @@ button{font:inherit;color:inherit}
 
 </style>
 
-<!-- ALIGN-RC01: Shared dynamic-number and button text alignment.
+<!-- ALIGN-RC02: Shared dynamic-number and button text alignment.
      Decorative artwork is unchanged. Visual centers are measured from reward_modal.png (709 x 537),
      rather than approximated from bounding-box percentages. -->
 <style id="alignment-rc01">
@@ -3247,6 +3247,7 @@ button{font:inherit;color:inherit}
   #questScreen .quest-reward .quest-gain{font-size:clamp(16px,5.3vw,20px)!important}
 }
 </style>
+
 </head>
 <body>
 <main id="app">
@@ -3488,7 +3489,7 @@ button{font:inherit;color:inherit}
 </style>
 <style id="shop-rc03-layered">
 
-/* ALIGN-RC01: Layer-first asset placement.
+/* ALIGN-RC02: Layer-first asset placement.
    No pre-drawn receptacle frame, no icon background, no separate decorative frame on top of the product image.
    The product card is an information surface; each item is a transparent independent image.
    Keep purchases, save data, wallet, bottom nav and global game styles untouched. */
@@ -3616,7 +3617,7 @@ button{font:inherit;color:inherit}
       <div class="shop-bridge"><button type="button" class="shop-to-character" id="shopGoCharacter">キャラ育成へ →</button></div>
       <div class="shop-future">現在購入できるのは「上限解放の鍵」のみです。<br>新アイテムの価格・効果は後日決定します。</div>
     </div>
-    <span class="shop-version">Ver.11.8 · ALIGN-RC01</span>
+    <span class="shop-version">Ver.11.8 · ALIGN-RC02</span>
   </div>
 </section>
 
@@ -3626,7 +3627,7 @@ button{font:inherit;color:inherit}
 <section class="screen" id="questScreen" aria-label="依頼掲示板">
   <img id="questBackdrop" class="quest-backdrop" alt="" aria-hidden="true" />
   <div class="quest-scrim"></div>
-  <span class="quest-version">Ver.11.8 · ALIGN-RC01</span>
+  <span class="quest-version">Ver.11.8 · ALIGN-RC02</span>
   <div class="quest-shell">
     <header class="quest-top">
       <div class="quest-head"><button id="questBackHome" type="button" class="quest-home">⌂ ホーム</button><h1 class="quest-title">依頼掲示板</h1></div>
@@ -3648,7 +3649,7 @@ button{font:inherit;color:inherit}
 </section>
 
 <div class="toast" id="toast"></div>
-<div id="devBuildLabel" aria-label="開発検証版 Ver.11.8 ALIGN-RC01">Ver.11.8 · ALIGN-RC01</div>
+<div id="devBuildLabel" aria-label="開発検証版 Ver.11.8 ALIGN-RC02">Ver.11.8 · ALIGN-RC02</div>
 </main>
 <script>
 (() => {
@@ -4861,7 +4862,7 @@ button{font:inherit;color:inherit}
 })();
 </script>
 
-<!-- ALIGN-RC01: ensure product scrolling ends exactly at the top of the shared navigation, regardless of iPhone viewport ratio. -->
+<!-- ALIGN-RC02: ensure product scrolling ends exactly at the top of the shared navigation, regardless of iPhone viewport ratio. -->
 <style id="shop-rc02-viewport-fix">
 /* The old 27.5% vertical padding was calculated from screen WIDTH, while the bottom nav is 12.6% of HEIGHT.
    On shorter iPhone viewports this exposed a horizontal band of the decorative background and cut the next product card early. */
@@ -4873,6 +4874,103 @@ button{font:inherit;color:inherit}
   min-height: 0 !important;
   overflow-y: auto !important;
   overscroll-behavior-y: contain;
+}
+</style>
+
+<style id="optical-alignment-rc02">
+/* ALIGN-RC02 — cross-screen optical centering (presentation only).
+   Text moves independently of images, frames and clickable hitboxes.
+   Keep intentional RIGHT-alignment of the HUD and shop prices. */
+:root { --ui-digit-optical-y: -1px; --ui-button-optical-pad: 3px; }
+
+/* Multi-digit numeric fields: fixed numeric spacing, no optical reflow
+   when the count changes from 1 to 2/3/5 digits. */
+#homeScreen #homePT, #homeScreen #homeKeys,
+#homeScreen #homeTapPower, #homeScreen .kit-rank-number,
+#tapScreen .v15-number,
+#gachaScreen #gachaPT, #gachaScreen #ownedCount,
+#characterScreen #charPT, #characterScreen #charOwned,
+#characterScreen #charTotalLevels, #characterScreen #charTapPower,
+#characterScreen #charKeys, #characterScreen .char-level,
+#characterScreen .char-shards,
+#shopScreen #shopPT, #shopScreen #shopKeys,
+#shopScreen #shopCardKeys, #shopScreen .shop-cost b,
+#questScreen #questPT, #questScreen #questClaimed,
+#questScreen .quest-fraction, #questScreen .quest-bounty,
+#questScreen #questRewardAmount {
+  font-variant-numeric: lining-nums tabular-nums!important;
+  font-feature-settings: 'lnum' 1, 'tnum' 1!important;
+  font-kerning: none!important;
+  letter-spacing: 0!important;
+  translate: 0 var(--ui-digit-optical-y)!important;
+}
+/* The wallet counters are RIGHT aligned on purpose; only their ink rises.
+   Do not change position/top/right/width or scale the HUD images. */
+#homeScreen #homePT, #homeScreen #homeKeys,
+#gachaScreen #gachaPT, #characterScreen #charPT { text-align:right!important; }
+
+/* Single-line controls: their painted centers are not the baseline center
+   of the browser's line box (especially on iOS Japanese serif fonts).
+   Three px extra padding below shifts glyphs 1.5 px UP while keeping
+   backgrounds, hitboxes, dimensions and flex centering unchanged. */
+#questScreen .quest-home, #questScreen .quest-tab,
+#questScreen .quest-claim, #questScreen .quest-close,
+#shopScreen .shop-back, #shopScreen .shop-filter,
+#shopScreen .shop-purchase, #shopScreen .shop-to-character,
+#characterScreen .char-home, #characterScreen .char-action,
+#characterScreen #charBuyKey, #characterScreen #charFavoriteButton,
+#gachaScreen .gacha-home {
+  display:flex!important;
+  justify-content:center!important;
+  align-items:center!important;
+  text-align:center!important;
+  line-height:1.08!important;
+  padding-top:0!important;
+  padding-bottom:var(--ui-button-optical-pad)!important;
+  text-indent:0!important;
+}
+/* Avoid flex shrinking the copy or shifting the label when disabled. */
+#questScreen .quest-claim, #shopScreen .shop-filter,
+#shopScreen .shop-purchase { white-space:nowrap!important; }
+/* Preserve intrinsic heights of the two controls which originally used vertical
+   padding for sizing (without this, flex+zero padding collapses their boxes). */
+#characterScreen .char-home {height:46px!important;min-height:46px!important;}
+#characterScreen #charBuyKey {height:27px!important;min-height:27px!important;}
+/* Gacha draw buttons use separate two-line text nodes. Only move the ink. */
+#gachaScreen .gacha-draw>strong,
+#gachaScreen .gacha-draw>span {
+  translate:0 -1px!important;
+}
+/* Preserve the user-approved awakening plaque; move its overlaid copy only. */
+#homeScreen #goTap .v117-copy { translate:0 -1px!important; }
+
+/* The reward amount is measured relative to the INNER blue price plate,
+   not the overall modal. Correct the last 2px of optical baseline error. */
+#questScreen .quest-reward #questRewardAmount {
+  left:59.15%!important;
+  top:61.1%!important;
+  width:42%!important;
+  height:12.6%!important;
+  font-size:clamp(16px,5.3vw,26px)!important;
+  line-height:1!important;
+  display:flex!important;
+  justify-content:center!important;
+  align-items:center!important;
+  text-align:center!important;
+  white-space:nowrap!important;
+  transform:translate(-50%,-50%)!important;
+  translate:0 -1px!important;
+}
+/* Same principle for the OK plaque: image and button box do not move. */
+#questScreen .quest-reward #questRewardClose {
+  left:51.15%!important;
+  top:83.9%!important;
+  width:44%!important;
+  height:14.5%!important;
+  transform:translate(-50%,-50%)!important;
+}
+@media(max-width:360px){
+  #questScreen .quest-reward #questRewardAmount{font-size:clamp(16px,5.3vw,20px)!important}
 }
 </style>
 </body>
