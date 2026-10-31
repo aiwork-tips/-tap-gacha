@@ -7,7 +7,7 @@
 <meta content="#071827" name="theme-color"/>
 <meta content="yes" name="apple-mobile-web-app-capable"/>
 <meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
-<title>Ver.11.8 ALIGN-RC02 · タップ育成ガチャ -覚醒-</title>
+<title>Ver.11.8 TRAIN-RC01 · タップ育成ガチャ -覚醒-</title>
 <!-- Unified Save Rev.3: tapgacha_save_v3 / legacy gV2 preserved read-only -->
 <style>
 :root{
@@ -3402,7 +3402,7 @@ button{font:inherit;color:inherit}
   <div class="character-shade"></div>
   <div class="character-area">
     <header class="char-top">
-      <button class="char-home" id="charBackHome">⌂ ホーム</button>
+      <button class="char-home" id="charBackHome"><span class="char-button-ink">⌂ ホーム</span></button>
       <div class="char-header-title">キャラ育成</div>
       <div class="char-top-pt">所持 PT <b id="charPT">0</b></div>
     </header>
@@ -3420,12 +3420,12 @@ button{font:inherit;color:inherit}
         <div id="selectedLevel" class="char-level">Lv 1 / 50</div>
         <div id="selectedShardCount" class="char-shards"></div>
         <div class="char-shard-track"><div id="charShardFill" class="char-shard-fill"></div></div>
-        <button class="char-action" id="charLevelUp">レベルアップ</button>
-        <button class="char-action" id="charLimitBreak">上限解放</button>
+        <button class="char-action" id="charLevelUp"><span class="char-button-ink">レベルアップ</span></button>
+        <button class="char-action" id="charLimitBreak"><span class="char-button-ink">上限解放</span></button>
       </div>
-      <button id="charFavoriteButton" class="char-favorite-button" aria-label="このキャラをお気に入り設定する">☆ ホームに設定</button>
+      <button id="charFavoriteButton" class="char-favorite-button" aria-label="このキャラをお気に入り設定する"><span class="char-button-ink">☆ ホームに設定</span></button>
     </div>
-    <div class="char-buy"><span>🔑 上限解放の鍵 <strong id="charKeys">3</strong> 個</span><button id="charBuyKey">鍵を購入 5,000 PT</button></div>
+    <div class="char-buy"><span>🔑 上限解放の鍵 <strong id="charKeys">3</strong> 個</span><button id="charBuyKey"><span class="char-button-ink">鍵を購入 5,000 PT</span></button></div>
     <div class="char-list-caption"><span>キャラクター一覧</span><span>選択して育成</span></div>
     <div class="char-scroll"><div id="characterGrid" class="char-grid"></div></div>
   </div>
@@ -3617,7 +3617,7 @@ button{font:inherit;color:inherit}
       <div class="shop-bridge"><button type="button" class="shop-to-character" id="shopGoCharacter">キャラ育成へ →</button></div>
       <div class="shop-future">現在購入できるのは「上限解放の鍵」のみです。<br>新アイテムの価格・効果は後日決定します。</div>
     </div>
-    <span class="shop-version">Ver.11.8 · ALIGN-RC02</span>
+    <span class="shop-version">Ver.11.8 · TRAIN-RC01</span>
   </div>
 </section>
 
@@ -3627,7 +3627,7 @@ button{font:inherit;color:inherit}
 <section class="screen" id="questScreen" aria-label="依頼掲示板">
   <img id="questBackdrop" class="quest-backdrop" alt="" aria-hidden="true" />
   <div class="quest-scrim"></div>
-  <span class="quest-version">Ver.11.8 · ALIGN-RC02</span>
+  <span class="quest-version">Ver.11.8 · TRAIN-RC01</span>
   <div class="quest-shell">
     <header class="quest-top">
       <div class="quest-head"><button id="questBackHome" type="button" class="quest-home">⌂ ホーム</button><h1 class="quest-title">依頼掲示板</h1></div>
@@ -3649,7 +3649,7 @@ button{font:inherit;color:inherit}
 </section>
 
 <div class="toast" id="toast"></div>
-<div id="devBuildLabel" aria-label="開発検証版 Ver.11.8 ALIGN-RC02">Ver.11.8 · ALIGN-RC02</div>
+<div id="devBuildLabel" aria-label="開発検証版 Ver.11.8 TRAIN-RC01">Ver.11.8 · TRAIN-RC01</div>
 </main>
 <script>
 (() => {
@@ -4100,16 +4100,16 @@ button{font:inherit;color:inherit}
     charEl('charShardFill').style.width=owned?Math.min(100,shards/need*100)+'%':'0%';
     const levelBtn=charEl('charLevelUp'),breakBtn=charEl('charLimitBreak');
     levelBtn.disabled=!owned||lv>=cap||shards<need;
-    levelBtn.textContent=lv>=cap?'レベル上限':`レベルアップ（欠片 ${need}）`;
+    levelBtn.querySelector('.char-button-ink').textContent=lv>=cap?'レベル上限':`レベルアップ（欠片 ${need}）`;
     const keysNeeded=limitBreakKeyCost(cap);
     breakBtn.disabled=!owned||lv<cap||keysNeeded===0||Number(gameSave.keys||0)<keysNeeded;
-    breakBtn.textContent=keysNeeded?`上限解放（鍵 ${keysNeeded}個）`:'上限解放完了';
+    breakBtn.querySelector('.char-button-ink').textContent=keysNeeded?`上限解放（鍵 ${keysNeeded}個）`:'上限解放完了';
     charEl('charBuyKey').disabled=pt<5000;
     const fbtn=charEl('charFavoriteButton');
     const isFav=owned && gameSave.favoriteCharacterId===c.id;
     fbtn.disabled=!owned;
     fbtn.classList.toggle('is-favorite',isFav);
-    fbtn.textContent=isFav?'★ お気に入り中':'☆ ホームに設定';
+    fbtn.querySelector('.char-button-ink').textContent=isFav?'★ お気に入り中':'☆ ホームに設定';
     fbtn.setAttribute('aria-pressed',String(isFav));
     // Fit dynamic text inside the fixed character-detail plate (same idea as Tap HUD).
     for(const [id,maxSize,minSize] of [['selectedName',19,12],['selectedShardCount',12,9]]){
@@ -4973,5 +4973,130 @@ button{font:inherit;color:inherit}
   #questScreen .quest-reward #questRewardAmount{font-size:clamp(16px,5.3vw,20px)!important}
 }
 </style>
+
+<!-- TRAIN-RC01: iOS safe rapid training; isolated centered labels (visuals only). -->
+<style id="training-tap-and-label-fix">
+/* A double tap must press the training button twice, not zoom the page.
+   Do not disable panning/pinch-zoom elsewhere. */
+#characterScreen .char-action,
+#characterScreen #charBuyKey,
+#characterScreen #charFavoriteButton,
+#characterScreen #charBackHome,
+#characterScreen .char-tile {
+  touch-action: manipulation !important;
+  -webkit-user-select: none !important;
+  user-select: none !important;
+  -webkit-touch-callout: none;
+}
+/* The click target/background remain fixed; only the lettering is centered.
+   Previous blanket padding-bottom adjustments moved the text boxes inconsistently. */
+#characterScreen .char-action,
+#characterScreen #charBuyKey,
+#characterScreen #charFavoriteButton,
+#characterScreen #charBackHome {
+  position:relative;
+  box-sizing:border-box !important;
+  display:grid !important;
+  place-items:center !important;
+  text-align:center !important;
+  text-indent:0 !important;
+  padding:0 4px !important;
+  line-height:1 !important;
+  overflow:hidden;
+}
+#characterScreen .char-button-ink {
+  display:block;
+  position:relative;
+  flex:none;
+  pointer-events:none;
+  max-width:100%;
+  box-sizing:border-box;
+  margin:0 !important;
+  padding:0 !important;
+  line-height:1.18 !important;
+  white-space:nowrap;
+  text-align:center !important;
+  letter-spacing:0 !important;
+  font-kerning:none;
+  font-variant-numeric:lining-nums tabular-nums;
+  font-feature-settings:'lnum' 1,'tnum' 1;
+  transform:translateY(var(--char-label-shift, 0px));
+}
+#characterScreen .char-action {
+  --char-label-shift: 0px;
+  min-height:0;
+  width:100% !important;
+  height:100% !important;
+}
+#characterScreen #charBuyKey {
+  --char-label-shift: 0px;
+  height:30px !important;
+  min-height:30px !important;
+  flex-shrink:0;
+}
+#characterScreen .char-home { --char-label-shift: 0px; }
+#characterScreen #charFavoriteButton {
+  --char-label-shift: 0px;
+  position:absolute !important;
+  left:11px !important;
+  bottom:11px !important;
+  width:calc(37% - 12px) !important;
+  min-height:29px !important;
+  height:29px !important;
+  z-index:3;
+}
+/* Undo the prior blanket -1px numerical translation within this screen;
+   center stats in their own balanced rows instead of moving the numbers. */
+#characterScreen .char-stat {
+  display:grid !important;
+  grid-template-rows:auto auto;
+  align-content:center !important;
+  justify-items:center !important;
+  row-gap:4px !important;
+  text-align:center !important;
+}
+#characterScreen .char-stat strong {
+  display:block !important;
+  width:100% !important;
+  margin:0 !important;
+  line-height:1.05 !important;
+  text-align:center !important;
+  translate:none !important;
+}
+#characterScreen .char-top-pt {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  line-height:1.15;
+  text-align:center !important;
+}
+#characterScreen #charPT {translate:none !important;text-align:center !important;}
+#characterScreen .char-level,
+#characterScreen .char-shards {translate:none!important;}
+/* Move build marker OUT of bottom navigation on the character screen. */
+#app:has(#characterScreen.active) #devBuildLabel {
+  top:0px !important;
+  bottom:auto !important;
+  right:6px !important;
+  z-index:40;
+  padding:0 2px !important;
+  font-size:7px !important;
+  line-height:1 !important;
+  opacity:.78;
+  color:#d6ecfa;
+  background:rgba(4,23,42,.45);
+}
+</style>
+<script id="training-doubletap-guard">
+(()=>{
+  const trainingBtn=document.getElementById('charLevelUp');
+  if(trainingBtn){
+    // CSS touch-action:manipulation is the primary iOS Safari safeguard.
+    // Suppress the default double-click zoom while allowing both click handlers.
+    trainingBtn.addEventListener('dblclick', e=>e.preventDefault(), {passive:false});
+  }
+})();
+</script>
 </body>
 </html>
