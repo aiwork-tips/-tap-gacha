@@ -7,7 +7,7 @@
 <meta content="#071827" name="theme-color"/>
 <meta content="yes" name="apple-mobile-web-app-capable"/>
 <meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
-<title>Ver.11.8 TRAIN-RC01 · タップ育成ガチャ -覚醒-</title>
+<title>Ver.11.8 TRAIN-RC02 · タップ育成ガチャ -覚醒-</title>
 <!-- Unified Save Rev.3: tapgacha_save_v3 / legacy gV2 preserved read-only -->
 <style>
 :root{
@@ -3418,7 +3418,14 @@ button{font:inherit;color:inherit}
         <div id="selectedName" class="char-name">キャラを選択</div>
         <div id="selectedTags" class="char-tags"></div>
         <div id="selectedLevel" class="char-level">Lv 1 / 50</div>
-        <div id="selectedShardCount" class="char-shards"></div>
+        <div class="char-shards-row">
+          <div id="selectedShardCount" class="char-shards"></div>
+          <div class="char-level-quantity" role="group" aria-label="レベルアップ回数">
+            <span class="char-quantity-label">回数</span>
+            <button type="button" class="char-quantity-button is-selected" id="charQuantity1" aria-pressed="true" aria-label="1レベルずつ上げる">1</button>
+            <button type="button" class="char-quantity-button" id="charQuantity10" aria-pressed="false" aria-label="最大10レベルまとめて上げる">10</button>
+          </div>
+        </div>
         <div class="char-shard-track"><div id="charShardFill" class="char-shard-fill"></div></div>
         <button class="char-action" id="charLevelUp"><span class="char-button-ink">レベルアップ</span></button>
         <button class="char-action" id="charLimitBreak"><span class="char-button-ink">上限解放</span></button>
@@ -3617,7 +3624,7 @@ button{font:inherit;color:inherit}
       <div class="shop-bridge"><button type="button" class="shop-to-character" id="shopGoCharacter">キャラ育成へ →</button></div>
       <div class="shop-future">現在購入できるのは「上限解放の鍵」のみです。<br>新アイテムの価格・効果は後日決定します。</div>
     </div>
-    <span class="shop-version">Ver.11.8 · TRAIN-RC01</span>
+    <span class="shop-version">Ver.11.8 · TRAIN-RC02</span>
   </div>
 </section>
 
@@ -3627,7 +3634,7 @@ button{font:inherit;color:inherit}
 <section class="screen" id="questScreen" aria-label="依頼掲示板">
   <img id="questBackdrop" class="quest-backdrop" alt="" aria-hidden="true" />
   <div class="quest-scrim"></div>
-  <span class="quest-version">Ver.11.8 · TRAIN-RC01</span>
+  <span class="quest-version">Ver.11.8 · TRAIN-RC02</span>
   <div class="quest-shell">
     <header class="quest-top">
       <div class="quest-head"><button id="questBackHome" type="button" class="quest-home">⌂ ホーム</button><h1 class="quest-title">依頼掲示板</h1></div>
@@ -3649,7 +3656,7 @@ button{font:inherit;color:inherit}
 </section>
 
 <div class="toast" id="toast"></div>
-<div id="devBuildLabel" aria-label="開発検証版 Ver.11.8 TRAIN-RC01">Ver.11.8 · TRAIN-RC01</div>
+<div id="devBuildLabel" aria-label="開発検証版 Ver.11.8 TRAIN-RC02">Ver.11.8 · TRAIN-RC02</div>
 </main>
 <script>
 (() => {
@@ -4084,6 +4091,42 @@ button{font:inherit;color:inherit}
     }).join('');
     renderCharacterDetail();
   }
+  // TRAIN-RC02: selectable batch on tap; long press deliberately trains one level per tick.
+  let trainingTapQuantity = 1;
+  let trainingHoldActive = false;
+  let trainingHoldCount = 0;
+  let trainingHoldTimeout = null;
+  let trainingHoldInterval = null;
+  let ignoreTrainingClick = false;
+  let trainingIgnoreReset = null;
+  const trainingButton = charEl('charLevelUp');
+  const trainingQuantityButtons = [charEl('charQuantity1'),charEl('charQuantity10')];
+  function trainingPlan(rec,limit){
+    if(!rec || !rec.owned)return {count:0,cost:0};
+    const start=Math.max(1,Math.floor(Number(rec.level||1)));
+    const cap=Math.max(start,Math.floor(Number(rec.cap||50)));
+    let available=Math.max(0,Math.floor(Number(rec.shards||0)));
+    let cost=0,count=0;
+    while(count<limit && start+count<cap){
+      const need=levelCost(start+count);
+      if(available<need)break;
+      available-=need;cost+=need;count++;
+    }
+    return {count,cost};
+  }
+  function refreshTrainingQuantityButtons(){
+    trainingQuantityButtons.forEach((btn,i)=>{
+      const chosen=(i===0?1:10)===trainingTapQuantity;
+      btn.classList.toggle('is-selected',chosen);
+      btn.setAttribute('aria-pressed',String(chosen));
+    });
+  }
+  trainingQuantityButtons.forEach((btn,i)=>btn.addEventListener('click',()=>{
+    stopTrainingHold();
+    trainingTapQuantity=i===0?1:10;
+    refreshTrainingQuantityButtons();
+    renderCharacterDetail();
+  }));
   function renderCharacterDetail(){
     const c=GACHA_CHARACTERS.find(x=>x.id===selectedCharId) || GACHA_CHARACTERS[0];
     const rec=currentRecord(c.id),owned=!!rec.owned;
@@ -4099,8 +4142,12 @@ button{font:inherit;color:inherit}
     charEl('selectedShardCount').textContent=owned?`欠片 ${fmt(shards)} / ${need}`:'ガチャで獲得';
     charEl('charShardFill').style.width=owned?Math.min(100,shards/need*100)+'%':'0%';
     const levelBtn=charEl('charLevelUp'),breakBtn=charEl('charLimitBreak');
-    levelBtn.disabled=!owned||lv>=cap||shards<need;
-    levelBtn.querySelector('.char-button-ink').textContent=lv>=cap?'レベル上限':`レベルアップ（欠片 ${need}）`;
+    const plan=trainingPlan(rec,trainingTapQuantity);
+    levelBtn.disabled=!owned||plan.count===0||saveRecoveryBlocked;
+    levelBtn.querySelector('.char-button-ink').textContent=lv>=cap?'レベル上限':plan.count
+      ? `レベルアップ ×${plan.count}（欠片 ${fmt(plan.cost)}）` : '欠片が足りません';
+    levelBtn.setAttribute('aria-label',plan.count?`タップで${plan.count}レベル上げる。欠片${plan.cost}個。長押しで1レベルずつ連続育成`:'レベルアップ不可');
+    refreshTrainingQuantityButtons();
     const keysNeeded=limitBreakKeyCost(cap);
     breakBtn.disabled=!owned||lv<cap||keysNeeded===0||Number(gameSave.keys||0)<keysNeeded;
     breakBtn.querySelector('.char-button-ink').textContent=keysNeeded?`上限解放（鍵 ${keysNeeded}個）`:'上限解放完了';
@@ -4121,19 +4168,84 @@ button{font:inherit;color:inherit}
     }
 
   }
-  function levelUpCharacter(){
+  function levelUpCharacter(target=trainingTapQuantity,{quiet=false}={}){
+    if(saveRecoveryBlocked){if(!quiet)showToast('セーブ保護中です');return 0;}
     const rec=currentRecord(selectedCharId);
-    if(!rec.owned)return;
-    const lv=Number(rec.level||1),cap=Number(rec.cap||50),need=levelCost(lv);
-    if(lv>=cap){showToast('先に上限解放が必要');return;}
-    if(Number(rec.shards||0)<need){showToast('欠片が足りません');return;}
+    if(!rec.owned)return 0;
+    const lv=Math.floor(Number(rec.level||1));
+    const plan=trainingPlan(rec,target);
+    if(!plan.count){
+      if(!quiet)showToast(lv>=Number(rec.cap||50)?'先に上限解放が必要':'欠片が足りません');
+      return 0;
+    }
     ensureQuestState();
-    rec.shards-=need;rec.level=lv+1;
-    gameSave.stats.levelUps=safeQuestCounter(gameSave.stats.levelUps)+1;
+    const priorRec={...rec};
+    const previousLevelUps=safeQuestCounter(gameSave.stats.levelUps);
+    rec.shards-=plan.cost;
+    rec.level=lv+plan.count;
+    gameSave.stats.levelUps=previousLevelUps+plan.count;
     collection[selectedCharId]=rec;
-    refreshTapPower();saveUnified();renderCharacters();
-    showToast(`${GACHA_CHARACTERS.find(c=>c.id===selectedCharId).name} Lv${rec.level}！`);
+    refreshTapPower();
+    if(!saveUnified()){
+      collection[selectedCharId]=priorRec;
+      gameSave.characters=normalizeRosterIds(collection);
+      gameSave.stats.levelUps=previousLevelUps;
+      refreshTapPower();
+      renderCharacters();
+      if(!quiet)showToast('保存に失敗したため育成を取り消しました');
+      return 0;
+    }
+    renderCharacters();
+    if(!quiet)showToast(`${GACHA_CHARACTERS.find(c=>c.id===selectedCharId).name} +${plan.count} Lv → Lv${rec.level}！`);
+    return plan.count;
   }
+  function stopTrainingHold(){
+    if(trainingHoldTimeout!==null){clearTimeout(trainingHoldTimeout);trainingHoldTimeout=null;}
+    if(trainingHoldInterval!==null){clearInterval(trainingHoldInterval);trainingHoldInterval=null;}
+    if(trainingHoldActive && trainingHoldCount>0){
+      showToast(`長押し育成 +${trainingHoldCount} Lv`);
+      ignoreTrainingClick=true;
+      clearTimeout(trainingIgnoreReset);
+      trainingIgnoreReset=setTimeout(()=>ignoreTrainingClick=false,650);
+    }
+    trainingHoldActive=false;
+    trainingHoldCount=0;
+  }
+  function trainHoldTick(){
+    if(!characterScreen.classList.contains('active') || trainingButton.disabled){stopTrainingHold();return;}
+    const changed=levelUpCharacter(1,{quiet:true});
+    if(changed){trainingHoldCount+=changed;}
+    else stopTrainingHold();
+  }
+  trainingButton.addEventListener('pointerdown',e=>{
+    if(trainingButton.disabled || (e.pointerType==='mouse' && e.button!==0))return;
+    stopTrainingHold();
+    ignoreTrainingClick=false;
+    clearTimeout(trainingIgnoreReset);
+    trainingHoldTimeout=setTimeout(()=>{
+      trainingHoldTimeout=null;
+      if(trainingButton.disabled)return;
+      trainingHoldActive=true;
+      ignoreTrainingClick=true;
+      trainHoldTick();
+      if(trainingHoldActive)trainingHoldInterval=setInterval(trainHoldTick,130);
+    },430);
+  });
+  trainingButton.addEventListener('click',e=>{
+    if(ignoreTrainingClick || trainingHoldActive){
+      e.preventDefault();
+      ignoreTrainingClick=false;
+      return;
+    }
+    levelUpCharacter(trainingTapQuantity);
+  });
+  trainingButton.addEventListener('contextmenu',e=>e.preventDefault());
+  for(const eventName of ['pointerup','pointercancel'])window.addEventListener(eventName,stopTrainingHold,{passive:true});
+  window.addEventListener('blur',stopTrainingHold);
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)stopTrainingHold();});
+  trainingButton.addEventListener('pointerleave',e=>{
+    if(e.pointerType==='mouse')stopTrainingHold();
+  });
   function limitBreakCharacter(){
     const rec=currentRecord(selectedCharId);
     if(!rec.owned)return;
@@ -4148,7 +4260,7 @@ button{font:inherit;color:inherit}
     showToast(`レベル上限 ${rec.cap} 解放！`);
   }
   charEl('charBackHome').addEventListener('click',()=>showScreen('home'));
-  charEl('charLevelUp').addEventListener('click',levelUpCharacter);
+  // level-up input is handled above: tap=selected quantity, press-and-hold=continuous single steps.
   charEl('charLimitBreak').addEventListener('click',limitBreakCharacter);
   // DEV-03: both the training quick-purchase button and the Exchange use one safe transaction.
   const KEY_PRICE = 5000;
@@ -4974,7 +5086,7 @@ button{font:inherit;color:inherit}
 }
 </style>
 
-<!-- TRAIN-RC01: iOS safe rapid training; isolated centered labels (visuals only). -->
+<!-- TRAIN-RC02: iOS safe rapid training; isolated centered labels (visuals only). -->
 <style id="training-tap-and-label-fix">
 /* A double tap must press the training button twice, not zoom the page.
    Do not disable panning/pinch-zoom elsewhere. */
@@ -5086,6 +5198,54 @@ button{font:inherit;color:inherit}
   opacity:.78;
   color:#d6ecfa;
   background:rgba(4,23,42,.45);
+}
+
+/* TRAIN-RC02: compact quantity selector reuses the existing shard-information row.
+   No extra backing frame or layout slot is inserted in the character artwork. */
+#characterScreen .char-shards-row{
+  min-width:0;width:100%;height:100%;
+  display:flex;align-items:center;justify-content:space-between;gap:4px;
+}
+#characterScreen .char-shards-row .char-shards{
+  display:block !important;min-width:0;max-width:calc(100% - 74px);height:auto !important;
+  flex:1 1 auto;overflow:hidden;text-overflow:ellipsis;
+  font-size:clamp(9px,2.4vw,12px) !important;white-space:nowrap;
+  line-height:1.25 !important;
+}
+#characterScreen .char-level-quantity{
+  display:flex;align-items:center;justify-content:flex-end;gap:3px;
+  flex:0 0 auto;min-width:0;height:24px;
+  white-space:nowrap;touch-action:manipulation;
+}
+#characterScreen .char-quantity-label{font-size:9px;color:#c5e7f5;font-weight:700;letter-spacing:0}
+#characterScreen .char-quantity-button{
+  width:27px;height:24px;padding:0!important;box-sizing:border-box;
+  border:1px solid #8fc6e2;border-radius:7px;
+  background:linear-gradient(180deg,#103b60,#08233f);color:#cde5f4;
+  font-family:Georgia,'Yu Mincho',serif;font-size:12px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;line-height:1;
+  cursor:pointer;touch-action:manipulation;
+  -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;
+}
+#characterScreen .char-quantity-button.is-selected{
+  color:#fff2c2;border-color:#f4d68c;
+  background:linear-gradient(180deg,#17679c,#0c3b64);
+  box-shadow:inset 0 0 7px #65ddff80,0 0 4px #7ddaff65;
+}
+#characterScreen .char-quantity-button:focus-visible,
+#characterScreen #charLevelUp:focus-visible{outline:2px solid #ffe99e;outline-offset:2px}
+#characterScreen #charLevelUp{
+  touch-action:manipulation!important;-webkit-user-select:none!important;
+  user-select:none!important;-webkit-touch-callout:none!important;
+}
+#characterScreen #charLevelUp .char-button-ink{
+  white-space:nowrap!important;line-height:1.0!important;
+  font-variant-numeric:tabular-nums lining-nums;
+}
+@media(max-width:350px){
+  #characterScreen .char-level-quantity{gap:2px}
+  #characterScreen .char-quantity-button{width:24px;height:23px;font-size:11px}
+  #characterScreen .char-shards-row .char-shards{max-width:calc(100% - 68px)}
 }
 </style>
 <script id="training-doubletap-guard">
