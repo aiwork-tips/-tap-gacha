@@ -1,0 +1,2 @@
+Tap Gacha modular upload connection test.
+RC02 test branch only.
