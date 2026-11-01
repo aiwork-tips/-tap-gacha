@@ -1,0 +1,1 @@
+document.getElementById('result').textContent='JavaScript読み込み成功';document.getElementById('check').addEventListener('click',()=>{document.getElementById('result').textContent='CSS・JavaScript分割テストOK';});
