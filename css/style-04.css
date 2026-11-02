@@ -1,0 +1,18 @@
+
+#devBuildLabel{
+  position:absolute;
+  right:8px;
+  bottom:3px;
+  z-index:999;
+  pointer-events:none;
+  user-select:none;
+  color:rgba(225,238,250,.85);
+  background:rgba(5,23,41,.66);
+  border-radius:3px;
+  padding:2px 4px;
+  text-shadow:0 1px 3px rgba(0,12,32,.95);
+  font:500 10px/1.15 -apple-system,BlinkMacSystemFont,"Hiragino Sans",sans-serif;
+  letter-spacing:.25px;
+  white-space:nowrap;
+}
+@media(max-height:710px){#devBuildLabel{bottom:3px}}
