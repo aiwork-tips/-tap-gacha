@@ -1,0 +1,6 @@
+RC02 migration audit manifest (not the game payload)
+ZIP SHA256: 05c86fbbd6e11fdb267152544e38163c89e21ff26e35ff182a8d2b0a4211bf31
+index.html SHA256: 8685faecf1639524feccc587b19a6b5b2f226234c050d9914510ff8b68096f86
+Expected: index.html 1 (26189 bytes), css 20 (241860 bytes), js 4 (68787 bytes), assets 84 (10105877 bytes).
+Total files: 109.
+NOTE: This manifest is for verification. The game files have NOT been imported into this branch.
