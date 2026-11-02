@@ -1,0 +1,19 @@
+
+/* v11.8: modest reduction only; keep original world and controls unchanged. */
+#homeScreen #goTap.kit-awakening {
+  left:18.5%!important;top:63.15%!important;
+  width:63%!important;height:10.6%!important;
+}
+#homeScreen #goTap.kit-awakening>.v117-copy {
+  left:21%!important;top:30%!important;
+  width:58%!important;height:39%!important;
+  gap:1px!important;
+}
+#homeScreen #goTap.kit-awakening>.v117-copy strong {
+  font-size:clamp(14px,3.8vw,21px)!important;
+  line-height:1.08!important;font-weight:600!important;
+}
+#homeScreen #goTap.kit-awakening>.v117-copy small {
+  font-size:clamp(7px,1.7vw,10px)!important;
+  line-height:1.12!important;
+}
