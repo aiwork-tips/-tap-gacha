@@ -72,7 +72,7 @@ with sync_playwright() as pw:
     page.reload(wait_until='load',timeout=60000)
     after=state()
     check('reload preserves progress',all(before[k]==after[k] for k in ('points','keys','stats')))
-    missing=page.evaluate("Array.from(document.images).filter(i => i.complete && !i.naturalWidth).map(i=>i.src)")
+    missing=page.evaluate("Array.from(document.images).filter(i => i.getAttribute('src') && i.complete && !i.naturalWidth).map(i=>i.src)")
     check('visible images load',not missing)
     page.set_viewport_size({'width':320,'height':568})
     page.locator('[data-home-go="character"]').click(force=True)
