@@ -53,6 +53,8 @@ with sync_playwright() as pw:
     after=state()
     check('1000 pulls costs 1000 PT',after['points']==before['points']-1000)
     check('1000 pulls counted',after['stats']['gachaPulls']==before['stats']['gachaPulls']+1000)
+    check('1000 pulls guarantee >=10 rarest characters',after['stats']['star3Pulls']>=before['stats']['star3Pulls']+10)
+    check('only star3 summary rows use rarest highlight',page.evaluate("""() => {const rows=[...document.querySelectorAll('#gachaResult .summary-row')]; return rows.length>0&&rows.every(r=>r.classList.contains('star3')===r.querySelector('.s-name').textContent.trim().startsWith('★★★'));}"""))
     check('roster shards awarded',sum(int(c.get('shards',0)) for c in after['characters'].values())>0)
     page.locator('#gachaBackHome').click(force=True)
     page.locator('[data-home-go="character"]').click(force=True)
@@ -117,6 +119,7 @@ with sync_playwright() as pw:
     check('10-level training batch',tstate()['characters']['c001']['level']==11)
     training.locator('#charQuantityMax').click(force=True)
     check('MAX stops at level cap 50',tstate()['characters']['c001']['level']==50)
+    check('MAX does not auto unlock cap or consume keys',tstate()['characters']['c001']['cap']==50 and tstate()['keys']==3)
     keys_before=tstate()['keys']
     training.locator('#charLimitBreak').click(force=True)
     check('cap unlock reaches 100 and consumes one key',tstate()['characters']['c001']['cap']==100 and tstate()['keys']==keys_before-1)
@@ -127,6 +130,7 @@ with sync_playwright() as pw:
     training.wait_for_timeout(950)
     training.mouse.up()
     check('holding 10-level mode repeatedly trains',tstate()['characters']['c001']['level']>60)
+    check('training updates saved tap power',tstate()['tapPower']>=2)
     levels_before=tstate()['characters']['c001']['level']
     training.reload(wait_until='load')
     check('trained level survives reload',tstate()['characters']['c001']['level']==levels_before)
