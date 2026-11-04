@@ -103,7 +103,9 @@ with sync_playwright() as pw:
     training.locator('#charLevelUp').click(force=True)
     tstate=lambda:training.evaluate("JSON.parse(localStorage.getItem('tapgacha_save_v3'))")
     check('10-level training batch',tstate()['characters']['c001']['level']==11)
+    print('AFTER 10:',tstate()['characters']['c001'],flush=True)
     training.locator('#charQuantityMax').click(force=True)
+    print('AFTER MAX:',tstate()['characters']['c001'],flush=True)
     check('MAX stops at level cap 50',tstate()['characters']['c001']['level']==50)
     keys_before=tstate()['keys']
     training.locator('#charLimitBreak').click(force=True)
