@@ -88,14 +88,14 @@ with sync_playwright() as pw:
     training.goto(URL,wait_until='load',timeout=60000)
     # pagehide saves the in-memory game state on reload. Apply the fixture *before*
     # the new document's game script, once, to avoid overwriting it with the old state.
-    training.add_init_script("""() => {
+    training.add_init_script("""(() => {
       if(sessionStorage.getItem('__qa_training_fixture_applied')) return;
       const s=JSON.parse(localStorage.getItem('tapgacha_save_v3'));
       s.characters.c001={owned:true,level:1,cap:50,shards:5000};
       s.keys=3;s.points=12450;
       localStorage.setItem('tapgacha_save_v3',JSON.stringify(s));
       sessionStorage.setItem('__qa_training_fixture_applied','1');
-    }""")
+    })()""")
     training.reload(wait_until='load')
     training.locator('[data-home-go="character"]').click(force=True)
     training.locator('#characterGrid [data-character-id="c001"]').click(force=True)
