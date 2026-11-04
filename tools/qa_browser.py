@@ -40,7 +40,7 @@ with sync_playwright() as pw:
     page.locator('[data-home-go="character"]').click(force=True)
     image_sources=page.evaluate("""() => ({
       panel:getComputedStyle(document.querySelector('#characterScreen .char-detail'),'::after').borderImageSource,
-      portrait:getComputedStyle(document.querySelector('#characterScreen .char-detail'),'::before').borderImageSource,
+      portrait:getComputedStyle(document.querySelector('#selectedPortrait')).borderImageSource,
       action:getComputedStyle(document.querySelector('#charLevelUp')).backgroundImage,
       counter:document.querySelector('#charTotalLevels').textContent.trim()
     })""")
@@ -151,6 +151,9 @@ with sync_playwright() as pw:
     levels_before=tstate()['characters']['c001']['level']
     training.reload(wait_until='load')
     check('trained level survives reload',tstate()['characters']['c001']['level']==levels_before)
+    training.locator('[data-home-go="character"]').click(force=True)
+    training.locator('#characterGrid [data-character-id="c001"]').click(force=True)
+    check('trained character detail visible after reload',training.locator('#characterScreen.active').count()==1 and 'Lv' in training.locator('#selectedLevel').inner_text())
     training.screenshot(path=str(SHOTS/f'{ENGINE}-character-trained-390.png'))
     check('training no runtime errors',not errors)
     training.close()
