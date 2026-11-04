@@ -35,6 +35,23 @@ with sync_playwright() as pw:
         return page.evaluate("JSON.parse(localStorage.getItem('tapgacha_save_v3'))")
     check('home initializes',page.locator('#homeScreen.active').count()==1 and state()['schemaVersion']==3)
     check('six screens',page.locator('section.screen').count()==6)
+    # RC08 character graphics remain separate assets; labels, levels, controls
+    # and portraits must remain live DOM elements rather than baked into art.
+    page.locator('[data-home-go="character"]').click(force=True)
+    image_sources=page.evaluate("""() => ({
+      panel:getComputedStyle(document.querySelector('#characterScreen .char-detail'),'::after').borderImageSource,
+      portrait:getComputedStyle(document.querySelector('#characterScreen .char-detail'),'::before').borderImageSource,
+      action:getComputedStyle(document.querySelector('#charLevelUp')).backgroundImage,
+      counter:document.querySelector('#charTotalLevels').textContent.trim()
+    })""")
+    check('RC08 ornate image border loaded as separate layer','rc08-ornate-panel.svg' in image_sources['panel'])
+    check('RC08 portrait frame loaded as separate layer','rc08-portrait-frame.svg' in image_sources['portrait'])
+    check('RC08 button art separated from clickable control','rc08-action-plate.svg' in image_sources['action'])
+    detail=page.locator('#characterDetail').bounding_box()
+    portrait=page.locator('#selectedPortrait').bounding_box()
+    check('RC08 portrait visibly enlarged',detail is not None and portrait is not None and portrait['width']/detail['width']>.32)
+    check('RC08 live stats remain readable',bool(image_sources['counter']) and page.locator('#charTotalLevels').is_visible())
+    page.locator('#charBackHome').click(force=True)
     page.screenshot(path=str(SHOTS/f'{ENGINE}-home-390.png'))
     before=state()
     page.locator('#goTap').click(force=True)
