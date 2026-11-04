@@ -1,0 +1,56 @@
+
+
+/* ALIGN-RC02: responsive mission board. Independent layout; no decorative image receptacles. */
+#questScreen{background:#dceef9;color:#16385b;overflow:hidden;font-family:-apple-system,'Hiragino Kaku Gothic ProN',sans-serif}
+#questScreen .quest-backdrop{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 44%;pointer-events:none}
+#questScreen .quest-version{position:absolute;top:3px;right:10px;z-index:9;pointer-events:none;padding:2px 5px;font-size:9px;font-weight:700;color:#285577;background:rgba(244,252,255,.7);border-radius:3px}
+#questScreen .quest-scrim{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(240,250,255,.32),rgba(235,247,255,.17) 42%,rgba(219,235,251,.27))}
+#questScreen .quest-shell{position:absolute;inset:0 0 max(12.6%,60px) 0;display:flex;flex-direction:column;min-height:0;max-width:620px;margin:auto;z-index:2}
+#questScreen .quest-top{padding:8px 12px 9px;flex:none;background:linear-gradient(180deg,rgba(253,255,255,.76),rgba(240,249,255,.53) 77%,rgba(241,250,255,.05));}
+#questScreen .quest-head{display:grid;grid-template-columns:92px minmax(0,1fr);align-items:center;gap:7px;}
+#questScreen .quest-home{height:51px;border:0;background:var(--quest-home-art,linear-gradient(150deg,#1766a1,#0a305c));background-size:100% 100%;background-repeat:no-repeat;color:#fff2cd;font:800 12px 'Yu Mincho',serif;text-shadow:0 2px 3px #001b35;cursor:pointer}
+#questScreen .quest-title{height:61px;margin:0;background:var(--quest-title-art,linear-gradient(125deg,#082c57,#0c4b80));background-size:100% 100%;background-repeat:no-repeat;display:grid;place-items:center;color:#ffeab5;text-shadow:0 2px 5px #071629,0 0 6px #143862;letter-spacing:.055em;font:800 clamp(20px,5.2vw,28px) 'Yu Mincho','Hiragino Mincho ProN',serif;white-space:nowrap}
+#questScreen .quest-subtitle{text-align:center;font-weight:750;font-size:11.5px;color:#123e66;text-shadow:0 1px 2px #fff;margin:1px 0 8px}
+#questScreen .quest-counters{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+#questScreen .quest-counter{background:linear-gradient(140deg,rgba(14,76,124,.95),rgba(6,39,82,.98));border:1.5px solid #d5ae6f;border-radius:12px;box-shadow:inset 0 1px 7px #96dcff80,0 2px 8px #14436655;padding:7px 4px;min-height:60px;text-align:center;color:#ebf7ff}
+#questScreen .quest-counter small{display:block;font-size:11px;font-weight:800}
+#questScreen .quest-counter strong{display:block;font:800 clamp(21px,5.4vw,29px)/1.25 Georgia,'Yu Mincho',serif;color:#ffedbb;white-space:nowrap}
+#questScreen .quest-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;margin-top:11px}
+#questScreen .quest-tab{background:var(--quest-tab-art,linear-gradient(#164c7d,#092c54));background-size:100% 100%;border:0;border-radius:0;min-height:46px;padding:6px 1px;font:800 clamp(10px,2.7vw,12px) 'Yu Mincho',serif;color:#fff1c8;text-shadow:0 1px 3px #000a22;white-space:nowrap;cursor:pointer}
+#questScreen .quest-tab.active{background-image:var(--quest-tab-active-art,linear-gradient(#0d99dd,#07558c));color:#fffde9;filter:drop-shadow(0 0 3px #2ec8ff77)}
+#questScreen .quest-refresh{padding:7px 3px 0;text-align:center;font-size:10.5px;font-weight:700;color:#214b70;text-shadow:0 1px 2px #fff}
+#questScreen .quest-list{overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;flex:1;min-height:0;padding:9px 12px 28px;touch-action:pan-y;scrollbar-color:#418bc2 #d7e6f2}
+#questScreen .quest-section-heading{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;margin:0 0 10px;background:linear-gradient(105deg,rgba(6,50,93,.95),rgba(9,63,108,.89));border-radius:5px;color:#ffedba;font-weight:800;font-size:13px;letter-spacing:.04em;box-shadow:0 2px 8px #19517944}
+#questScreen .quest-section-heading span{color:#deedff;font-size:10px;font-weight:650;letter-spacing:0}
+#questScreen .quest-card{position:relative;display:grid;grid-template-columns:clamp(64px,21vw,94px) minmax(0,1fr);gap:9px;align-items:center;background:linear-gradient(115deg,rgba(255,255,255,.96),rgba(244,250,254,.95));border:1px solid rgba(190,145,75,.7);border-radius:10px;margin-bottom:9px;padding:12px 11px;box-shadow:0 3px 11px #1c537344;min-height:139px}
+#questScreen .quest-symbol{display:block;width:100%;height:auto;aspect-ratio:1/1;object-fit:contain;filter:drop-shadow(0 4px 4px #1d46604a);align-self:center}
+#questScreen .quest-detail{min-width:0;display:flex;flex-direction:column;gap:5px}
+#questScreen .quest-name{margin:0;font:800 clamp(14px,3.75vw,18px) 'Yu Mincho','Hiragino Mincho ProN',serif;line-height:1.35;color:#103458}
+#questScreen .quest-explain{margin:0;color:#42617c;font-size:10.5px;line-height:1.35}
+#questScreen .quest-progress-line{display:flex;align-items:center;gap:7px}
+#questScreen .quest-meter{flex:1;min-width:0;height:9px;background:#d1dde7;border:1px solid #a7c6d8;box-shadow:inset 0 1px 2px #50677c4d;border-radius:999px;overflow:hidden}
+#questScreen .quest-meter>span{display:block;height:100%;width:0;background:linear-gradient(90deg,#1681b9,#39d3ff);box-shadow:0 0 6px #70eaff;transition:width .15s ease}
+#questScreen .quest-fraction{flex:none;color:#295274;font-weight:850;font-size:10px;font-variant-numeric:tabular-nums}
+#questScreen .quest-card-foot{display:flex;align-items:center;justify-content:space-between;gap:8px}
+#questScreen .quest-bounty{font-size:11px;font-weight:850;color:#134774;white-space:nowrap}
+#questScreen .quest-claim{flex:0 0 auto;min-height:38px;width:clamp(94px,28vw,132px);color:#fff0c8;font:800 11px 'Yu Mincho',serif;text-shadow:0 1px 3px #001c3c;border:0;background:var(--quest-buy-art,linear-gradient(#1789cb,#073a75));background-position:center;background-size:100% 100%;cursor:pointer;padding:7px}
+#questScreen .quest-claim:disabled{opacity:1;color:#e3e9ef;background-image:var(--quest-disabled-art,linear-gradient(#8396a6,#526779));cursor:default}
+#questScreen .quest-card.is-claimed{opacity:.80}
+#questScreen .quest-card.is-ready{box-shadow:0 0 0 1px #c39a51,0 0 13px #fff4bf,0 3px 9px #1c537344}
+#questScreen .quest-empty{border:1px solid #caa66f;background:rgba(255,255,255,.9);padding:20px;text-align:center;border-radius:12px;color:#26466b;font-size:13px;line-height:1.7}
+#questScreen .quest-nav.kit-shared-nav{position:absolute!important;bottom:0!important;left:0!important;right:0!important;width:100%!important;height:12.6%!important;min-height:60px!important;z-index:90!important;display:flex!important;background:#071d35!important;overflow:visible!important}
+#questScreen .quest-nav.kit-shared-nav>button{position:relative!important;width:20%!important;height:100%!important;flex:1 1 20%!important;border:0!important;border-radius:0!important;background:transparent!important;padding:0!important;margin:0!important;display:flex!important;align-items:center!important;justify-content:center!important;cursor:pointer;overflow:visible!important;z-index:2!important}
+#questScreen .quest-nav.kit-shared-nav>button img{width:112%!important;height:105%!important;object-fit:contain!important;max-width:none!important;filter:drop-shadow(0 1px 1px rgba(0,0,0,.3))}
+#questScreen button:focus-visible{outline:2px solid #f5c96d;outline-offset:2px}
+#questScreen .quest-modal{position:absolute;inset:0;z-index:110;display:none;align-items:center;justify-content:center;background:rgba(5,17,36,.67);padding:16px}
+#questScreen .quest-modal.open{display:flex}
+#questScreen .quest-reward{position:relative;width:min(94%,360px);max-width:360px;aspect-ratio:709/537;flex:none;animation:questAppear .24s ease-out;filter:drop-shadow(0 13px 19px rgba(0,8,25,.42));background:none!important;border:0!important;box-shadow:none!important;padding:0!important;margin:0 auto;color:#fff0c8}
+#questScreen .quest-reward-art{display:block;position:absolute;inset:0;width:100%;height:100%;object-fit:fill;pointer-events:none;user-select:none}
+#questScreen .quest-reward .quest-gain{position:absolute;left:59%;top:60%;transform:translate(-50%,-50%);width:40%;margin:0!important;z-index:2;text-align:center;color:#fff1c1;font:700 clamp(19px,5.7vw,30px) Georgia,'Yu Mincho',serif;white-space:nowrap;text-shadow:0 1px 3px #122c49,0 2px 3px #051a33;letter-spacing:0;line-height:1.1}
+#questScreen .quest-close{position:absolute;left:50%;top:82%;transform:translate(-50%,-50%);width:43%;height:14%;z-index:3;border:0;background:transparent;color:#fff2cb;font:bold clamp(18px,5.3vw,27px) Georgia,serif;cursor:pointer;padding:0;margin:0;line-height:1;text-shadow:0 1px 3px #132943;border-radius:8px;touch-action:manipulation}
+#questScreen .quest-close:active{filter:brightness(1.3)}
+#questScreen .quest-close:focus-visible{outline:2px solid #ffe6a0;outline-offset:2px}
+@media(max-width:359px){#questScreen .quest-reward{width:100%}#questScreen .quest-reward .quest-gain{font-size:19px}}
+@keyframes questAppear{from{transform:scale(.88);opacity:0}to{transform:scale(1);opacity:1}}
+@media(max-width:350px){#questScreen .quest-top{padding-left:8px;padding-right:8px}#questScreen .quest-head{grid-template-columns:75px 1fr;gap:3px}#questScreen .quest-home{font-size:10px}#questScreen .quest-title{font-size:18px}#questScreen .quest-list{padding-left:7px;padding-right:7px}#questScreen .quest-card{grid-template-columns:60px minmax(0,1fr);gap:6px;padding:10px 8px}#questScreen .quest-claim{width:92px}#questScreen .quest-bounty{font-size:10px}}
+

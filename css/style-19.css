@@ -1,0 +1,168 @@
+
+/* A double tap must press the training button twice, not zoom the page.
+   Do not disable panning/pinch-zoom elsewhere. */
+#characterScreen .char-action,
+#characterScreen #charBuyKey,
+#characterScreen #charFavoriteButton,
+#characterScreen #charBackHome,
+#characterScreen .char-tile {
+  touch-action: manipulation !important;
+  -webkit-user-select: none !important;
+  user-select: none !important;
+  -webkit-touch-callout: none;
+}
+/* The click target/background remain fixed; only the lettering is centered.
+   Previous blanket padding-bottom adjustments moved the text boxes inconsistently. */
+#characterScreen .char-action,
+#characterScreen #charBuyKey,
+#characterScreen #charFavoriteButton,
+#characterScreen #charBackHome {
+  position:relative;
+  box-sizing:border-box !important;
+  display:grid !important;
+  place-items:center !important;
+  text-align:center !important;
+  text-indent:0 !important;
+  padding:0 4px !important;
+  line-height:1 !important;
+  overflow:hidden;
+}
+#characterScreen .char-button-ink {
+  display:block;
+  position:relative;
+  flex:none;
+  pointer-events:none;
+  max-width:100%;
+  box-sizing:border-box;
+  margin:0 !important;
+  padding:0 !important;
+  line-height:1.18 !important;
+  white-space:nowrap;
+  text-align:center !important;
+  letter-spacing:0 !important;
+  font-kerning:none;
+  font-variant-numeric:lining-nums tabular-nums;
+  font-feature-settings:'lnum' 1,'tnum' 1;
+  transform:translateY(var(--char-label-shift, 0px));
+}
+#characterScreen .char-action {
+  --char-label-shift: 0px;
+  min-height:0;
+  width:100% !important;
+  height:100% !important;
+}
+#characterScreen #charBuyKey {
+  --char-label-shift: 0px;
+  height:30px !important;
+  min-height:30px !important;
+  flex-shrink:0;
+}
+#characterScreen .char-home { --char-label-shift: 0px; }
+#characterScreen #charFavoriteButton {
+  --char-label-shift: 0px;
+  position:absolute !important;
+  left:11px !important;
+  bottom:11px !important;
+  width:calc(37% - 12px) !important;
+  min-height:29px !important;
+  height:29px !important;
+  z-index:3;
+}
+/* Undo the prior blanket -1px numerical translation within this screen;
+   center stats in their own balanced rows instead of moving the numbers. */
+#characterScreen .char-stat {
+  display:grid !important;
+  grid-template-rows:auto auto;
+  align-content:center !important;
+  justify-items:center !important;
+  row-gap:4px !important;
+  text-align:center !important;
+}
+#characterScreen .char-stat strong {
+  display:block !important;
+  width:100% !important;
+  margin:0 !important;
+  line-height:1.05 !important;
+  text-align:center !important;
+  translate:none !important;
+}
+#characterScreen .char-top-pt {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  line-height:1.15;
+  text-align:center !important;
+}
+#characterScreen #charPT {translate:none !important;text-align:center !important;}
+#characterScreen .char-level,
+#characterScreen .char-shards {translate:none!important;}
+/* Move build marker OUT of bottom navigation on the character screen. */
+#app:has(#characterScreen.active) #devBuildLabel {
+  top:0px !important;
+  bottom:auto !important;
+  right:6px !important;
+  z-index:40;
+  padding:0 2px !important;
+  font-size:7px !important;
+  line-height:1 !important;
+  opacity:.78;
+  color:#d6ecfa;
+  background:rgba(4,23,42,.45);
+}
+
+/* TRAIN-RC07: compact quantity selector reuses the existing shard-information row.
+   No extra backing frame or layout slot is inserted in the character artwork. */
+#characterScreen .char-shards-row{
+  min-width:0;width:100%;height:100%;
+  display:flex;align-items:center;justify-content:space-between;gap:4px;
+}
+#characterScreen .char-shards-row .char-shards{
+  display:block !important;min-width:0;max-width:calc(100% - 110px);height:auto !important;
+  flex:1 1 auto;overflow:hidden;text-overflow:ellipsis;
+  font-size:clamp(9px,2.4vw,12px) !important;white-space:nowrap;
+  line-height:1.25 !important;
+}
+#characterScreen .char-level-quantity{
+  display:flex;align-items:center;justify-content:flex-end;gap:3px;
+  flex:0 0 auto;min-width:0;height:24px;
+  white-space:nowrap;touch-action:manipulation;
+}
+#characterScreen .char-quantity-label{font-size:9px;color:#c5e7f5;font-weight:700;letter-spacing:0}
+#characterScreen .char-quantity-button{
+  width:27px;height:24px;padding:0!important;box-sizing:border-box;
+  border:1px solid #8fc6e2;border-radius:7px;
+  background:linear-gradient(180deg,#103b60,#08233f);color:#cde5f4;
+  font-family:Georgia,'Yu Mincho',serif;font-size:12px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;line-height:1;
+  cursor:pointer;touch-action:manipulation;
+  -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;
+}
+#characterScreen .char-max-button{
+  width:34px;font-size:9px;letter-spacing:-.2px;
+  border-color:#e9c878;color:#ffe9a6;
+  background:linear-gradient(180deg,#185479,#0a2d4e);
+}
+#characterScreen .char-max-button:disabled{opacity:.4;filter:grayscale(.65);cursor:default}
+#characterScreen .char-quantity-button.is-selected{
+  color:#fff2c2;border-color:#f4d68c;
+  background:linear-gradient(180deg,#17679c,#0c3b64);
+  box-shadow:inset 0 0 7px #65ddff80,0 0 4px #7ddaff65;
+}
+#characterScreen .char-quantity-button:focus-visible,
+#characterScreen #charLevelUp:focus-visible{outline:2px solid #ffe99e;outline-offset:2px}
+#characterScreen #charLevelUp{
+  touch-action:manipulation!important;-webkit-user-select:none!important;
+  user-select:none!important;-webkit-touch-callout:none!important;
+}
+#characterScreen #charLevelUp .char-button-ink{
+  white-space:nowrap!important;line-height:1.0!important;
+  font-variant-numeric:tabular-nums lining-nums;
+}
+@media(max-width:350px){
+  #characterScreen .char-level-quantity{gap:2px}
+  #characterScreen .char-quantity-button{width:24px;height:23px;font-size:11px}
+  #characterScreen .char-shards-row .char-shards{max-width:calc(100% - 99px)}
+  #characterScreen .char-max-button{width:32px;font-size:9px}
+  #characterScreen .char-quantity-label{display:none}
+}

@@ -1,0 +1,40 @@
+
+
+/* SHOP-RC01: SHOP ONLY. Layout polish: no changes to assets, economy, save or game logic. */
+/* Pull the item list closer to the category row while preserving tap target sizes. */
+#shopScreen .shop-header{padding-bottom:6px!important}
+#shopScreen .shop-filters{margin-top:8px!important;gap:6px!important;align-items:center!important}
+#shopScreen .shop-scroll{padding-top:5px!important}
+/* Use one quiet dark header band instead of dark text on a variable-brightness castle backdrop. */
+#shopScreen .shop-products-title{
+ display:flex!important;align-items:center!important;justify-content:space-between!important;
+ gap:8px!important;min-height:32px!important;
+ margin:0 0 10px!important;padding:5px 10px!important;
+ background:linear-gradient(90deg,rgba(7,47,84,.94),rgba(12,67,108,.82))!important;
+ color:#fff0c9!important;text-shadow:0 1px 2px #03162b!important;
+ border:1px solid rgba(224,189,116,.72)!important;border-radius:8px!important;
+ letter-spacing:.035em!important;font-size:13px!important;line-height:1.2!important;
+}
+#shopScreen .shop-products-title span{
+ color:#d7eaf8!important;opacity:1!important;text-shadow:0 1px 2px #05223f!important;
+ font-size:10px!important;white-space:nowrap!important;letter-spacing:0!important;
+}
+/* Align title, body, price, and button as one consistent vertical column. */
+#shopScreen .shop-product{column-gap:11px!important;row-gap:0!important;align-items:stretch!important}
+#shopScreen .shop-item-detail{display:flex!important;flex-direction:column!important;min-width:0!important}
+#shopScreen .shop-item-headline{min-height:28px!important;gap:5px!important;align-items:center!important}
+#shopScreen .shop-item-name{line-height:1.24!important;margin:0 0 3px!important}
+#shopScreen .shop-item-info{flex:1 1 auto!important;margin:4px 0 9px!important;line-height:1.5!important;overflow-wrap:anywhere!important}
+#shopScreen .shop-cost{margin-top:auto!important;min-height:39px!important}
+#shopScreen .shop-purchase{
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ width:calc(100% - 8px)!important;min-height:43px!important;
+ margin:9px auto 0!important;line-height:1.2!important;
+}
+#shopScreen .shop-notice{margin:5px 0 0!important;line-height:1.35!important}
+@media(max-width:370px){
+ #shopScreen .shop-products-title{font-size:12px!important;padding-left:7px!important;padding-right:7px!important}
+ #shopScreen .shop-products-title span{font-size:9px!important}
+ #shopScreen .shop-product{column-gap:9px!important}
+ #shopScreen .shop-item-info{line-height:1.48!important}
+}

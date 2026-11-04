@@ -1,0 +1,23 @@
+
+/* SHOP-RC01 final layout hardening. Shop only; single 0-PT restore fix in game logic. */
+/* Reserve the full height of the shared bottom navigation so the item list does not slide behind it. */
+#shopScreen .shop-page {padding-bottom:27.5%!important;}
+#shopScreen .shop-product { overflow: visible!important; }
+/* Match the visual mass of the icon with the entire content column, not just the title. */
+#shopScreen .shop-icon { align-self: center!important; justify-self: center!important; }
+#shopScreen .shop-item-detail { overflow: visible!important; }
+#shopScreen .shop-item-name { overflow-wrap: anywhere!important; }
+#shopScreen .shop-item-info { text-wrap: pretty; overflow-wrap: anywhere!important; }
+#shopScreen .shop-cost { overflow:hidden; }
+#shopScreen .shop-cost b { text-overflow:ellipsis; min-width:0; }
+#shopScreen .shop-purchase { touch-action: manipulation; }
+#shopScreen .shop-filter, #shopScreen .shop-back { touch-action: manipulation; }
+/* Keep focus navigation visible while retaining the image-backed jewel frames. */
+#shopScreen button:focus-visible {outline:2px solid #e5c56f;outline-offset:2px;}
+@media (max-width: 350px) {
+  #shopScreen .shop-item-name { font-size: clamp(14px,4.4vw,18px)!important; }
+  #shopScreen .shop-product { column-gap:7px!important; }
+  #shopScreen .shop-cost {padding-inline:6px!important;}
+  #shopScreen .shop-cost span {font-size:9px!important;}
+  #shopScreen .shop-cost b {font-size:14px!important;}
+}

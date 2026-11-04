@@ -1,0 +1,116 @@
+
+/* Use equally wide digit cells, no negative tracking or automatic kerning. */
+#homeScreen #homePT, #homeScreen #homeKeys, #homeScreen #homeTapPower,
+#homeScreen .kit-rank-number,
+#gachaScreen #gachaPT, #gachaScreen #ownedCount,
+#characterScreen #charPT, #characterScreen #charOwned,
+#characterScreen #charTotalLevels, #characterScreen #charTapPower,
+#characterScreen #charKeys,
+#shopScreen #shopPT, #shopScreen #shopKeys, #shopScreen #shopCardKeys,
+#questScreen #questPT, #questScreen #questClaimed,
+#questScreen .quest-fraction, #questScreen .quest-bounty,
+#questScreen #questRewardAmount,
+#shopScreen .shop-cost b {
+  font-variant-numeric: lining-nums tabular-nums!important;
+  font-feature-settings: "lnum" 1, "tnum" 1!important;
+  font-kerning:none!important;
+  letter-spacing:0!important;
+  font-synthesis:none;
+}
+/* Don't center a number by the number's own changing width: center a fixed box. */
+#questScreen .quest-counter strong,
+#shopScreen .shop-wallet strong,
+#characterScreen .char-stat strong {
+  box-sizing:border-box!important;
+  width:100%!important;
+  min-width:0!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  text-align:center!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+}
+#questScreen .quest-counter strong {
+  line-height:1.16!important;
+  min-height:1.18em;
+}
+#questScreen .quest-fraction {
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:flex-end!important;
+  text-align:right!important;
+  flex-shrink:0!important;
+  line-height:1.18!important;
+}
+/* Preserve the wallet's deliberate right alignment, fixing its RIGHT edge across 1-7 digits. */
+#homeScreen #homePT, #homeScreen #homeKeys {
+  box-sizing:border-box!important;
+  text-align:right!important;
+  padding:0!important;
+  white-space:nowrap!important;
+  transform:none!important;
+}
+/* Buttons: align the actual text line box to the visual control center. */
+#questScreen .quest-home,
+#questScreen .quest-tab,
+#questScreen .quest-claim,
+#questScreen .quest-close,
+#shopScreen .shop-back,
+#shopScreen .shop-filter,
+#shopScreen .shop-purchase,
+#shopScreen .shop-to-character,
+#characterScreen .char-action,
+#characterScreen #charBuyKey,
+#characterScreen #charFavoriteButton,
+#gachaScreen .gacha-home {
+  box-sizing:border-box!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  text-align:center!important;
+  line-height:1.12!important;
+  text-indent:0!important;
+  white-space:normal;
+}
+#questScreen .quest-home,
+#questScreen .quest-tab,
+#questScreen .quest-claim,
+#questScreen .quest-close {
+  padding:0 6px!important;
+}
+#questScreen .quest-claim {white-space:nowrap!important}
+#shopScreen .shop-purchase, #shopScreen .shop-filter {padding-block:0!important}
+#characterScreen .char-action {padding:2px 4px!important}
+/* The modal artwork's actual centers: reward plaque (419/709,330/537),
+   OK plaque (363/709,452/537). Previous coordinates 59/60 and 50/82
+   placed both labels visibly ABOVE their painted surfaces. */
+#questScreen .quest-reward .quest-gain {
+  left:59.15%!important;
+  top:61.50%!important;
+  width:42%!important;
+  height:12.6%!important;
+  padding:0!important;
+  margin:0!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  text-align:center!important;
+  white-space:nowrap!important;
+  line-height:1!important;
+  transform:translate(-50%,-50%)!important;
+  font-size:clamp(16px,5.3vw,26px)!important;
+}
+#questScreen .quest-close {
+  left:51.15%!important;
+  top:84.1%!important;
+  width:44%!important;
+  height:14.5%!important;
+  padding:0!important;
+  transform:translate(-50%,-50%)!important;
+}
+/* Smaller widths: keep fractional values and the progress counter from wrapping. */
+@media(max-width:360px){
+  #questScreen .quest-counter strong {font-size:clamp(19px,5.7vw,23px)!important}
+  #questScreen .quest-reward .quest-gain{font-size:clamp(16px,5.3vw,20px)!important}
+}

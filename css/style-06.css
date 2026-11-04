@@ -1,0 +1,25 @@
+
+/* SHOP-RC01: illustration-based art direction; HTML owns text, prices and behaviors. */
+#shopScreen{background:#d9ecf8!important}
+#shopScreen .shop-art{opacity:1!important;filter:none!important;object-fit:cover!important;object-position:center 42%!important}
+#shopScreen .shop-shade{background:linear-gradient(180deg,rgba(244,250,253,.27) 0%,rgba(232,243,252,.04) 34%,rgba(230,243,252,.16) 100%)!important}
+#shopScreen .shop-header{padding:7px 9px 11px!important;background:linear-gradient(180deg,rgba(248,253,255,.68),rgba(235,247,255,.43) 78%,rgba(245,250,253,.18))!important;box-shadow:none!important}
+#shopScreen .shop-head{grid-template-columns:93px minmax(0,1fr) 3px!important;gap:0!important}
+#shopScreen .shop-head-gem{display:none!important}
+#shopScreen h1{display:flex;align-items:center;justify-content:center;min-height:61px;margin:0!important;background-image:url('../assets/4072e28c7031f8845a72.png')!important;background-position:center!important;background-repeat:no-repeat!important;background-size:100% 100%!important;color:#fff1c2!important;text-shadow:0 2px 3px #001323,0 0 8px #002544!important;font-size:clamp(18px,5vw,26px)!important;letter-spacing:.04em!important;white-space:nowrap}
+#shopScreen .shop-caption{font-weight:800!important;color:#123b5d!important;text-shadow:0 1px 3px #fff,0 1px 5px #fff!important;margin:0 0 9px!important}
+#shopScreen .shop-back,#shopScreen .shop-filter,#shopScreen .shop-purchase,#shopScreen .shop-to-character{appearance:none!important;-webkit-appearance:none!important;background-color:transparent!important;background-position:center!important;background-repeat:no-repeat!important;background-size:100% 100%!important;border:0!important;border-radius:0!important;box-shadow:none!important;font-family:'Yu Mincho','Hiragino Mincho ProN',serif!important;letter-spacing:.02em!important;color:#fff2ca!important;text-shadow:0 1px 2px #00112a,0 0 4px #002a53!important;font-weight:800!important}
+#shopScreen .shop-back{background-image:url('../assets/8367012cdf67469cd612.png')!important;min-height:52px!important;padding:7px 5px!important;font-size:12px!important;white-space:nowrap}
+#shopScreen .shop-wallet>div{border:1px solid #cfa65e!important;border-radius:12px!important;background:linear-gradient(135deg,#073964ed,#05234fe9)!important;box-shadow:inset 0 1px 8px #66bcff66,0 2px 12px #0e326c40!important;min-height:58px!important}
+#shopScreen .shop-filter{min-width:0!important;min-height:49px!important;padding:9px 4px!important;background-image:url('../assets/169486814afd3402c8e0.png')!important;font-size:clamp(10px,2.7vw,12px)!important}
+#shopScreen .shop-filter.active{background-image:url('../assets/4156187d7b02ea7ee859.png')!important;color:#fffbe8!important;filter:drop-shadow(0 0 3px #1dafff66)!important}
+#shopScreen .shop-scroll{padding-top:10px!important;background:linear-gradient(180deg,rgba(232,244,253,.18),rgba(221,234,248,.06))!important}
+#shopScreen .shop-products-title{color:#123b63!important;text-shadow:0 1px 3px #fff!important}
+#shopScreen .shop-product{background:linear-gradient(125deg,rgba(255,255,255,.97),rgba(243,248,253,.96))!important;box-shadow:0 3px 15px #0b396d66,inset 0 0 20px #fff!important}
+#shopScreen .shop-cost{background:linear-gradient(125deg,#103e6e,#06264d)!important;border:1px solid #c79b5e!important;min-height:35px!important}
+#shopScreen .shop-purchase{background-image:url('../assets/8367012cdf67469cd612.png')!important;margin-top:8px!important;min-height:45px!important;padding:10px 8px!important;font-size:clamp(12px,3.2vw,15px)!important}
+#shopScreen .shop-purchase:disabled{background-image:url('../assets/c953ef6864376bd97b6b.png')!important;filter:none!important;color:#e5eaf1!important;text-shadow:0 1px 3px #152a3e!important;opacity:1!important;cursor:not-allowed!important}
+#shopScreen .shop-to-character{background-image:url('../assets/8367012cdf67469cd612.png')!important;min-height:48px!important;padding:12px 32px!important;font-size:14px!important}
+#shopScreen .shop-version{top:2px!important;bottom:auto!important;right:9px!important;border:0!important;background:rgba(246,253,255,.55)!important;color:#234866!important;font-size:9px!important;box-shadow:none!important}
+#shopScreen .shop-future{background:rgba(247,253,255,.88)!important}
+@media(max-width:370px){#shopScreen .shop-head{grid-template-columns:87px minmax(0,1fr) 0px!important}#shopScreen h1{font-size:18px!important}#shopScreen .shop-back{font-size:11px!important}#shopScreen .shop-filter{font-size:10px!important}}

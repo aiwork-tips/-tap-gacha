@@ -1,0 +1,25 @@
+
+/* TRAIN-RC07: actual layered raster art extracted from approved visual reference.
+   Numbers, names, portraits and interactions remain HTML / game state. */
+#characterScreen .character-background{opacity:0!important}
+#characterScreen{background-image:url("../assets/326efb14a8aef76e14e3.webp")!important;background-size:cover!important;background-position:center!important}
+#characterScreen .character-shade{background:linear-gradient(180deg,rgba(3,17,40,.14),rgba(3,16,39,.28))!important}
+#characterScreen .char-detail{background: url("../assets/fb2489e6c2e2d9fa2b02.png") center/100% 100% no-repeat!important;border:0!important;box-shadow:0 0 16px rgba(28,155,255,.35)!important;border-radius:12px!important;padding:12px!important;gap:12px!important}
+#characterScreen .char-portrait{border:0!important;border-radius:12px!important;outline:3px solid #e9b45b!important;outline-offset:2px;box-shadow:0 0 12px #1fa7ff99!important;object-fit:cover!important}
+#characterScreen .char-stat{background:url("../assets/ca0d95e0768c78593417.png") center/100% 100% no-repeat!important;border:0!important;border-radius:0!important;box-shadow:none!important}
+#characterScreen .char-buy{background:url("../assets/d336bfc05e2ecf9bdb3f.png") center/100% 100% no-repeat!important;border:0!important;box-shadow:none!important}
+#characterScreen .char-list-caption{background:url("../assets/d336bfc05e2ecf9bdb3f.png") center/100% 100% no-repeat!important;border:0!important;box-shadow:none!important}
+#characterScreen .char-scroll{background:linear-gradient(180deg,#061b43d9,#04112bcf)!important;border:2px solid #dcb56c!important;border-radius:12px!important;box-shadow:0 0 14px #23b7ff4a,inset 0 0 16px #2165a844!important}
+#characterScreen .char-tile{border:2px solid #d4a958!important;border-radius:9px!important;box-shadow:0 0 8px #45bbff55!important;background:#061b42!important;overflow:hidden!important}
+#characterScreen .char-action{background:url("../assets/9c15708b11961360ea3a.png") center/100% 100% no-repeat!important;border:0!important;border-radius:0!important;box-shadow:none!important;color:#fff5d6!important;text-shadow:0 1px 4px #00162d!important}
+#characterScreen #charLimitBreak{background-image:url("../assets/08f50acfbcd71a0bf4d7.png")!important}
+#characterScreen #charBuyKey{background:url("../assets/08f50acfbcd71a0bf4d7.png") center/100% 100% no-repeat!important;border:0!important;border-radius:0!important;box-shadow:none!important}
+#characterScreen .char-home{border:2px solid #e9bd72!important;border-radius:16px!important;box-shadow:0 0 10px #38c9ff66!important}
+#characterScreen .char-top-pt{border:2px solid #e9bd72!important;border-radius:14px!important;box-shadow:0 0 10px #38c9ff55!important}
+#characterScreen .char-quantity-button{border:1px solid #e3b65d!important;background:linear-gradient(#1768a4,#05294f)!important;border-radius:12px!important}
+#characterScreen .char-quantity-button.is-selected{background:linear-gradient(#14c3ff,#0052bc)!important;box-shadow:0 0 12px #20d2ff!important}
+#characterScreen .char-name{font-family:Georgia,'Yu Mincho',serif!important;color:#fff0bd!important;font-weight:700!important;text-shadow:0 1px 6px #061329!important}
+#characterScreen .char-level{color:#ffe8a1!important;text-shadow:0 1px 5px #00132b!important}
+#characterScreen .char-shard-track{box-shadow:0 0 8px #2bdfff!important}
+#characterScreen .char-button-ink{display:flex!important;align-items:center!important;justify-content:center!important;width:100%!important;height:100%!important;line-height:1.2!important;transform:none!important;text-align:center!important}
+#characterScreen .char-action:disabled,#characterScreen #charBuyKey:disabled{filter:grayscale(.65) brightness(.75)!important}
