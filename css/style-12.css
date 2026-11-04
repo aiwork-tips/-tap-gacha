@@ -1,0 +1,38 @@
+
+/* TRAIN-RC07: layered fantasy styling; no baked-in numbers, characters or buttons */
+#characterScreen .character-background{filter:saturate(1.2) brightness(.84)!important}
+#characterScreen .character-shade{background:linear-gradient(180deg,rgba(3,13,40,.38),rgba(3,18,51,.38) 45%,rgba(2,10,29,.75))!important}
+#characterScreen .character-area{top:1.1%!important;left:2.3%!important;right:2.3%!important;bottom:13.1%!important;gap:6px!important}
+#characterScreen .char-top{height:7.3%!important;position:relative}
+#characterScreen .char-header-title{flex:1;text-align:center;font-size:clamp(22px,6vw,33px)!important;white-space:nowrap;color:#fff0bd!important;letter-spacing:.08em;text-shadow:0 0 7px #4ebcff,0 2px 3px #03132c!important;position:relative}
+#characterScreen .char-header-title:before,#characterScreen .char-header-title:after{content:'✦';color:#e8bd66;font-size:13px;vertical-align:middle;margin:0 4px}
+#characterScreen .char-home,#characterScreen .char-top-pt{border:2px ridge #f6d48b!important;background:linear-gradient(165deg,#115d9a,#09214b 65%,#06142e)!important;box-shadow:inset 0 1px 8px #75d8ff70,0 0 8px #63b9f64d!important;border-radius:14px!important}
+#characterScreen .char-stats{gap:5px!important}
+#characterScreen .char-stat{background:linear-gradient(150deg,#174d86ef,#071d49f7)!important;border:2px ridge #d9b771!important;border-radius:10px!important;box-shadow:inset 0 0 11px #58b8ff3c,0 0 6px #2da4ff3d!important;color:#f5e9d1!important;font-size:10px!important}
+#characterScreen .char-stat strong{font-size:clamp(18px,5vw,25px)!important;text-shadow:0 1px 4px #071e42}
+#characterScreen .char-detail{background:linear-gradient(125deg,#123a72f5,#051b46f6 60%,#0a2955f8)!important;border:3px ridge #f2c983!important;border-radius:18px!important;box-shadow:0 0 0 2px #245ea9,inset 0 0 22px #369ef657,0 4px 14px #020c22a6!important;max-height:40%!important;padding:10px!important;grid-template-columns:34% minmax(0,1fr)!important;gap:10px!important;position:relative}
+#characterScreen .char-detail:before{content:'✦';position:absolute;top:-13px;left:49%;color:#80eaff;text-shadow:0 0 5px #fff,0 0 9px #00aaff;font-size:22px;pointer-events:none}
+#characterScreen .char-portrait{border:3px ridge #f2d18c!important;box-shadow:0 0 0 2px #174d8e,0 0 13px #5cc9ff80!important;border-radius:13px!important}
+#characterScreen .char-info{gap:4px!important}
+#characterScreen .char-rarity{color:#ffe7a2!important;text-shadow:0 0 5px #efba51}
+#characterScreen .char-name{font-family:Georgia,'Yu Mincho',serif!important;font-size:clamp(14px,3.7vw,19px)!important;color:#fff5d6!important}
+#characterScreen .char-level{font-size:clamp(19px,5.1vw,27px)!important;text-shadow:0 2px 3px #061b43}
+#characterScreen .char-shard-track{height:9px!important;border:1px solid #e2ce9c!important;box-shadow:0 0 5px #2cd2ff}
+#characterScreen .char-action{border:2px ridge #e9c17d!important;border-radius:16px!important;background:linear-gradient(180deg,#087dd4,#09519e 50%,#052959)!important;color:#fff6d4!important;text-shadow:0 1px 2px #03132a;box-shadow:inset 0 0 9px #5fe0ff8a,0 0 6px #349dff5c!important}
+#characterScreen .char-action:disabled{background:linear-gradient(#455b79,#182d4d)!important;opacity:.72!important;filter:none!important}
+#characterScreen .char-buy{border:2px ridge #e7c67d!important;background:linear-gradient(110deg,#103c74ed,#051b45f7)!important;box-shadow:inset 0 0 12px #3aafff38!important}
+#characterScreen .char-buy button{border:2px ridge #f9d18c!important;background:linear-gradient(#b88b30,#735017)!important;color:#fff7dc!important}
+#characterScreen .char-list-caption{border:2px ridge #c6a365!important;border-radius:9px!important;background:linear-gradient(90deg,#0d376bea,#071c42f5)!important;padding:7px 9px!important;color:#fff0c3!important;font-weight:800!important;align-items:center}
+#characterScreen .char-scroll{background:linear-gradient(150deg,#061b43b8,#0c3165c4)!important;border:2px ridge #c8a66e!important;border-radius:12px!important;padding:7px!important}
+#characterScreen .char-tile{border:1.5px solid #d5ae6e!important;background:linear-gradient(#123c72,#061936)!important;border-radius:9px!important;box-shadow:inset 0 0 5px #2f9dff4a!important}
+#characterScreen .char-tile.selected{border-color:#fff0a4!important;box-shadow:0 0 9px 2px #f5cf70b5!important}
+#characterScreen .char-tile small{font-size:9px!important;color:#f5f0e8!important}
+#characterScreen .char-quantity-button{border:1px solid #d5b477!important;background:linear-gradient(#165b94,#092b56)!important;color:#fff1c9!important}
+#characterScreen .char-quantity-button.is-selected{background:linear-gradient(#1b9adf,#0c56a0)!important;box-shadow:0 0 6px #3bc5ff!important}
+#characterScreen .char-max-button{background:linear-gradient(#aa7d2e,#583e13)!important}
+@media(max-width:360px){
+#characterScreen .character-area{gap:4px!important}
+#characterScreen .char-detail{padding:7px!important;gap:6px!important}
+#characterScreen .char-action{padding:7px 2px!important}
+#characterScreen .char-stat{padding:5px 2px!important}
+}

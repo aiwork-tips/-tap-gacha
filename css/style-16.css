@@ -1,0 +1,65 @@
+
+
+/* ALIGN-RC02: Layer-first asset placement.
+   No pre-drawn receptacle frame, no icon background, no separate decorative frame on top of the product image.
+   The product card is an information surface; each item is a transparent independent image.
+   Keep purchases, save data, wallet, bottom nav and global game styles untouched. */
+#shopScreen .shop-product {
+  grid-template-columns:clamp(103px,30vw,128px) minmax(0,1fr)!important;
+  align-items:center!important;
+  column-gap:6px!important;
+  row-gap:0!important;
+  padding:13px 12px!important;
+  min-height:192px!important;
+  overflow:visible!important;
+  background:linear-gradient(120deg,rgba(255,255,255,.94),rgba(241,248,251,.94))!important;
+  border:1px solid rgba(180,139,77,.55)!important;
+  border-radius:12px!important;
+  box-shadow:0 3px 14px rgba(18,55,86,.22)!important;
+}
+#shopScreen .shop-product::before,
+#shopScreen .shop-icon::before,
+#shopScreen .shop-icon::after {content:none!important;display:none!important;}
+#shopScreen .shop-icon {
+  position:relative!important;
+  z-index:2!important;
+  width:100%!important;
+  height:auto!important;
+  aspect-ratio:1/1!important;
+  padding:0!important;
+  margin:0!important;
+  align-self:center!important;
+  justify-self:center!important;
+  display:grid!important;
+  place-items:center!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  overflow:visible!important;
+  box-shadow:none!important;
+  filter:none!important;
+}
+#shopScreen .shop-icon img {
+  width:100%!important;
+  height:100%!important;
+  display:block!important;
+  object-fit:contain!important;
+  object-position:50% 50%!important;
+  border:0!important;
+  background:transparent!important;
+  border-radius:0!important;
+  filter:drop-shadow(0 6px 4px rgba(15,40,63,.20))!important;
+}
+#shopScreen .coming-soon .shop-icon img {opacity:.88!important;filter:drop-shadow(0 3px 4px rgba(24,55,79,.14))!important;}
+#shopScreen .shop-item-detail {min-height:157px!important;min-width:0!important;display:flex!important;flex-direction:column!important;}
+#shopScreen .shop-item-name {font-size:clamp(16px,4.6vw,20px)!important;}
+#shopScreen .shop-item-info {font-size:clamp(11px,2.9vw,12px)!important;line-height:1.58!important;}
+#shopScreen .shop-cost {margin-top:auto!important;}
+#shopScreen .shop-purchase {margin:9px auto 0!important;width:calc(100% - 3px)!important;}
+#shopScreen .shop-notice {margin-top:6px!important;}
+@media(max-width:365px) {
+  #shopScreen .shop-product {grid-template-columns:clamp(89px,28vw,105px) minmax(0,1fr)!important;padding:12px 8px!important;column-gap:5px!important;min-height:191px!important;}
+  #shopScreen .shop-item-name {font-size:16px!important;}
+  #shopScreen .shop-item-info {font-size:11px!important;}
+  #shopScreen .shop-cost b {font-size:13px!important;}
+}

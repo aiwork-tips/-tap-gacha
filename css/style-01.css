@@ -1,0 +1,2837 @@
+
+:root{
+  --gold:#f4d98d;
+  --gold2:#fff0b8;
+  --cyan:#78e5ff;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{
+  margin:0;width:100%;height:100%;overflow:hidden;background:#061321;color:#fff;
+  font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI","Yu Gothic",sans-serif
+}
+button{font:inherit;color:inherit}
+#app{position:relative;width:100vw;height:100dvh;overflow:hidden;background:#071522;--appw:100vw}
+.screen{position:absolute;inset:0;opacity:0;pointer-events:none;transition:opacity .16s ease}
+.screen.active{opacity:1;pointer-events:auto}
+.art{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;pointer-events:none;user-select:none}
+
+/* HOME */
+.home-hit{position:absolute;z-index:10;border:0;background:transparent;padding:0;cursor:pointer;touch-action:manipulation}
+.event{left:2%;top:9%;width:35%;height:11%}
+.transfer{left:68%;top:13%;width:29%;height:12%}
+.summon{left:0%;top:23%;width:33%;height:18%}
+.train{left:68%;top:24%;width:32%;height:19%}
+.library{left:0%;top:55%;width:30%;height:17%}
+.shop{left:71%;top:55%;width:29%;height:17%}
+.mission{left:19%;top:69%;width:31%;height:14%}
+.gift{left:50%;top:69%;width:31%;height:14%}
+.core{left:27%;top:46%;width:46%;height:28%}
+.home-nav{position:absolute;z-index:11;left:0;right:0;bottom:0;height:11.7%;display:grid;grid-template-columns:repeat(5,1fr)}
+.home-nav button{border:0;background:transparent;padding:0}
+
+/* TAP BACKGROUND */
+.tap-bg{
+  position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;object-position:center 42%;
+  pointer-events:none;user-select:none;transform:scale(1.018)
+}
+.tap-shade{
+  position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(to bottom,rgba(1,14,27,.22) 0%,rgba(1,14,27,.02) 15%,transparent 38%,transparent 79%,rgba(1,10,20,.12) 100%)
+}
+
+/* TOP HUD — ornate asset frames + HTML text */
+.tap-top{
+  position:absolute;z-index:31;
+  top:max(4px,env(safe-area-inset-top));left:0;right:0;height:86px;
+  pointer-events:none;
+}
+.top-art{
+  position:absolute;pointer-events:none;
+}
+.top-art > img{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:fill;
+  pointer-events:none;user-select:none;
+  filter:drop-shadow(0 4px 7px rgba(0,0,0,.24));
+}
+.top-back{
+  left:.5%;top:17px;width:28.5%;height:55px;
+  pointer-events:auto;border:0;background:transparent;padding:0;cursor:pointer;
+}
+.top-power{
+  left:25.5%;top:1px;width:49%;height:80px;
+}
+.top-wallet{
+  right:.3%;top:12px;width:29.5%;height:65px;
+}
+.back-content{
+  position:absolute;left:23%;right:6%;top:18%;bottom:15%;
+  display:flex;align-items:center;justify-content:center;gap:4px;
+  white-space:nowrap;overflow:hidden;
+  font-size:10px;font-weight:900;
+  text-shadow:0 2px 4px rgba(0,0,0,.76)
+}
+.back-content .home-ico{font-size:17px}
+.power-content{
+  position:absolute;left:19%;right:19%;top:25%;bottom:20%;
+  display:grid;grid-template-rows:13px minmax(0,1fr) 11px;
+  align-items:center;justify-items:center;
+  text-shadow:0 2px 4px rgba(0,0,0,.74)
+}
+.power-content small{font-size:8px;opacity:.92}
+.power-number{
+  width:100%;height:100%;
+  display:flex;align-items:center;justify-content:center;
+  white-space:nowrap;overflow:hidden;
+  font-family:Georgia,"Times New Roman",serif;
+  font-variant-numeric:tabular-nums lining-nums;
+  color:#fff1b8;font-weight:700;line-height:1
+}
+.power-content em{font-style:normal;font-size:7px;color:#e7fbff}
+.wallet-toprow{
+  position:absolute;left:25%;right:7%;top:19%;height:34%;
+  display:grid;grid-template-columns:38% minmax(0,1fr);align-items:center;
+  gap:2px;text-shadow:0 2px 4px rgba(0,0,0,.74)
+}
+.wallet-toprow small{font-size:7px;opacity:.92;white-space:nowrap}
+.wallet-number{
+  width:100%;height:100%;
+  display:flex;align-items:center;justify-content:flex-end;
+  white-space:nowrap;overflow:hidden;
+  font-family:Georgia,"Times New Roman",serif;
+  font-variant-numeric:tabular-nums lining-nums;
+  color:#fff1b8;font-weight:700;line-height:1
+}
+.wallet-bottomrow{
+  position:absolute;left:27%;right:8%;bottom:13%;height:27%;
+  display:flex;align-items:center;justify-content:flex-end;gap:5px;
+  color:#fff1b8;font-weight:900;font-size:11px;
+  text-shadow:0 2px 4px rgba(0,0,0,.74)
+}
+.wallet-bottomrow .key-ico{font-size:13px}
+
+/* TAP AREA */
+.tap-zone{
+  position:absolute;z-index:20;left:0;right:0;top:8%;bottom:17%;
+  border:0;background:transparent;cursor:pointer;touch-action:manipulation
+}
+
+/* dynamic +PT */
+.pt-float{
+  position:absolute;z-index:48;pointer-events:none;white-space:nowrap;
+  font-family:Georgia,"Times New Roman",serif;
+  font-variant-numeric:tabular-nums lining-nums;
+  font-size:clamp(23px,6.6vw,38px);font-weight:700;
+  transform:translate(-50%,-50%) scale(.78);opacity:0;
+  animation:ptBurst .78s cubic-bezier(.16,.82,.28,1) forwards;isolation:isolate
+}
+.pt-float::before,.pt-float::after{
+  content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  z-index:-2;border-radius:50%
+}
+.pt-float::before{width:150%;height:185%;filter:blur(13px);opacity:.72}
+.pt-float::after{width:118%;height:130%;filter:blur(5px);opacity:.55}
+.pt-float.blue{color:#e8fbff;text-shadow:0 0 4px #fff,0 0 9px #4bc8ff,0 0 18px rgba(58,190,255,.95),0 2px 3px rgba(0,0,0,.45)}
+.pt-float.blue::before{background:radial-gradient(circle,rgba(82,204,255,.78),rgba(47,154,255,.42) 45%,rgba(47,154,255,0) 74%)}
+.pt-float.blue::after{background:radial-gradient(circle,rgba(221,250,255,.82),rgba(106,215,255,.26) 55%,transparent 76%)}
+.pt-float.gold{color:#fff3bc;text-shadow:0 0 4px #fff,0 0 9px #ffc75d,0 0 18px rgba(255,174,39,.95),0 2px 3px rgba(0,0,0,.46)}
+.pt-float.gold::before{background:radial-gradient(circle,rgba(255,211,86,.84),rgba(255,159,24,.42) 46%,rgba(255,159,24,0) 75%)}
+.pt-float.gold::after{background:radial-gradient(circle,rgba(255,248,210,.84),rgba(255,201,92,.28) 56%,transparent 76%)}
+.pt-float.white{color:#fff;text-shadow:0 0 5px #fff,0 0 10px #c7f4ff,0 0 18px rgba(135,225,255,.82),0 2px 3px rgba(0,0,0,.44)}
+.pt-float.white::before{background:radial-gradient(circle,rgba(216,250,255,.78),rgba(93,211,255,.30) 48%,transparent 76%)}
+.pt-float.white::after{background:radial-gradient(circle,rgba(255,255,255,.78),rgba(170,239,255,.24) 56%,transparent 76%)}
+.pt-spark{
+  position:absolute;z-index:49;width:5px;height:5px;border-radius:50%;background:#fff;
+  box-shadow:0 0 5px currentColor,0 0 10px currentColor;opacity:0;animation:spark .62s ease-out forwards
+}
+@keyframes spark{0%{opacity:0;transform:scale(.2)}20%{opacity:1;transform:scale(1)}100%{opacity:0;transform:translateY(-20px) scale(.35)}}
+@keyframes ptBurst{0%{opacity:0;transform:translate(-50%,-30%) scale(.68)}15%{opacity:1;transform:translate(-50%,-50%) scale(1.07)}65%{opacity:1;transform:translate(-50%,-91%) scale(1)}100%{opacity:0;transform:translate(-50%,-135%) scale(.94)}}
+
+/* COMBO IMAGE FRAME */
+.combo-hud{
+  position:absolute;z-index:35;
+  left:16%;right:16%;
+  bottom:calc(max(7px,env(safe-area-inset-bottom)) + 88px);
+  height:126px;
+  pointer-events:none
+}
+.combo-hud > img{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:contain;
+  pointer-events:none;user-select:none
+}
+.combo-number-safe{
+  position:absolute;
+  left:24%;right:24%;
+  top:29%;height:35%;
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;white-space:nowrap;text-align:center;
+  font-family:Georgia,"Times New Roman",serif;
+  font-variant-numeric:tabular-nums lining-nums;
+  font-feature-settings:"tnum" 1,"lnum" 1;
+  color:#fff1b8;font-weight:500;line-height:1;
+  text-shadow:0 2px 3px rgba(0,0,0,.65)
+}
+.combo-label-safe{
+  position:absolute;
+  left:34%;right:34%;
+  top:67%;height:14%;
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;white-space:nowrap;
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:10px;font-weight:700;letter-spacing:.05em;
+  color:#fff0ba;text-shadow:0 2px 3px rgba(0,0,0,.62)
+}
+
+/* REWARD IMAGE FRAME */
+.reward-hud{
+  position:absolute;z-index:34;
+  left:2px;right:2px;
+  bottom:max(5px,env(safe-area-inset-bottom));
+  height:92px;
+  pointer-events:none
+}
+.reward-left-tint,.reward-center-tint,.reward-right-tint{
+  position:absolute;z-index:0;pointer-events:none;
+  backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)
+}
+.reward-left-tint{
+  left:2.3%;top:17%;width:27.2%;height:67%;
+  border-radius:22px;background:rgba(3,30,60,.48)
+}
+.reward-center-tint{
+  left:32%;top:13%;width:35.4%;height:72%;
+  border-radius:18px;background:rgba(3,29,57,.52)
+}
+.reward-right-tint{
+  left:70.8%;top:17%;width:26.2%;height:67%;
+  border-radius:22px;background:rgba(23,28,72,.47)
+}
+.reward-hud > img.frame{
+  position:absolute;z-index:2;inset:0;width:100%;height:100%;object-fit:fill;
+  pointer-events:none;user-select:none
+}
+.reward-hud .progress-safe,
+.reward-hud .chest-zone,
+.reward-hud .bonus-safe{z-index:3}
+
+/* left progress safe zone */
+.progress-safe{
+  position:absolute;left:3.3%;top:23%;width:25.7%;height:59%;
+  display:grid;grid-template-rows:12px 28px 11px;
+  align-content:center;padding:0 5px
+}
+.progress-safe small{
+  font-size:7px;opacity:.96;text-align:left;padding-left:2px;
+  text-shadow:0 2px 3px rgba(0,0,0,.72)
+}
+.progress-number{
+  width:100%;height:27px;
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;white-space:nowrap;text-align:center;
+  font-family:Georgia,"Times New Roman",serif;
+  font-variant-numeric:tabular-nums lining-nums;
+  font-feature-settings:"tnum" 1,"lnum" 1;
+  color:#fff4cb;font-weight:700;line-height:1;
+  text-shadow:0 2px 3px rgba(0,0,0,.62)
+}
+.progress-track-live{
+  width:91%;height:8px;align-self:center;
+  border-radius:999px;overflow:hidden;
+  background:rgba(2,15,28,.96);
+  box-shadow:inset 0 0 5px rgba(0,0,0,.75)
+}
+.progress-track-live i{
+  display:block;width:0%;height:100%;
+  border-radius:999px;
+  background:linear-gradient(90deg,#55d8ff,#e8fdff);
+  box-shadow:0 0 8px rgba(75,214,255,.8);
+  transition:width .12s linear
+}
+
+/* center chest slots */
+.chest-zone{
+  position:absolute;left:32.7%;top:10%;width:34%;height:79%;
+  display:grid;grid-template-columns:repeat(3,1fr);gap:1px;
+  align-items:center;pointer-events:auto
+}
+.chest-button{
+  position:relative;height:76px;border:0;background:transparent;padding:0;
+  cursor:default;pointer-events:auto
+}
+.chest-img{
+  position:absolute;left:50%;top:-1px;transform:translateX(-50%);
+  width:68px;height:68px;object-fit:contain;
+  transition:opacity .22s ease,transform .18s ease,filter .18s ease;
+  filter:drop-shadow(0 3px 5px rgba(0,0,0,.34))
+}
+.chest-img.open{opacity:0}
+.chest-threshold{
+  position:absolute;left:0;right:0;bottom:1px;text-align:center;
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:9px;color:#fff0bc;font-weight:700;
+  text-shadow:0 2px 3px rgba(0,0,0,.62)
+}
+.chest-button.locked{opacity:.70}
+.chest-button.ready{cursor:pointer}
+.chest-button.ready .chest-img.closed{
+  animation:readyBob .78s ease-in-out infinite alternate;
+  filter:drop-shadow(0 0 8px rgba(255,226,119,.95)) drop-shadow(0 4px 5px rgba(0,0,0,.32))
+}
+.chest-button.ready::after{
+  content:"";position:absolute;left:50%;top:30px;width:58px;height:48px;
+  transform:translate(-50%,-50%);border-radius:50%;
+  background:radial-gradient(circle,rgba(255,244,181,.42),rgba(255,200,51,.14) 44%,transparent 72%);
+  animation:readyGlow .9s ease-in-out infinite alternate;pointer-events:none
+}
+.chest-button.opened .chest-img.closed{opacity:0}
+.chest-button.opened .chest-img.open{
+  opacity:1;
+  filter:drop-shadow(0 0 9px rgba(128,231,255,.82)) drop-shadow(0 4px 5px rgba(0,0,0,.28))
+}
+@keyframes readyBob{
+  from{transform:translateX(-50%) translateY(0) scale(1)}
+  to{transform:translateX(-50%) translateY(-3px) scale(1.05)}
+}
+@keyframes readyGlow{
+  from{opacity:.35;transform:translate(-50%,-50%) scale(.9)}
+  to{opacity:.9;transform:translate(-50%,-50%) scale(1.15)}
+}
+
+/* right bonus safe zone */
+.bonus-safe{
+  position:absolute;left:72%;top:24%;width:23.8%;height:58%;
+  display:grid;grid-template-rows:14px 34px;align-content:center;justify-items:center
+}
+.bonus-safe small{
+  font-size:8px;opacity:.96;text-shadow:0 2px 3px rgba(0,0,0,.72)
+}
+.bonus-number{
+  width:82%;height:35px;display:flex;align-items:center;justify-content:center;
+  overflow:hidden;white-space:nowrap;
+  font-family:Georgia,"Times New Roman",serif;
+  font-variant-numeric:tabular-nums lining-nums;
+  color:#fff0b8;font-weight:500;line-height:1;
+  text-shadow:0 2px 3px rgba(0,0,0,.62)
+}
+
+/* chest opening burst */
+.chest-burst{
+  position:absolute;z-index:60;width:100px;height:100px;border-radius:50%;
+  transform:translate(-50%,-50%) scale(.3);opacity:0;pointer-events:none;
+  background:radial-gradient(circle,rgba(255,255,255,.96),rgba(115,225,255,.58) 24%,rgba(255,215,105,.28) 46%,transparent 72%);
+  animation:chestBurst .58s ease-out forwards
+}
+@keyframes chestBurst{
+  0%{opacity:1;transform:translate(-50%,-50%) scale(.25)}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(1.55)}
+}
+
+.toast{
+  position:absolute;z-index:80;left:50%;bottom:18%;
+  transform:translate(-50%,8px);max-width:80%;
+  padding:7px 12px;border-radius:999px;
+  border:1px solid rgba(244,217,149,.64);
+  background:rgba(5,25,44,.91);font-size:10px;font-weight:800;text-align:center;
+  box-shadow:0 7px 18px rgba(0,0,0,.27);
+  opacity:0;pointer-events:none;transition:.15s ease
+}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+@media(min-width:700px){
+  body{display:grid;place-items:center;background:#030910}
+  #app{width:min(500px,100vw);height:min(100dvh,960px);box-shadow:0 0 60px rgba(0,0,0,.65);--appw:min(500px,100vw)}
+}
+
+/* ===== v12 alignment / numeric / chest separation overrides ===== */
+
+/* Use lining numerals: all digits share the same baseline/height.
+   This prevents specific digits (notably 8) from appearing raised. */
+.power-number,
+.wallet-number,
+.combo-number-safe,
+.progress-number,
+.chest-threshold,
+.bonus-number{
+  font-family:"Times New Roman","Hiragino Mincho ProN","Yu Mincho",serif !important;
+  font-variant-numeric:lining-nums tabular-nums !important;
+  font-feature-settings:"lnum" 1,"tnum" 1 !important;
+}
+
+/* Top HUD: keep every label/value inside the painted blue safe area. */
+.back-content{
+  left:25%;
+  right:8%;
+  top:30%;
+  bottom:23%;
+  font-size:9px;
+}
+.back-content .home-ico{font-size:15px}
+
+.power-content{
+  left:0;right:0;top:0;bottom:0;
+  display:block;
+}
+.power-content small{
+  position:absolute;
+  left:24%;right:24%;
+  top:30%;height:11%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:7px;line-height:1;
+  white-space:nowrap;
+}
+.power-number{
+  position:absolute;
+  left:20%;right:20%;
+  top:41%;height:25%;
+  display:flex;align-items:center;justify-content:center;
+  line-height:1;
+}
+.power-content em{
+  position:absolute;
+  left:30%;right:30%;
+  top:68%;height:9%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:6.5px;line-height:1;
+  white-space:nowrap;
+}
+
+.wallet-toprow{
+  left:27%;right:7%;
+  top:23%;height:31%;
+  display:grid;
+  grid-template-columns:39% minmax(0,1fr);
+  align-items:center;
+  gap:1px;
+}
+.wallet-toprow small{
+  font-size:6.5px;
+  align-self:center;
+}
+.wallet-number{
+  font-size:19px;
+  align-items:center;
+  justify-content:flex-end;
+  line-height:1;
+}
+.wallet-bottomrow{
+  left:31%;right:12%;
+  bottom:13%;height:24%;
+  justify-content:flex-end;
+  gap:4px;
+  font-size:10px;
+}
+.wallet-bottomrow .key-ico{font-size:12px}
+
+/* Combo number stays optically centered with the new lining numerals. */
+.combo-number-safe{
+  top:30%;
+  height:34%;
+}
+.combo-label-safe{
+  top:67%;
+}
+
+/* Chests: smaller, but visually separated from the colorful background. */
+.reward-center-tint{
+  background:rgba(2,22,52,.58);
+}
+
+.chest-button{
+  height:74px;
+  isolation:isolate;
+}
+.chest-button::before{
+  content:"";
+  position:absolute;
+  z-index:-1;
+  left:50%;
+  top:29px;
+  width:56px;
+  height:46px;
+  transform:translate(-50%,-50%);
+  border-radius:50%;
+  background:
+    radial-gradient(ellipse at center,
+      rgba(1,10,28,.94) 0%,
+      rgba(3,26,57,.84) 43%,
+      rgba(14,71,110,.28) 63%,
+      rgba(14,71,110,0) 78%);
+  box-shadow:
+    0 0 10px rgba(54,170,229,.22),
+    inset 0 0 10px rgba(0,0,0,.35);
+  pointer-events:none;
+}
+.chest-img{
+  top:5px;
+  width:50px;
+  height:50px;
+  filter:
+    brightness(1.06)
+    saturate(1.10)
+    contrast(1.09)
+    drop-shadow(0 3px 4px rgba(0,0,0,.55));
+}
+.chest-threshold{
+  bottom:1px;
+  font-size:9px;
+  color:#fff2c4;
+  text-shadow:
+    0 1px 2px rgba(0,0,0,.95),
+    0 0 5px rgba(19,65,104,.8);
+}
+.chest-button.locked{
+  opacity:.88;
+}
+.chest-button.locked .chest-img{
+  filter:
+    brightness(.92)
+    saturate(.90)
+    contrast(1.12)
+    drop-shadow(0 3px 5px rgba(0,0,0,.68));
+}
+.chest-button.ready .chest-img.closed{
+  filter:
+    brightness(1.12)
+    saturate(1.16)
+    contrast(1.08)
+    drop-shadow(0 0 8px rgba(255,226,119,.95))
+    drop-shadow(0 4px 5px rgba(0,0,0,.42));
+}
+.chest-button.ready::after{
+  top:28px;
+  width:52px;
+  height:42px;
+}
+.chest-button.opened .chest-img.open{
+  filter:
+    brightness(1.10)
+    saturate(1.12)
+    contrast(1.08)
+    drop-shadow(0 0 9px rgba(128,231,255,.82))
+    drop-shadow(0 4px 5px rgba(0,0,0,.45));
+}
+
+
+/* ===== v13 optical alignment / chest sizing / spacing polish ===== */
+
+/* Individual optical baseline compensation.
+   Lining numerals fix glyph height; these offsets fix how each field
+   sits visually inside its own artwork. */
+.power-number{
+  transform:translateY(1px);
+}
+.wallet-number{
+  transform:translateY(2px);
+}
+.combo-number-safe{
+  transform:translateY(2px);
+}
+.progress-number{
+  transform:translateY(1px);
+}
+.bonus-number{
+  transform:translateY(1px);
+}
+.chest-threshold{
+  transform:translateY(1px);
+}
+
+/* Top HUD vertical balance */
+.back-content{
+  transform:translateY(1px);
+}
+.power-content small{
+  transform:translateY(1px);
+}
+.power-content em{
+  transform:translateY(-1px);
+}
+.wallet-toprow{
+  transform:translateY(1px);
+}
+.wallet-bottomrow{
+  transform:translateY(-1px);
+}
+
+/* Chests: one more step smaller, more breathing room */
+.chest-zone{
+  left:32.4%;
+  top:10%;
+  width:34.6%;
+  height:79%;
+  grid-template-columns:repeat(3,1fr);
+  gap:5px;
+  padding:0 3px;
+}
+.chest-button{
+  height:72px;
+}
+.chest-img{
+  top:7px;
+  width:43px;
+  height:43px;
+}
+.chest-button::before{
+  top:28px;
+  width:49px;
+  height:40px;
+  background:
+    radial-gradient(ellipse at center,
+      rgba(1,10,28,.96) 0%,
+      rgba(3,26,57,.86) 45%,
+      rgba(23,96,143,.24) 65%,
+      rgba(23,96,143,0) 80%);
+}
+.chest-threshold{
+  bottom:0px;
+  font-size:8.5px;
+}
+.chest-button.ready::after{
+  top:27px;
+  width:47px;
+  height:39px;
+}
+
+/* Make the center panel read as a deliberate pedestal without becoming opaque */
+.reward-center-tint{
+  left:32%;
+  width:36%;
+  background:rgba(2,22,52,.62);
+  box-shadow:inset 0 0 16px rgba(67,177,231,.08);
+}
+
+/* Give labels more breathing room under the three chests */
+.reward-hud{
+  height:94px;
+}
+
+/* Progress left panel optical centering */
+.progress-safe{
+  top:24%;
+  height:57%;
+}
+.progress-track-live{
+  transform:translateY(1px);
+}
+
+/* Bonus optical centering */
+.bonus-safe{
+  top:25%;
+  height:56%;
+}
+
+
+/* ===== v14: fit all text and chests to the actual painted safe areas ===== */
+
+/* ---- TOP LEFT ---- */
+.back-content{
+  left:28%;
+  right:8%;
+  top:36%;
+  bottom:29%;
+  transform:none;
+  font-size:9px;
+  line-height:1;
+}
+.back-content .home-ico{
+  font-size:14px;
+}
+
+/* ---- TOP CENTER ----
+   Keep all three rows within the blue oval, not on its gold ornaments. */
+.power-content{
+  left:0;
+  right:0;
+  top:0;
+  bottom:0;
+  display:block;
+}
+.power-content small{
+  left:25%;
+  right:25%;
+  top:35%;
+  height:9%;
+  transform:none;
+  font-size:7px;
+  line-height:1;
+}
+.power-number{
+  left:22%;
+  right:22%;
+  top:44%;
+  height:20%;
+  transform:none;
+  line-height:1;
+}
+.power-content em{
+  left:31%;
+  right:31%;
+  top:65%;
+  height:8%;
+  transform:none;
+  font-size:6.5px;
+  line-height:1;
+}
+
+/* ---- TOP RIGHT ----
+   More width goes to the dynamic PT number so 5-7 digits stay inside. */
+.wallet-toprow{
+  left:28%;
+  right:10%;
+  top:29%;
+  height:23%;
+  transform:none;
+  display:block;
+}
+.wallet-toprow small{
+  position:absolute;
+  left:0;
+  top:0;
+  width:27%;
+  height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  font-size:6.2px;
+  line-height:1;
+}
+.wallet-number{
+  position:absolute;
+  left:27%;
+  right:0;
+  top:0;
+  height:100%;
+  transform:none;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  line-height:1;
+}
+.wallet-bottomrow{
+  left:30%;
+  right:14%;
+  bottom:17%;
+  height:19%;
+  transform:none;
+  justify-content:flex-end;
+  gap:4px;
+  font-size:9.5px;
+}
+.wallet-bottomrow .key-ico{
+  font-size:11px;
+}
+
+/* ---- COMBO ---- */
+.combo-number-safe{
+  top:30%;
+  height:33%;
+  transform:none;
+}
+.combo-label-safe{
+  top:66%;
+  height:13%;
+}
+
+/* ---- LOWER LEFT ----
+   Label is pulled inside the blue panel instead of sitting on the top border. */
+.progress-safe{
+  left:3.5%;
+  top:30%;
+  width:25.2%;
+  height:50%;
+  grid-template-rows:10px 26px 10px;
+  padding:0 4px;
+}
+.progress-safe small{
+  padding-left:1px;
+  font-size:6.5px;
+  line-height:1;
+}
+.progress-number{
+  transform:none;
+  line-height:1;
+}
+.progress-track-live{
+  transform:none;
+  height:7px;
+}
+
+/* ---- LOWER CENTER / CHESTS ----
+   Match the actual three small slots painted into the frame. */
+.chest-zone{
+  left:34.1%;
+  top:21%;
+  width:31.8%;
+  height:61%;
+  gap:8px;
+  padding:0 1px;
+}
+.chest-button{
+  height:57px;
+}
+.chest-img{
+  top:4px;
+  width:30px;
+  height:30px;
+}
+.chest-button::before{
+  top:19px;
+  width:36px;
+  height:28px;
+  background:
+    radial-gradient(ellipse at center,
+      rgba(1,10,28,.96) 0%,
+      rgba(3,26,57,.84) 45%,
+      rgba(29,112,159,.22) 66%,
+      rgba(29,112,159,0) 80%);
+}
+.chest-threshold{
+  bottom:2px;
+  transform:none;
+  font-size:8px;
+  line-height:1;
+}
+.chest-button.ready::after{
+  top:19px;
+  width:36px;
+  height:29px;
+}
+.chest-button.locked{
+  opacity:.92;
+}
+
+/* ---- LOWER RIGHT ---- */
+.bonus-safe{
+  left:72.1%;
+  top:31%;
+  width:23.4%;
+  height:48%;
+  grid-template-rows:11px 30px;
+}
+.bonus-safe small{
+  font-size:7px;
+  line-height:1;
+}
+.bonus-number{
+  transform:none;
+  line-height:1;
+}
+
+/* Keep the three lower panels legible without turning them opaque. */
+.reward-left-tint{
+  left:2.7%;
+  top:25%;
+  width:26.5%;
+  height:56%;
+  background:rgba(3,30,60,.53);
+}
+.reward-center-tint{
+  left:31.9%;
+  top:20%;
+  width:36.2%;
+  height:62%;
+  background:rgba(2,22,52,.62);
+}
+.reward-right-tint{
+  left:70.7%;
+  top:25%;
+  width:26.4%;
+  height:56%;
+  background:rgba(23,28,72,.52);
+}
+
+
+/* ===== v15: unified SVG coordinate system ===== */
+.v15-top-hud{
+  position:absolute;z-index:35;left:0;right:0;
+  top:max(4px,env(safe-area-inset-top));
+  width:100%;aspect-ratio:1000/200;pointer-events:none;
+}
+.v15-top-hud svg,.v15-combo-hud svg,.v15-reward-hud svg{
+  display:block;width:100%;height:100%;overflow:visible;
+}
+.v15-back-hit{pointer-events:auto;cursor:pointer}
+.v15-label{
+  fill:#fff;
+  font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue","Hiragino Sans","Yu Gothic",sans-serif;
+  font-weight:700;text-anchor:middle;dominant-baseline:central;
+  paint-order:stroke fill;stroke:rgba(0,0,0,.52);stroke-width:2px;stroke-linejoin:round;
+}
+.v15-number{
+  fill:#fff0b2;
+  font-family:"Times New Roman",Arial,sans-serif;
+  font-weight:600;text-anchor:middle;dominant-baseline:central;
+  font-variant-numeric:lining-nums tabular-nums;
+  font-feature-settings:"lnum" 1,"tnum" 1;
+  paint-order:stroke fill;stroke:rgba(0,0,0,.52);stroke-width:2px;stroke-linejoin:round;
+}
+.v15-home-label{font-size:25px}
+.v15-top-label{font-size:25px}
+.v15-power-number{font-size:46px}
+.v15-wallet-label{font-size:24px}
+.v15-wallet-number{font-size:38px}
+.v15-key-label{font-size:26px}
+.v15-key-number{font-size:30px;text-anchor:start}
+
+.v15-combo-hud{
+  position:absolute;z-index:35;width:52%;left:24%;
+  bottom:calc(max(4px,env(safe-area-inset-bottom)) + var(--appw) * 0.175);
+  aspect-ratio:600/280;pointer-events:none;
+}
+.v15-combo-number{font-size:80px}
+.v15-combo-label{font-size:30px;letter-spacing:2px}
+
+.v15-reward-hud{
+  position:absolute;z-index:34;left:0;right:0;
+  bottom:max(4px,env(safe-area-inset-bottom));
+  width:100%;aspect-ratio:1000/205;pointer-events:none;
+}
+.v15-panel-tint{fill:rgba(2,25,54,.55)}
+.v15-center-tint{fill:rgba(2,20,48,.68)}
+.v15-bonus-tint{fill:rgba(23,25,71,.53)}
+.v15-progress-label{font-size:24px;text-anchor:start}
+.v15-progress-number{font-size:30px;text-anchor:end}
+.v15-progress-track{fill:#020c1c;stroke:#e6c372;stroke-width:3}
+.v15-progress-fill{fill:#74e6ff;filter:drop-shadow(0 0 4px rgba(92,223,255,.8))}
+.v15-bonus-label{font-size:26px}
+.v15-bonus-number{font-size:38px}
+.v15-threshold{font-size:24px;fill:#fff0bd}
+.v15-chest-shadow{fill:rgba(0,10,28,.88);filter:drop-shadow(0 0 5px rgba(77,188,236,.25))}
+.v15-chest-img{
+  pointer-events:none;filter:drop-shadow(0 4px 4px rgba(0,0,0,.5));
+  transition:opacity .18s ease,filter .18s ease;
+}
+.chest-button{pointer-events:auto;cursor:default}
+.chest-button .open{opacity:0}
+.chest-button.locked{opacity:.87}
+.chest-button.ready{cursor:pointer;opacity:1}
+.chest-button.ready .closed{
+  filter:brightness(1.12) saturate(1.15) drop-shadow(0 0 7px rgba(255,222,108,.96)) drop-shadow(0 4px 4px rgba(0,0,0,.5));
+  animation:v15ChestBob .8s ease-in-out infinite alternate;
+}
+.chest-button.ready .v15-chest-shadow{fill:rgba(38,76,91,.92);filter:drop-shadow(0 0 9px rgba(255,222,108,.65))}
+.chest-button.opened{opacity:1}
+.chest-button.opened .closed{opacity:0}
+.chest-button.opened .open{
+  opacity:1;filter:brightness(1.10) saturate(1.12) drop-shadow(0 0 8px rgba(118,230,255,.9)) drop-shadow(0 4px 4px rgba(0,0,0,.5));
+}
+@keyframes v15ChestBob{from{transform:translateY(0)}to{transform:translateY(-3px)}}
+
+/* =========================================================
+   GACHA v1
+   Added on top of the user-approved current build.
+   Existing HOME/TAP visuals are intentionally untouched.
+   ========================================================= */
+#gachaScreen{
+  background:#050e1e;
+}
+.gacha-bg{
+  position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;object-position:center 43%;
+  transform:scale(1.025);
+  filter:saturate(.82) brightness(.72);
+  pointer-events:none;user-select:none;
+}
+.gacha-veil{
+  position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(circle at 50% 44%,rgba(52,151,255,.05),rgba(3,11,29,.18) 38%,rgba(2,7,20,.70) 78%),
+    linear-gradient(to bottom,rgba(2,9,23,.28),rgba(3,11,27,.12) 30%,rgba(2,7,20,.70) 100%);
+}
+.gacha-top{
+  position:absolute;z-index:20;
+  top:max(8px,env(safe-area-inset-top));left:8px;right:8px;height:57px;
+  display:grid;grid-template-columns:31% 38% 31%;align-items:center;
+}
+.gacha-home{
+  justify-self:start;height:42px;padding:0 12px;border-radius:18px 7px 18px 7px;
+  border:1px solid rgba(249,220,141,.82);
+  background:linear-gradient(180deg,rgba(13,63,103,.88),rgba(5,28,50,.94));
+  box-shadow:0 4px 12px rgba(0,0,0,.28),inset 0 0 12px rgba(100,217,255,.10);
+  font-size:11px;font-weight:900;cursor:pointer;
+}
+.gacha-title{
+  text-align:center;
+  font-family:"Times New Roman","Yu Mincho",serif;
+  color:#fff1bd;font-size:20px;font-weight:700;letter-spacing:.08em;
+  text-shadow:0 0 10px rgba(82,202,255,.45),0 2px 4px rgba(0,0,0,.75);
+}
+.gacha-wallet{
+  justify-self:end;min-width:108px;height:42px;padding:5px 9px;
+  border-radius:7px 18px 7px 18px;
+  border:1px solid rgba(249,220,141,.82);
+  background:linear-gradient(180deg,rgba(13,63,103,.88),rgba(5,28,50,.94));
+  box-shadow:0 4px 12px rgba(0,0,0,.28),inset 0 0 12px rgba(100,217,255,.10);
+  display:flex;flex-direction:column;justify-content:center;align-items:flex-end;
+}
+.gacha-wallet small{font-size:7px;opacity:.84}
+.gacha-wallet strong{
+  width:100%;font-family:"Times New Roman",serif;color:#fff0b3;
+  font-size:19px;line-height:1;text-align:right;
+  font-variant-numeric:tabular-nums lining-nums;
+}
+
+.gacha-main{
+  position:absolute;z-index:10;
+  left:3%;right:3%;top:9%;bottom:13%;
+  display:grid;grid-template-rows:auto minmax(0,1fr) auto;
+  gap:8px;
+}
+.gacha-info{
+  display:grid;grid-template-columns:1fr auto;align-items:center;gap:8px;
+  padding:7px 10px;border-radius:12px;
+  border:1px solid rgba(126,220,255,.28);
+  background:rgba(3,23,48,.63);
+  backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);
+  box-shadow:inset 0 0 14px rgba(53,164,232,.07);
+}
+.gacha-rate{
+  font-size:9px;line-height:1.35;color:#e8faff;
+}
+.gacha-rate b{color:#fff1b8}
+.gacha-book{
+  font-size:9px;color:#fff1b8;white-space:nowrap;
+}
+.gacha-stage{
+  position:relative;overflow:hidden;min-height:0;
+  border-radius:22px;
+  border:1px solid rgba(246,219,145,.45);
+  background:
+    radial-gradient(circle at center,rgba(24,98,157,.24),rgba(2,18,43,.76) 55%,rgba(2,10,27,.88));
+  box-shadow:inset 0 0 30px rgba(58,182,255,.10),0 7px 25px rgba(0,0,0,.23);
+}
+.summon-circle{
+  position:absolute;left:50%;top:48%;width:min(63vw,300px);aspect-ratio:1;
+  transform:translate(-50%,-50%);
+  border-radius:50%;
+  border:2px solid rgba(255,225,143,.55);
+  box-shadow:0 0 18px rgba(72,202,255,.36),inset 0 0 24px rgba(64,178,255,.20);
+  opacity:.68;pointer-events:none;
+  animation:gachaRotate 18s linear infinite;
+}
+.summon-circle::before,.summon-circle::after{
+  content:"";position:absolute;border-radius:50%;inset:10%;
+  border:1px solid rgba(93,220,255,.52);
+  box-shadow:0 0 15px rgba(73,190,255,.25);
+}
+.summon-circle::after{
+  inset:25%;border-color:rgba(255,229,153,.54);
+  border-style:dashed;animation:gachaRotateReverse 12s linear infinite;
+}
+.summon-gem{
+  position:absolute;left:50%;top:48%;width:76px;height:108px;
+  transform:translate(-50%,-50%) rotate(45deg);
+  border:2px solid rgba(255,234,161,.85);
+  border-radius:20% 50% 20% 50%;
+  background:
+    linear-gradient(135deg,rgba(225,252,255,.95),rgba(61,191,255,.78) 24%,rgba(36,93,221,.90) 60%,rgba(73,35,163,.86));
+  box-shadow:0 0 24px rgba(68,202,255,.85),0 0 55px rgba(66,122,255,.42),inset 0 0 25px rgba(255,255,255,.42);
+  opacity:.87;pointer-events:none;
+  animation:gachaGem 2.2s ease-in-out infinite alternate;
+}
+@keyframes gachaRotate{to{transform:translate(-50%,-50%) rotate(360deg)}}
+@keyframes gachaRotateReverse{to{transform:rotate(-360deg)}}
+@keyframes gachaGem{from{filter:brightness(.9);scale:.96}to{filter:brightness(1.18);scale:1.04}}
+
+.gacha-result{
+  position:absolute;z-index:3;inset:8px;
+  display:flex;align-items:center;justify-content:center;
+  overflow:auto;padding:6px;
+}
+.gacha-idle{
+  width:76%;text-align:center;align-self:center;
+  padding:12px 10px;border-radius:14px;
+  background:rgba(2,17,40,.48);
+  border:1px solid rgba(113,215,255,.20);
+  color:#dff7ff;font-size:10px;line-height:1.55;
+  backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);
+}
+.gacha-idle strong{
+  display:block;margin-bottom:4px;color:#fff0b6;
+  font-family:"Times New Roman","Yu Mincho",serif;font-size:20px;
+}
+.gacha-card-grid{
+  width:100%;
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;
+  align-content:center;
+}
+.gacha-card{
+  position:relative;min-height:82px;padding:9px 8px 7px;
+  border-radius:12px;
+  border:1px solid rgba(202,226,255,.28);
+  background:linear-gradient(180deg,rgba(20,58,91,.88),rgba(5,25,47,.93));
+  box-shadow:0 4px 10px rgba(0,0,0,.22);
+  overflow:hidden;
+}
+.gacha-card .rarity{
+  display:block;font-family:"Times New Roman",serif;font-weight:700;
+  color:#d8e8f7;font-size:13px;letter-spacing:.04em;
+}
+.gacha-card .name{display:block;margin-top:4px;font-size:10px;font-weight:800;color:#fff}
+.gacha-card .gain{display:block;margin-top:4px;font-size:8px;color:#aeeaff}
+.gacha-card.is-new .gain{color:#fff1a8}
+.gacha-card.star2{
+  border-color:rgba(139,195,255,.50);
+  background:linear-gradient(180deg,rgba(29,70,116,.92),rgba(8,29,57,.94));
+}
+/* ★3だけ特別発光 */
+.gacha-card.star3{
+  border-color:rgba(255,222,116,.96);
+  background:
+    radial-gradient(circle at 50% 20%,rgba(255,240,160,.18),transparent 43%),
+    linear-gradient(180deg,rgba(48,89,151,.96),rgba(20,26,73,.96));
+  box-shadow:
+    0 0 10px rgba(255,218,92,.66),
+    0 0 24px rgba(103,184,255,.42),
+    inset 0 0 16px rgba(255,242,170,.15);
+  animation:star3Pulse .9s ease-in-out infinite alternate;
+}
+.gacha-card.star3 .rarity{color:#ffe68f;text-shadow:0 0 7px rgba(255,216,84,.9)}
+@keyframes star3Pulse{from{filter:brightness(.96)}to{filter:brightness(1.09)}}
+
+.gacha-summary{
+  width:100%;height:100%;
+  display:flex;flex-direction:column;gap:6px;padding:2px;
+}
+.summary-head{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:5px;
+}
+.summary-rarity{
+  padding:8px 4px;border-radius:10px;text-align:center;
+  background:rgba(4,29,56,.82);border:1px solid rgba(151,214,255,.26);
+}
+.summary-rarity b{
+  display:block;font-family:"Times New Roman",serif;font-size:22px;color:#fff0b6;
+}
+.summary-rarity span{font-size:8px;color:#d8f4ff}
+.summary-list{
+  flex:1;min-height:0;overflow:auto;
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;
+}
+.summary-row{
+  padding:5px 7px;border-radius:8px;
+  background:rgba(3,22,45,.76);border:1px solid rgba(139,208,255,.15);
+  display:grid;grid-template-columns:1fr auto;align-items:center;gap:4px;
+  font-size:8px;
+}
+.summary-row.star3{border-color:rgba(255,219,108,.58);box-shadow:inset 0 0 8px rgba(255,211,70,.09)}
+.summary-row .s-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.summary-row .s-count{color:#fff0b4;font-family:"Times New Roman",serif;font-size:13px}
+.summary-note{
+  text-align:center;font-size:8px;color:#d5f5ff;min-height:12px;
+}
+
+.gacha-actions{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:7px;
+}
+.gacha-draw{
+  position:relative;height:52px;border:1px solid rgba(248,218,137,.82);
+  border-radius:15px 6px 15px 6px;cursor:pointer;
+  background:
+    radial-gradient(circle at 50% 0%,rgba(100,216,255,.14),transparent 55%),
+    linear-gradient(180deg,rgba(16,73,113,.94),rgba(5,30,54,.97));
+  box-shadow:0 5px 12px rgba(0,0,0,.28),inset 0 0 12px rgba(84,203,255,.08);
+}
+.gacha-draw:active{transform:translateY(1px);filter:brightness(1.12)}
+.gacha-draw strong{
+  display:block;font-family:"Times New Roman","Yu Mincho",serif;
+  color:#fff1b8;font-size:19px;line-height:1.05;
+}
+.gacha-draw span{display:block;margin-top:2px;font-size:8px;color:#dff7ff}
+.gacha-draw.mass{
+  border-color:rgba(255,218,116,.98);
+  background:
+    radial-gradient(circle at 50% 0%,rgba(255,218,93,.12),transparent 58%),
+    linear-gradient(180deg,rgba(31,78,124,.96),rgba(8,31,66,.97));
+}
+.gacha-draw:disabled{opacity:.42;filter:grayscale(.35);cursor:default}
+
+.gacha-bottom-nav{
+  position:absolute;z-index:21;left:0;right:0;bottom:0;
+  height:calc(10% + env(safe-area-inset-bottom));
+  padding-bottom:env(safe-area-inset-bottom);
+  display:grid;grid-template-columns:repeat(5,1fr);
+  background:linear-gradient(to top,rgba(1,8,21,.94),rgba(2,16,38,.72));
+  border-top:1px solid rgba(231,209,145,.30);
+}
+.gacha-bottom-nav button{
+  border:0;background:transparent;color:#cceeff;
+  font-size:9px;font-weight:800;padding:0;cursor:pointer;
+}
+.gacha-bottom-nav button.active{
+  color:#fff0b7;text-shadow:0 0 8px rgba(255,219,103,.55);
+}
+
+.gacha-flash{
+  position:absolute;z-index:50;inset:0;pointer-events:none;opacity:0;
+  background:radial-gradient(circle at 50% 45%,rgba(255,255,255,.97),rgba(105,220,255,.50) 25%,rgba(255,218,92,.22) 43%,transparent 68%);
+}
+.gacha-flash.go{animation:gachaFlash .55s ease-out}
+.gacha-flash.star3go{
+  background:radial-gradient(circle at 50% 45%,rgba(255,255,255,1),rgba(255,232,139,.72) 22%,rgba(99,191,255,.40) 48%,transparent 70%);
+  animation:gachaFlash .75s ease-out;
+}
+@keyframes gachaFlash{0%{opacity:0}20%{opacity:1}100%{opacity:0}}
+
+@media(min-width:700px){
+  .gacha-stage{border-radius:26px}
+}
+
+
+/* ===== Gacha v2: recovered character portraits ===== */
+.gacha-card{
+  min-height:92px;
+  display:grid;
+  grid-template-columns:54px minmax(0,1fr);
+  grid-template-rows:auto;
+  gap:7px;
+  align-items:center;
+}
+.gacha-card .char-thumb{
+  width:54px;height:68px;border-radius:9px;object-fit:cover;object-position:center 22%;
+  border:1px solid rgba(205,235,255,.34);
+  box-shadow:0 3px 8px rgba(0,0,0,.34),inset 0 0 7px rgba(255,255,255,.07);
+  background:rgba(1,12,28,.8);
+}
+.gacha-card.star3 .char-thumb{
+  border-color:rgba(255,226,126,.92);
+  box-shadow:0 0 8px rgba(255,218,92,.62),0 3px 8px rgba(0,0,0,.34);
+}
+.gacha-card .char-copy{min-width:0}
+.gacha-card .name{
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  font-size:10px;
+}
+.gacha-card .element{
+  display:inline-block;margin-top:3px;padding:1px 5px;border-radius:999px;
+  background:rgba(8,35,64,.72);border:1px solid rgba(149,218,255,.20);
+  font-size:7px;color:#dff8ff;
+}
+.gacha-card .tagline{
+  display:none;margin-top:4px;font-size:7px;line-height:1.35;color:#d6f1ff;
+}
+.gacha-card-grid.single{
+  grid-template-columns:1fr;
+  width:min(92%,330px);
+}
+.gacha-card-grid.single .gacha-card{
+  min-height:190px;
+  grid-template-columns:112px minmax(0,1fr);
+  padding:13px;
+}
+.gacha-card-grid.single .char-thumb{
+  width:112px;height:150px;border-radius:14px;
+}
+.gacha-card-grid.single .rarity{font-size:20px}
+.gacha-card-grid.single .name{font-size:15px}
+.gacha-card-grid.single .element{font-size:8px;margin-top:5px}
+.gacha-card-grid.single .tagline{display:block;font-size:9px;margin-top:7px}
+.gacha-card-grid.single .gain{font-size:10px;margin-top:8px}
+
+.summary-row{
+  grid-template-columns:28px minmax(0,1fr) auto;
+}
+.summary-row .summary-thumb{
+  width:28px;height:34px;object-fit:cover;object-position:center 22%;
+  border-radius:5px;border:1px solid rgba(164,220,255,.20);
+  background:rgba(1,12,28,.8);
+}
+.summary-row.star3 .summary-thumb{
+  border-color:rgba(255,222,116,.72);
+  box-shadow:0 0 5px rgba(255,216,86,.32);
+}
+
+/* Summoning flash is neutral for every pull.
+   ★3 special treatment is confined to ★3 cards/portraits. */
+.gacha-flash.star3go{
+  background:radial-gradient(circle at 50% 45%,rgba(255,255,255,.97),rgba(105,220,255,.50) 25%,rgba(68,151,255,.20) 46%,transparent 68%);
+  animation:gachaFlash .55s ease-out;
+}
+
+
+/* ===== v3.2: 10-pull result clipping fix ===== */
+.gacha-result{
+  align-items:flex-start;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+}
+.gacha-idle{
+  margin:auto 0;
+}
+.gacha-card-grid.single{
+  margin:auto 0;
+}
+.gacha-card-grid:not(.single){
+  align-content:start;
+  padding-top:2px;
+  padding-bottom:10px;
+}
+
+:root{--gacha-dedicated-nav:url("../assets/d9b70f0af0bf711d4596.webp")}
+
+/* v3.9: new dedicated GACHA scene; HOME remains original to avoid double nav */
+#gachaScreen{background:#071c36}
+.gacha-bg{filter:saturate(1.05) brightness(.91);transform:scale(1.02);object-position:center 40%}
+.gacha-veil{background:linear-gradient(180deg,rgba(2,18,46,.40) 0%,rgba(2,19,45,.17) 26%,rgba(2,18,43,.29) 67%,rgba(2,13,35,.34) 100%)}
+.gacha-top{top:1.2%;left:2.4%;right:2.4%;height:6.6%;grid-template-columns:30% 40% 30%}
+.gacha-home,.gacha-wallet{height:75%;border:2px solid #d9b66c;border-radius:13px 13px 18px 18px;background:linear-gradient(160deg,#14548bbd,#061a39f2 70%);box-shadow:inset 0 0 15px #50b7ff55,0 0 9px #03112688}
+.gacha-home{font-size:14px;padding:0 13px}
+.gacha-title{font-size:clamp(21px,5.6vw,32px)}
+.gacha-wallet small{font-size:9px}.gacha-wallet strong{font-size:clamp(18px,5vw,28px)}
+.gacha-main{left:2.6%;right:2.6%;top:8.3%;bottom:14.3%;gap:1.2%;grid-template-rows:auto minmax(0,1fr) auto}
+.gacha-info{border:1px solid #76c9ff99;border-radius:5px 15px 5px 15px;background:linear-gradient(100deg,#062342ee,#073866da);padding:9px 11px}
+.gacha-rate,.gacha-book{font-size:clamp(9px,2.3vw,12px)}
+.gacha-stage{border:1px solid #82c7ecad;border-radius:10px;background:radial-gradient(circle at 50% 45%,#1762a12e,#041b3dd6 72%);box-shadow:inset 0 0 34px #47b9ff3d,0 5px 14px #0211257a}
+.gacha-actions{gap:8px}
+.gacha-draw,.gacha-draw.mass{height:clamp(49px,7.5vh,76px);border:2px solid #e6bd6c;border-radius:9px;background:linear-gradient(180deg,#12659adf,#06315bed 65%,#041d3be8);box-shadow:inset 0 0 18px #57caff44,0 3px 10px #04132d99}
+.gacha-draw strong{font-size:clamp(19px,5vw,27px)}.gacha-draw span{font-size:clamp(8px,2vw,11px)}
+.gacha-bottom-nav{position:absolute;z-index:21;left:0;right:0;bottom:0;height:12.5%;padding:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));border:0;box-shadow:none;background-color:transparent;background-image:var(--gacha-dedicated-nav);background-size:100% 100%;background-repeat:no-repeat;background-position:center}
+.gacha-bottom-nav button,.gacha-bottom-nav button.active{background:transparent;border:0;color:transparent;font-size:0;text-shadow:none;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+
+
+/* v4 polish: brighter scene, clearer 10-draw cards, concise ownership */
+.gacha-bg{filter:saturate(1.07) brightness(1.07)!important}
+.gacha-veil{background:linear-gradient(180deg,rgba(2,16,40,.31),rgba(2,16,37,.08) 28%,rgba(1,14,36,.16) 68%,rgba(1,11,29,.27))!important}
+.gacha-stage{background:radial-gradient(circle at 50% 43%,rgba(43,137,224,.10),rgba(2,24,54,.59) 74%)!important;box-shadow:inset 0 0 24px rgba(78,188,251,.11)!important}
+.gacha-card-grid:not(.single){gap:6px}
+.gacha-card-grid:not(.single) .gacha-card{min-height:91px;grid-template-columns:51px minmax(0,1fr);gap:7px;padding:8px 7px}
+.gacha-card-grid:not(.single) .char-thumb{width:51px;height:67px}
+.gacha-card .name{font-size:clamp(9px,2.6vw,12px);white-space:normal;overflow-wrap:anywhere;line-height:1.2;max-height:2.4em;overflow:hidden}
+.gacha-card .gain{font-size:clamp(8px,2.2vw,10px);line-height:1.3}
+.gacha-card .owned-total{color:#ffe4a2}
+.gacha-card.star3{animation:star3Pulse .9s ease-in-out infinite alternate}
+.gacha-card.star3.just-drawn{animation:star3Arrival .35s ease-out,star3Pulse .9s ease-in-out .35s infinite alternate}
+@keyframes star3Arrival{from{filter:brightness(1.7);box-shadow:0 0 29px rgba(255,232,111,.96)}to{filter:brightness(1);}}
+.summary-note{font-size:9px}
+@media(prefers-reduced-motion:reduce){.gacha-card.star3.just-drawn{animation:none}}
+
+/* ===== v5 Character / Training scene ===== */
+#characterScreen{background:#07152c;overflow:hidden}
+.character-background{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;filter:saturate(.86) brightness(.56);pointer-events:none}
+.character-shade{position:absolute;inset:0;background:linear-gradient(#061b39ad,#061427ca 68%,#041023b8);pointer-events:none}
+.character-area{position:absolute;top:1.2%;bottom:13.4%;left:3%;right:3%;display:flex;flex-direction:column;gap:9px;color:#eaf9ff}
+.char-top{flex:none;height:6.8%;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.char-home{flex:none;color:#fff1b9;background:linear-gradient(#126090,#071e3c);border:1px solid #e4c47e;border-radius:11px;padding:10px 12px;font-weight:800}
+.char-header-title{font:700 clamp(21px,5.6vw,30px) Georgia,"Yu Mincho",serif;color:#ffe8a8;text-shadow:0 2px 8px #051a38}
+.char-top-pt{background:#0b3158df;border:1px solid #c6a66d;border-radius:9px;padding:5px 8px;text-align:right;font-size:9px}
+.char-top-pt b{display:block;font:700 clamp(16px,4.2vw,22px) Georgia,serif;color:#ffedb8}
+.char-stats{flex:none;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.char-stat{border:1px solid #91d8f36b;background:#07294adf;border-radius:10px;padding:8px 5px;text-align:center;font-size:10px}
+.char-stat strong{display:block;font:700 20px Georgia,serif;color:#ffe6a1;margin-top:3px}
+.char-detail{flex:none;border:1px solid #e0bc78bd;background:linear-gradient(130deg,#0e4268ed,#071a3be8);box-shadow:inset 0 0 22px #41b6fd21;border-radius:17px;padding:11px;display:grid;grid-template-columns:37% minmax(0,1fr);gap:10px;min-height:0;max-height:38%}
+.char-portrait{width:100%;aspect-ratio:3/4;max-height:215px;object-fit:cover;object-position:center 20%;border-radius:12px;border:1px solid #e3c17f;box-shadow:0 5px 16px #00152acc}
+.char-info{min-width:0;display:flex;flex-direction:column;gap:5px;justify-content:center}
+.char-rarity{font-size:15px;color:#ffdf8f;letter-spacing:1px}
+.char-name{font-size:clamp(13px,3.6vw,19px);font-weight:900;overflow-wrap:anywhere}
+.char-tags{font-size:10px;color:#b8e9fb}
+.char-level{font:700 clamp(17px,4.3vw,25px) Georgia,serif;color:#ffdfa1}
+.char-shards{font-size:11px}
+.char-shard-track{height:7px;background:#051629;border-radius:10px;overflow:hidden;border:1px solid #c6ab6380}
+.char-shard-fill{height:100%;background:linear-gradient(90deg,#48c6f5,#c4f8ff);transition:width .2s}
+.char-action{border:1px solid #e6c079;border-radius:10px;background:linear-gradient(#1d77aa,#093a65);font-weight:800;color:#fff6cc;padding:9px 3px;font-size:clamp(10px,2.6vw,13px);cursor:pointer}
+.char-action:disabled{filter:grayscale(.65);opacity:.5;cursor:default}
+.char-buy{flex:none;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;border:1px solid #84cafa7d;background:#082b4dd9;border-radius:11px;color:#e5f9ff;font-size:11px}
+.char-buy strong{color:#ffe9b0}
+.char-buy button{border:1px solid #f1d28e;background:#135584;color:#fff5d2;border-radius:8px;padding:7px;font-weight:800;font-size:10px}
+.char-list-caption{display:flex;justify-content:space-between;font-size:11px;color:#d5efff}
+.char-scroll{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;padding:2px}
+.char-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}
+.char-tile{padding:3px 2px 4px;border:1px solid #85c6e45e;background:#092a4acd;border-radius:9px;min-width:0;color:#fff;cursor:pointer;position:relative}
+.char-tile.selected{border-color:#ffe09b;box-shadow:0 0 9px #f5db7a99}
+.char-tile.r3{border-color:#e3b65da0}
+.char-tile img{display:block;width:100%;aspect-ratio:3/4;object-fit:cover;object-position:top;border-radius:5px;opacity:1}
+.char-tile.locked img{filter:grayscale(1) brightness(.45)}
+.char-tile small{display:block;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;font-size:8px;margin-top:3px}
+.char-tile em{position:absolute;top:4px;left:3px;background:#031932bd;border-radius:3px;color:#ffe8a6;font-style:normal;font-size:8px;padding:1px 2px}
+.character-bottom-nav{position:absolute;z-index:25;left:0;right:0;bottom:0;height:12.5%;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));background:url("../assets/2f7ad110f476fd692b5c.webp") center/100% 100% no-repeat}
+.character-bottom-nav button{border:0;background:transparent;font-size:0;color:transparent;cursor:pointer}
+@media(max-height:720px){.char-detail{max-height:35%;padding:7px}.char-area{gap:6px}.char-action{padding:6px 2px}.char-top{height:7%}}
+
+
+/* v1.1: common bottom-navigation geometry. Home art still includes its own buttons. */
+:root{--shared-nav-height:11.7%;}
+.home-nav,.gacha-bottom-nav,.character-bottom-nav{
+  position:absolute!important;left:0!important;right:0!important;bottom:0!important;
+  height:var(--shared-nav-height)!important;
+  display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;
+  padding:0!important;margin:0!important;border:0!important;box-shadow:none!important;
+}
+.gacha-bottom-nav,.character-bottom-nav{background-size:100% 100%!important;background-position:center bottom!important}
+.home-nav button,.gacha-bottom-nav button,.character-bottom-nav button{
+  min-width:0!important;width:100%!important;height:100%!important;padding:0!important;
+  border:0!important;background:transparent!important;-webkit-tap-highlight-color:transparent;
+}
+/* Reserve exactly the same area above nav in the gacha and character scenes. */
+.gacha-main{bottom:calc(var(--shared-nav-height) + 1.8%)!important}
+.character-area{bottom:calc(var(--shared-nav-height) + 1.8%)!important}
+/* The selected character detail is a measured two-column plate, not free-flowing text. */
+.char-detail{grid-template-columns:minmax(0,37%) minmax(0,1fr)!important;align-items:stretch;overflow:hidden}
+.char-portrait{height:100%;max-height:100%;min-height:0;aspect-ratio:auto!important}
+.char-info{display:grid!important;grid-template-columns:minmax(0,1fr);grid-template-rows:
+  18px minmax(24px,auto) minmax(22px,auto) 31px 21px 8px 42px 42px;
+  gap:3px!important;justify-content:initial!important;align-content:center!important;min-width:0;}
+.char-rarity,.char-name,.char-tags,.char-level,.char-shards{min-width:0;overflow:hidden;line-height:1.16!important;margin:0!important;align-self:center}
+.char-rarity{font-size:15px!important}
+.char-name{font-size:clamp(12px,3.4vw,19px)!important;overflow-wrap:anywhere}
+.char-tags{font-size:clamp(8px,2.1vw,11px)!important;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;white-space:normal;}
+.char-level{font-family:Georgia,'Times New Roman',serif!important;font-size:clamp(19px,4.8vw,26px)!important;font-variant-numeric:lining-nums tabular-nums;font-feature-settings:'lnum' 1,'tnum' 1;white-space:nowrap}
+.char-shards{font-size:clamp(9px,2.4vw,12px)!important;font-variant-numeric:lining-nums tabular-nums;white-space:nowrap}
+.char-shard-track{height:8px!important;align-self:center}
+.char-action{height:100%;min-height:0;padding:4px 2px!important;line-height:1.2!important;align-self:stretch}
+.char-stats{grid-template-columns:repeat(3,minmax(0,1fr));}
+.char-stat{min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:68px;gap:6px;line-height:1.15}
+.char-stat strong{margin:0!important;font-size:clamp(17px,4.4vw,24px)!important;line-height:1.05;white-space:nowrap;font-variant-numeric:lining-nums tabular-nums}
+.char-top-pt b{font-variant-numeric:lining-nums tabular-nums;line-height:1.08}
+@media(max-height:740px){
+ .char-info{grid-template-rows:15px 23px 20px 26px 18px 6px 34px 34px;gap:2px!important}
+ .char-detail{padding:7px!important}.char-stats{gap:4px}
+}
+
+
+/* ===== v1.2: one spatial grid and safe fitting for the character plate ===== */
+:root{--nav-h:11.7%;}
+/* Home nav is already printed on the home painting; don't render a second image. */
+.home-nav,.gacha-bottom-nav,.character-bottom-nav{
+ position:absolute!important;left:0!important;right:0!important;
+ bottom:0!important;height:var(--nav-h)!important;
+ display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;
+ padding:0!important;margin:0!important;border:0!important;
+ background-position:center bottom!important;background-size:100% 100%!important;
+}
+.home-nav{background:transparent!important}
+.gacha-bottom-nav button,.character-bottom-nav button,.home-nav button{
+ min-width:0!important;padding:0!important;background:transparent!important;border:0!important;
+}
+.gacha-main,.character-area{bottom:calc(var(--nav-h) + 1.15%)!important}
+.character-area{gap:clamp(5px,1.1vh,9px)!important}
+.char-top{height:clamp(42px,6vh,58px)!important;min-height:42px}
+.char-stats{gap:6px!important;flex:none}
+.char-stat{min-height:0!important;height:clamp(55px,8vh,78px)!important;padding:5px 2px!important;gap:3px!important}
+.char-stat strong{font-size:clamp(16px,4.3vw,24px)!important}
+.char-detail{
+ box-sizing:border-box!important;display:grid!important;
+ grid-template-columns:minmax(0,38%) minmax(0,1fr)!important;
+ height:clamp(194px,31vh,277px)!important;
+ min-height:0!important;max-height:none!important;
+ gap:9px!important;padding:9px!important;
+ align-items:stretch!important;overflow:hidden!important;
+}
+.char-portrait{display:block!important;box-sizing:border-box!important;width:100%!important;height:100%!important;max-height:100%!important;min-height:0!important;aspect-ratio:auto!important;object-fit:cover}
+.char-info{
+ box-sizing:border-box!important;min-height:0!important;min-width:0!important;
+ height:100%!important;
+ display:grid!important;grid-template-columns:minmax(0,1fr)!important;
+ grid-template-rows: minmax(12px,.65fr) minmax(20px,1fr) minmax(16px,.75fr)
+ minmax(24px,1.25fr) minmax(16px,.8fr) 7px minmax(29px,1.5fr) minmax(29px,1.5fr)!important;
+ gap:2px!important;align-content:stretch!important;justify-content:stretch!important;
+}
+.char-rarity,.char-name,.char-tags,.char-level,.char-shards{
+ box-sizing:border-box!important;display:block!important;min-height:0!important;
+ margin:0!important;padding:0!important;line-height:1.12!important;
+ align-self:center!important;overflow:hidden!important;
+}
+.char-rarity{font-size:clamp(12px,3.1vw,15px)!important}
+.char-name{font-size:clamp(12px,3.4vw,18px)!important;white-space:normal;overflow-wrap:anywhere}
+.char-tags{font-size:clamp(8px,2.0vw,10px)!important;line-height:1.2!important;display:-webkit-box!important;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2}
+.char-level{font-family:Georgia,'Times New Roman',serif!important;font-size:clamp(17px,4.5vw,26px)!important;white-space:nowrap!important;font-variant-numeric:lining-nums tabular-nums}
+.char-shards{font-size:clamp(9px,2.5vw,12px)!important;font-variant-numeric:lining-nums tabular-nums;white-space:nowrap!important}
+.char-shard-track{width:100%;height:7px!important;min-height:7px;align-self:center;overflow:hidden}
+.char-action{
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ box-sizing:border-box!important;width:100%!important;height:100%!important;min-height:0!important;
+ margin:0!important;padding:2px 3px!important;font-size:clamp(9px,2.5vw,12px)!important;
+ line-height:1.12!important;text-align:center!important;white-space:normal!important;
+}
+.char-buy{padding:7px 9px!important;flex:none;min-height:37px}
+.char-list-caption{flex:none}
+.char-scroll{min-height:0!important;flex:1!important;scroll-padding-bottom:8px}
+.char-grid{padding-bottom:7px!important}
+@media(max-height:690px){
+ .char-detail{height:clamp(185px,31vh,218px)!important;padding:7px!important;gap:7px!important}
+ .char-info{grid-template-rows:12px 20px 16px 23px 17px 7px 28px 28px!important;gap:2px!important}
+ .char-stats{gap:4px!important}
+ .char-buy{min-height:35px;padding:5px 7px!important}
+}
+
+
+/* === Dynamic home Rev.1: independent data and visible owned portrait === */
+:root{--common-nav-height:11.7%;}
+#homeScreen{background:#082544;isolation:isolate}
+#homeScreen .home-backdrop-art{filter:blur(2.2px) brightness(.90) saturate(1.17);transform:scale(1.012)}
+.dynamic-home-shade{position:absolute;inset:0;pointer-events:none;z-index:2;background:linear-gradient(180deg,rgba(2,21,47,.23),transparent 24%,rgba(0,12,28,.16) 67%,rgba(1,20,38,.30))}
+.dynamic-home-shade::before,.dynamic-home-shade::after{content:"";position:absolute;top:20%;bottom:12%;width:24%;backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);background:linear-gradient(90deg,rgba(0,24,54,.26),rgba(0,24,54,.08));pointer-events:none}
+.dynamic-home-shade::before{left:0;mask-image:linear-gradient(90deg,#000 70%,transparent);-webkit-mask-image:linear-gradient(90deg,#000 70%,transparent)}
+.dynamic-home-shade::after{right:0;mask-image:linear-gradient(270deg,#000 70%,transparent);-webkit-mask-image:linear-gradient(270deg,#000 70%,transparent)}
+.dynamic-home-hud{position:absolute;z-index:22;top:0;left:0;right:0;height:9.3%;display:grid;grid-template-columns:22% 39% 39%;gap:3px;padding:6px 7px 4px;background:linear-gradient(180deg,rgba(1,15,35,.95),rgba(3,32,68,.98));border-bottom:2px solid rgba(253,213,128,.78);box-shadow:0 4px 16px rgba(0,5,18,.65);font-variant-numeric:lining-nums tabular-nums}
+.dynamic-home-hud>div{min-width:0;border:1px solid #e3c37d;border-radius:12px 5px 12px 5px;background:linear-gradient(165deg,#12507bb0,#07172fe0);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2px 5px;gap:0;box-shadow:inset 0 0 9px rgba(73,194,255,.20)}
+.dynamic-home-hud small,.dynamic-home-wallet span{font-size:clamp(8px,2vw,11px);color:#d8f5ff;white-space:nowrap}
+.dynamic-home-hud strong{display:block;font-family:Georgia,'Times New Roman',serif;font-size:clamp(18px,5.25vw,31px);line-height:1.13;color:#fff0b7;max-width:100%;white-space:nowrap;text-align:center;overflow:hidden;text-overflow:clip}
+.dynamic-home-wallet>div{display:flex!important;align-items:center;justify-content:space-between;width:100%;gap:3px}
+.dynamic-home-wallet strong{font-size:clamp(15px,4vw,26px)!important;text-align:right!important}
+.dynamic-home-event{position:absolute;z-index:13;left:3%;top:10%;width:52%;height:6%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(155deg,#174875e3,#091d47ee);border:1px solid #e5be7d;border-radius:9px;box-shadow:0 1px 11px #0610249a;color:#ffedc2;text-shadow:0 2px 5px #001329}
+.dynamic-home-event span{font-family:Georgia,'Yu Mincho',serif;font-size:clamp(14px,4vw,20px);font-weight:800}.dynamic-home-event small{font-size:9px;color:#d3f0ff}
+.dynamic-home-favorite{position:absolute;z-index:14;top:19%;bottom:27%;left:24%;right:24%;display:flex;flex-direction:column;align-items:stretch;gap:4px;padding:8px 8px 7px;border:2px solid #ebc57e;border-radius:20px 8px 20px 8px;background:linear-gradient(150deg,rgba(10,58,107,.98),rgba(2,18,46,.98));box-shadow:0 0 28px rgba(71,180,255,.37),inset 0 0 21px rgba(85,183,238,.13);overflow:hidden}
+.home-fav-heading{flex:none;text-align:center;font-size:clamp(10px,2.65vw,14px);font-weight:900;color:#ffebad;white-space:nowrap;overflow:hidden}
+.home-fav-picture{position:relative;min-height:0;flex:1;display:flex;border:1px solid #f5cf89;border-radius:10px;overflow:hidden;background:radial-gradient(ellipse at center,#19659a 0%,#061d43 88%)}
+.home-fav-picture img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 18%;filter:drop-shadow(0 0 4px #4cc6fb40)}
+.home-fav-picture img[hidden]{display:none!important}
+#homeFavoriteEmpty{display:none;position:absolute;inset:0;align-items:center;justify-content:center;text-align:center;padding:10px;font-size:11px;line-height:1.7;color:#e1f7ff}
+.home-fav-footer{display:flex;align-items:center;justify-content:center;gap:6px;min-height:22px;white-space:nowrap;overflow:hidden}
+.home-fav-footer span{font-size:11px;color:#ffdd73;flex:none}.home-fav-footer strong{font-size:clamp(10px,2.6vw,14px);text-overflow:ellipsis;overflow:hidden}.home-fav-footer small{font-size:clamp(8px,2vw,11px);color:#e3f2ff;flex:none}
+.home-change-favorite{border:1px solid #e6c57c;border-radius:11px;padding:5px 2px;min-height:26px;color:#fff0b5;font-size:clamp(9px,2.7vw,12px);font-weight:900;background:linear-gradient(#1677b4,#0a396a)}
+#homeScreen .home-hit:not(.core){display:none}
+#homeScreen #goTap{z-index:19;top:74.5%;left:31%;width:38%;height:8.2%;border:2px solid #e4c17a;border-radius:13px;background:linear-gradient(160deg,#145e9ceb,#072850f8);display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 0 13px #35befe67}
+#homeScreen #goTap span{font-family:Georgia,'Yu Mincho',serif;font-size:clamp(14px,3.5vw,19px);font-weight:900;color:#fff0b6}
+#homeScreen #goTap small{font-size:clamp(7px,1.8vw,10px);white-space:nowrap;color:#e8faff}
+.home-action{position:absolute;z-index:18;width:22%;height:9.5%}
+.home-action.left{left:1.1%}.home-action.right{right:1.1%}
+.home-action.summon-action,.home-action.train-action{top:26%}
+.home-action.library-action,.home-action.shop-action{top:51%}
+.home-action.mission-action,.home-action.gift-action{top:75.2%}
+.home-action button{width:100%;height:100%;border:1.5px solid #f1cb84;color:#fff5d1;background:linear-gradient(160deg,#0d588bdc,#041a39f4);border-radius:15px 4px 15px 4px;box-shadow:0 4px 13px #0011258a,inset 0 0 14px #52c9ff25;font-size:clamp(9px,2.7vw,14px);font-weight:900;padding:3px 1px;line-height:1.4}
+.home-action small{display:block;font-size:clamp(7px,1.9vw,10px);font-weight:500;color:#def5ff}
+/* One reusable nav placement and visual scale for all screens. */
+.home-nav,.gacha-bottom-nav,.character-bottom-nav{position:absolute!important;z-index:30!important;left:0!important;right:0!important;bottom:0!important;height:var(--common-nav-height)!important;padding:0!important;display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;box-shadow:none!important;border:0!important;background-size:100% 100%!important;background-position:center center!important;background-repeat:no-repeat!important;}
+.home-nav{background-color:#082442!important;background-image:url("../assets/ca7e636f4f3730e7d8f3.webp")!important}
+.gacha-bottom-nav{background-color:#092845!important;background-image:url("../assets/d9b70f0af0bf711d4596.webp")!important}
+.character-bottom-nav{background-color:#092845!important;background-image:url("../assets/2f7ad110f476fd692b5c.webp")!important}
+.home-nav button,.gacha-bottom-nav button,.character-bottom-nav button{min-width:0!important;min-height:0!important;border:0!important;background:transparent!important;color:transparent!important;font-size:0!important;padding:0!important;margin:0!important;cursor:pointer!important;-webkit-tap-highlight-color:transparent!important}
+/* Favorite control is an overlay; original character text layout is not stretched. */
+.char-detail{position:relative!important}
+.char-favorite-button{position:absolute;z-index:3;bottom:11px;left:11px;width:calc(37% - 12px);min-height:29px;background:linear-gradient(#0c6097f2,#063257f5);border:1px solid #efce89;border-radius:9px;color:#fff0b9;font-size:clamp(8px,2.25vw,11px);font-weight:800;box-shadow:0 2px 7px #041a3988;cursor:pointer}
+.char-favorite-button.is-favorite{background:linear-gradient(#94712ebf,#493416e3);border-color:#ffe4a4;box-shadow:0 0 9px #fce1947a}
+.char-tile .fav-pin{position:absolute;right:3px;top:3px;color:#ffe390;background:#071528dd;font-size:12px;border-radius:5px;padding:1px 3px}
+@media(max-height:670px){.dynamic-home-favorite{top:18%;bottom:26%;padding:5px}.dynamic-home-event{top:9.8%;height:5.5%}.home-action button{font-size:9px}.home-change-favorite{min-height:23px}}
+
+
+/* ===== HOME v2 — Ornate garden, live favorite & common layout ===== */
+#homeScreen{background:#082943;}
+#homeScreen .home-backdrop-art{filter:none!important;transform:none!important;object-fit:fill!important;}
+#homeScreen .dynamic-home-shade{z-index:2;background:linear-gradient(180deg,rgba(3,29,57,.17) 0%,rgba(3,29,57,.02) 18%,rgba(6,21,43,.04) 78%,rgba(1,18,36,.10) 100%)}
+#homeScreen .dynamic-home-shade::before,#homeScreen .dynamic-home-shade::after{display:none!important}
+/* original painted ornaments are visible; live hitboxes are invisible */
+#homeScreen .dynamic-home-event{display:none!important}
+#homeScreen .home-action{z-index:18;width:26%;height:10%;}
+#homeScreen .home-action.left{left:0%}
+#homeScreen .home-action.right{right:0%}
+#homeScreen .home-action.summon-action,#homeScreen .home-action.train-action{top:34.4%}
+#homeScreen .home-action.library-action,#homeScreen .home-action.shop-action{top:64%}
+#homeScreen .home-action.mission-action{top:75%;left:19%;width:27%}
+#homeScreen .home-action.gift-action{top:75%;right:19%;width:27%}
+#homeScreen .home-action button,#homeScreen .home-action small{background:transparent!important;border:0!important;box-shadow:none!important;color:transparent!important;text-shadow:none!important;font-size:0!important;outline:0!important}
+#homeScreen .home-action button:focus-visible{outline:2px solid #87eaff!important}
+/* Ornate HUD: opaque enough to fully cover old baked-in numbers. */
+#homeScreen .dynamic-home-hud{z-index:24;height:9.3%;top:0;left:0;right:0;grid-template-columns:26% 39% 35%;gap:0;padding:0 2px 1px;background:linear-gradient(180deg,#052545 0%,#082f51 82%,rgba(6,37,66,.98) 100%);border-bottom:1px solid rgba(242,210,127,.7);box-shadow:0 3px 12px #00122b70;}
+#homeScreen .dynamic-home-hud>div{position:relative;border:0!important;border-radius:0!important;box-shadow:none!important;padding:0;background-repeat:no-repeat!important;background-position:center!important;background-size:100% 100%!important;min-width:0}
+#homeScreen .dynamic-home-rank{background-image:url('../assets/a68902de4e4ef1da3dd4.png')!important;}
+#homeScreen .dynamic-home-power{background-image:url('../assets/7318f7599fe7eeb764f1.png')!important;}
+#homeScreen .dynamic-home-wallet{background-image:url('../assets/28032d5f53f5d246dcd8.png')!important;}
+#homeScreen .dynamic-home-rank>small{position:absolute;top:33%;left:44%;right:10%;text-align:center;font-family:Georgia,serif;font-size:clamp(8px,2.5vw,11px);color:#fff3cf}
+#homeScreen .dynamic-home-rank>strong{position:absolute;top:50%;left:44%;right:10%;height:34%;display:flex;justify-content:center;align-items:center;line-height:1;font-size:clamp(19px,5.7vw,30px);}
+#homeScreen .home-rank-avatar{position:absolute;width:29%;height:48%;left:10%;top:28%;object-fit:cover;border-radius:50%;border:1px solid #ffdfa0;box-shadow:0 0 6px #9ad9ff;}
+#homeScreen .dynamic-home-power>small:first-child{position:absolute;top:29%;left:18%;right:18%;font-size:clamp(8px,2.6vw,11px);text-align:center;color:#fff4cc}
+#homeScreen .dynamic-home-power>strong{position:absolute;top:45%;left:12%;right:12%;height:28%;font-size:clamp(21px,6.5vw,32px);display:flex;justify-content:center;align-items:center;line-height:1;}
+#homeScreen .dynamic-home-power>small:last-child{position:absolute;top:74%;left:25%;right:25%;font-size:clamp(6px,1.8vw,9px);text-align:center;}
+#homeScreen .dynamic-home-wallet>div{position:absolute!important;left:19%;right:9%;width:auto!important;height:25%;display:grid!important;grid-template-columns:40% 60%;align-items:center;gap:0!important;}
+#homeScreen .dynamic-home-wallet>div:first-child{top:31%}
+#homeScreen .dynamic-home-wallet>div:last-child{top:59%}
+#homeScreen .dynamic-home-wallet span{font-size:clamp(8px,1.9vw,10px);white-space:nowrap;text-shadow:0 1px 3px #000}
+#homeScreen .dynamic-home-wallet strong{font-size:clamp(13px,4vw,23px)!important;max-width:100%;line-height:1;}
+/* The center uses a mystical arch, not a hard rectangular card. */
+#homeScreen .dynamic-home-favorite{z-index:14;top:19.0%;bottom:37.5%;left:19%;right:19%;padding:0;border:0;border-radius:0;box-shadow:none;background:transparent;overflow:visible;display:block;}
+#homeScreen .dynamic-home-favorite::before{content:"";position:absolute;z-index:0;inset:-5% -7% -3%;border-radius:48% 48% 22% 22% / 25% 25% 24% 24%;background:radial-gradient(ellipse at 50% 38%,rgba(5,35,81,.97) 0%,rgba(8,72,127,.94) 45%,rgba(6,38,77,.96) 72%,rgba(10,38,71,.86) 85%,rgba(6,24,53,0) 100%);box-shadow:0 0 34px 15px rgba(8,55,105,.65);}
+#homeScreen .dynamic-home-favorite::after{content:"✦";position:absolute;z-index:3;left:49%;top:-5.8%;color:#8be7ff;font-size:21px;text-shadow:0 0 8px #afffff,0 0 15px #2285ff;pointer-events:none;}
+#homeScreen .home-fav-heading{position:absolute;z-index:4;top:0.5%;left:16%;right:16%;height:8%;display:flex;align-items:center;justify-content:center;font-size:clamp(9px,2.55vw,13px);text-shadow:0 2px 4px #001629,0 0 8px #58baff;background:linear-gradient(90deg,transparent,rgba(6,34,70,.95) 24%,rgba(6,34,70,.95) 76%,transparent);}
+#homeScreen .home-fav-picture{position:absolute;z-index:1;top:4%;bottom:14%;left:-6%;right:-6%;display:block;min-height:0;border:0;border-radius:0;background:transparent;overflow:visible;}
+#homeScreen .home-fav-picture::before{content:"";position:absolute;z-index:2;left:5%;right:5%;top:4%;bottom:8%;border-radius:48% 48% 27% 27% / 28% 28% 18% 18%;border:1px solid rgba(246,210,122,.68);box-shadow:inset 0 0 21px 3px #278dca77,0 0 14px 1px #75d5ff88;pointer-events:none;}
+#homeScreen .home-fav-picture::after{content:"✧ ✧ ✧";position:absolute;z-index:2;bottom:6%;width:100%;text-align:center;color:#fbe19d;text-shadow:0 0 8px #6ae1ff;pointer-events:none;font-size:clamp(13px,4vw,19px);}
+#homeScreen .home-fav-picture img{width:100%;height:100%;object-fit:cover;object-position:center 19%;filter:drop-shadow(0 3px 7px #6ccaff33);-webkit-mask-image:radial-gradient(ellipse 67% 71% at 50% 43%,#000 56%,rgba(0,0,0,.96) 74%,rgba(0,0,0,.48) 86%,transparent 100%);mask-image:radial-gradient(ellipse 67% 71% at 50% 43%,#000 56%,rgba(0,0,0,.96) 74%,rgba(0,0,0,.48) 86%,transparent 100%)}
+#homeScreen .home-fav-footer{position:absolute;z-index:4;left:-2%;right:-2%;bottom:8%;min-height:36px;height:10%;padding:4px 11px;display:flex;align-items:center;justify-content:center;gap:5px;background:linear-gradient(100deg,transparent 0%,rgba(1,22,54,.96) 14%,rgba(9,61,103,.98) 50%,rgba(1,22,54,.96) 86%,transparent 100%);border-top:1px solid #f9d99491;border-bottom:1px solid #f9d99491;text-shadow:0 1px 5px #000}
+#homeScreen .home-fav-footer strong{font-size:clamp(11px,3.25vw,17px);color:#fff5dc;}
+#homeScreen .home-fav-footer small{font-size:clamp(8px,2vw,11px)}
+#homeScreen .home-fav-footer span{font-size:clamp(9px,2.5vw,12px)}
+#homeScreen .home-change-favorite{position:absolute;z-index:5;bottom:-1.5%;left:23%;width:54%;height:9%;min-height:30px;border:1px solid #d9b16f;border-radius:50% 50% 14px 14px / 16% 16% 12px 12px;background:linear-gradient(180deg,#1c78ab,#052b5a 88%);color:#ffefb2;font-size:clamp(10px,2.8vw,13px);box-shadow:0 0 10px #37adf588,inset 0 1px 4px #d5faff7c;}
+#homeScreen #homeFavoriteEmpty{z-index:6;background:rgba(2,24,48,.77);border-radius:50%;}
+/* Tap entry sits precisely on the already painted, ornamental core plaque. */
+#homeScreen #goTap{top:62.7%!important;left:32%!important;width:36%!important;height:8.2%!important;border:0!important;background:transparent!important;box-shadow:none!important;}
+#homeScreen #goTap span,#homeScreen #goTap small{color:transparent!important;font-size:0!important;text-shadow:none!important;}
+#homeScreen #goTap:focus-visible{outline:2px solid #75e6ff}
+@media(max-height:690px){#homeScreen .dynamic-home-favorite{top:18%;bottom:39%}#homeScreen .home-change-favorite{min-height:25px}}
+
+
+/* ========= HOME V3: fully separate scene / HUD / hero / navigation ========= */
+#homeScreen{background:#1975a6;isolation:isolate}
+#homeScreen .home-backdrop-art{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:none!important;transform:none!important;pointer-events:none;z-index:0}
+#homeScreen .dynamic-home-shade{z-index:1;inset:0;background:linear-gradient(180deg,rgba(4,24,59,.18) 0%,rgba(7,52,101,.03) 28%,rgba(3,34,70,.06) 55%,rgba(1,25,53,.36) 92%,rgba(2,19,38,.50));}
+#homeScreen .dynamic-home-shade:before,#homeScreen .dynamic-home-shade:after{display:none!important}
+#homeScreen .dynamic-home-hud{z-index:26;top:0;left:0;right:0;height:9.5%;padding:5px 5px 4px;gap:4px;grid-template-columns:24% 36% minmax(0,40%);background:linear-gradient(180deg,#062a50e8,#063f74d8 79%,#092e57d9);border-bottom:1px solid #f0cd86;box-shadow:0 2px 13px #001f4770;}
+#homeScreen .dynamic-home-hud>div{position:relative;inset:auto;width:auto;height:100%;min-width:0;overflow:visible;border:2px solid #e4b966;border-radius:12px 6px 12px 6px;background:linear-gradient(145deg,#0d5284f0 0%,#032449f5 62%,#071c37ed 100%);box-shadow:0 0 0 1px #755228a6,inset 0 0 11px #4db8e74a,0 2px 8px #0219356b;padding:1px 3px;}
+#homeScreen .dynamic-home-hud>div:before,#homeScreen .dynamic-home-hud>div:after{content:'✦';position:absolute;z-index:2;top:-8px;font-size:12px;color:#ffe6ac;text-shadow:0 0 5px #83daff;pointer-events:none}
+#homeScreen .dynamic-home-hud>div:before{left:-3px}#homeScreen .dynamic-home-hud>div:after{right:-3px}
+#homeScreen .dynamic-home-rank{display:grid!important;grid-template-columns:42% 58%;grid-template-rows:40% 60%;align-items:center;justify-items:center;}
+#homeScreen .home-rank-avatar{position:relative!important;top:auto!important;left:auto!important;grid-column:1;grid-row:1/3;width:88%!important;height:auto!important;aspect-ratio:1;object-fit:cover;border-radius:50%;border:2px solid #f4d79d;box-shadow:0 0 8px #6edfff}
+#homeScreen .dynamic-home-rank>small{position:relative!important;top:auto!important;left:auto!important;right:auto!important;grid-column:2;grid-row:1;font:700 clamp(8px,2.3vw,11px)/1 Georgia,serif;white-space:nowrap}
+#homeScreen .dynamic-home-rank>strong{position:relative!important;top:auto!important;left:auto!important;right:auto!important;height:auto!important;grid-column:2;grid-row:2;width:100%;font:700 clamp(18px,5vw,28px)/1 Georgia,serif;color:#ffefb8;}
+#homeScreen .dynamic-home-power{display:flex!important;flex-direction:column;align-items:center;justify-content:center;gap:1px;}
+#homeScreen .dynamic-home-power>small:first-child,#homeScreen .dynamic-home-power>small:last-child,#homeScreen .dynamic-home-power>strong{position:static!important;display:block!important;width:100%!important;height:auto!important;left:auto!important;right:auto!important;top:auto!important;flex:none;text-align:center;line-height:1.04}
+#homeScreen .dynamic-home-power>small:first-child{font:700 clamp(8px,2.7vw,13px)/1 Georgia,serif;color:#ffedbf}
+#homeScreen .dynamic-home-power>strong{font:700 clamp(20px,6.4vw,38px)/1 Georgia,serif;color:#fff2cb;text-shadow:0 0 12px #16a4e989;white-space:nowrap;overflow:hidden;}
+#homeScreen .dynamic-home-power>small:last-child{font:600 clamp(7px,1.8vw,10px)/1 sans-serif;color:#b9eaff}
+#homeScreen .dynamic-home-wallet{display:flex!important;flex-direction:column;align-items:stretch;justify-content:space-evenly;gap:0}
+#homeScreen .dynamic-home-wallet>div{position:static!important;display:grid!important;grid-template-columns:44% 56%;height:auto!important;min-height:42%;width:100%!important;left:auto!important;right:auto!important;gap:1px!important;align-items:center;justify-items:stretch;padding:1px 4px;border-bottom:1px solid #b9d4db55;}
+#homeScreen .dynamic-home-wallet>div:last-child{border-bottom:0}
+#homeScreen .dynamic-home-wallet span{font:700 clamp(8px,2vw,11px)/1.1 sans-serif;color:#e5f4ff;white-space:nowrap}
+#homeScreen .dynamic-home-wallet strong{font:700 clamp(14px,4.2vw,25px)/1 Georgia,serif!important;white-space:nowrap;text-align:right;overflow:hidden;color:#ffebbc}
+#homeScreen .dynamic-home-event{z-index:14;top:10.3%;left:2.5%;width:53%;height:9%;border:2px solid #d5b471;border-radius:16px 7px 16px 7px;background:linear-gradient(120deg,#07234adf,#0b5494bb 58%,#05224bdc),radial-gradient(circle,#daf8ff,#174c7b);box-shadow:inset 0 0 13px #5ac6f96b,0 4px 9px #10376550;}
+#homeScreen .dynamic-home-event:before{content:'❀';position:absolute;right:6%;top:2%;font-size:clamp(19px,5vw,36px);color:#f5cce8;text-shadow:0 0 8px #fff7ef}
+#homeScreen .dynamic-home-event span{font-family:Georgia,'Yu Mincho',serif;font-size:clamp(13px,3.8vw,22px);letter-spacing:.04em;line-height:1.2}
+#homeScreen .dynamic-home-event small{font-size:clamp(7px,1.8vw,10px);color:#e5f5ff}
+#homeScreen .dynamic-home-transfer{position:absolute;z-index:7;top:11%;right:6%;width:20%;height:8%;display:flex;flex-direction:column;justify-content:center;align-items:center;color:#eaf8ff;text-shadow:0 1px 5px #003c6a;pointer-events:none}
+#homeScreen .dynamic-home-transfer span{font-size:clamp(21px,7vw,38px);color:#ccf9ff;text-shadow:0 0 8px #18bcff,0 0 17px #137eff}
+#homeScreen .dynamic-home-transfer small{font-size:clamp(8px,2vw,12px)}
+#homeScreen .dynamic-home-favorite{position:absolute;z-index:12;top:21%;bottom:29%;left:20%;right:20%;display:block!important;overflow:visible!important;background:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;padding:0!important}
+#homeScreen .dynamic-home-favorite:before{content:'';position:absolute;inset:5% -7% 9%;border-radius:50%;background:radial-gradient(ellipse at 50% 54%,rgba(30,129,222,.52) 0%,rgba(24,136,213,.19) 38%,rgba(20,111,195,.08) 62%,transparent 74%);box-shadow:none}
+#homeScreen .dynamic-home-favorite:after{content:'✦';position:absolute;top:4.4%;left:49%;font-size:17px;color:#dbf9ff;filter:drop-shadow(0 0 7px #1a8bff)}
+#homeScreen .home-fav-heading{position:absolute;z-index:4;top:2%;left:5%;right:5%;height:8%;background:linear-gradient(90deg,transparent,#042a57d9 18%,#042a57d9 82%,transparent);color:#ffedb8;text-align:center;font-size:clamp(10px,2.8vw,14px);letter-spacing:.04em;display:flex;align-items:center;justify-content:center;white-space:nowrap}
+#homeScreen .home-fav-picture{position:absolute;z-index:2;top:8%;bottom:18%;left:-7%;right:-7%;background:none!important;border:0!important;border-radius:0!important;overflow:visible!important}
+#homeScreen .home-fav-picture:before{content:'';position:absolute;z-index:1;inset:5% 0 1%;border:0!important;border-radius:50%;background:radial-gradient(ellipse at center,rgba(87,204,254,.16),transparent 68%);box-shadow:none!important;pointer-events:none}
+#homeScreen .home-fav-picture:after{content:'✦';position:absolute;z-index:3;bottom:5%;width:100%;font-size:clamp(16px,5vw,25px);color:#d8faff;text-align:center;text-shadow:0 0 12px #50ccff;pointer-events:none}
+#homeScreen .home-fav-picture img{display:block;width:100%;height:100%;object-fit:contain;object-position:center center;filter:drop-shadow(0 5px 8px #004b91cc) saturate(1.1);-webkit-mask-image:radial-gradient(ellipse 64% 63% at 50% 47%,black 52%,rgba(0,0,0,.83) 66%,rgba(0,0,0,.30) 79%,transparent 94%);mask-image:radial-gradient(ellipse 64% 63% at 50% 47%,black 52%,rgba(0,0,0,.83) 66%,rgba(0,0,0,.30) 79%,transparent 94%)}
+#homeScreen #homeFavoriteEmpty{position:absolute;inset:0;display:none;align-items:center;justify-content:center;text-align:center;color:#fff1c3;background:radial-gradient(ellipse,#0b3977ae,transparent 74%);line-height:1.6;font-size:11px}
+#homeScreen .home-fav-footer{position:absolute;z-index:4;bottom:12%;left:-2%;right:-2%;height:9%;min-height:25px;padding:0 8px;display:flex;justify-content:center;align-items:center;gap:5px;overflow:hidden;white-space:nowrap;background:linear-gradient(90deg,transparent,#03284fe8 15%,#075287df 51%,#03284fe8 85%,transparent);border-top:1px solid #f1c57880;border-bottom:1px solid #f1c57880;color:#ffefd1;text-shadow:0 1px 5px #001327}
+#homeScreen .home-fav-footer strong{color:#fff2cb;font-size:clamp(10px,3vw,15px);overflow:hidden;text-overflow:ellipsis}
+#homeScreen .home-fav-footer span{font-size:clamp(9px,2.3vw,12px);color:#fcd579}
+#homeScreen .home-fav-footer small{font-size:clamp(8px,2vw,10px);white-space:nowrap}
+#homeScreen .home-change-favorite{position:absolute;z-index:5;bottom:2.5%;left:21%;width:58%;height:8%;min-height:27px;border:2px solid #ebc67a;border-radius:24px 6px 24px 6px;background:linear-gradient(180deg,#1978b5f0,#082a57f9);box-shadow:0 0 8px #a9e5ff73,inset 0 0 8px #50d4f94a;color:#ffedb5;font-size:clamp(9px,2.5vw,12px);font-weight:900}
+#homeScreen .home-action{position:absolute;z-index:17;width:24%;height:8.5%}
+#homeScreen .home-action.left{left:1.1%}#homeScreen .home-action.right{right:1.1%}
+#homeScreen .home-action.summon-action,#homeScreen .home-action.train-action{top:32.5%}
+#homeScreen .home-action.library-action,#homeScreen .home-action.shop-action{top:52.0%}
+#homeScreen .home-action.mission-action,#homeScreen .home-action.gift-action{top:73.0%}
+#homeScreen .home-action button{width:100%;height:100%;position:relative;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:1px;padding:3px 1px;color:#fff3cd;font:900 clamp(10px,3vw,15px)/1.05 Georgia,'Yu Mincho',serif;text-shadow:0 2px 5px #002447;border:2px solid #e6c175;border-radius:33% 7% 33% 7% / 24% 17% 24% 17%;background:linear-gradient(160deg,#0e598bdc,#032953f9 60%,#061e3ee6);box-shadow:inset 0 0 12px #7ed4ee46,0 2px 10px #07294b9d;}
+#homeScreen .home-action button:before{content:'✦';position:absolute;left:1px;top:-11px;font-size:17px;color:#ffe2a0;text-shadow:0 0 8px #cde9ff}
+#homeScreen .home-action button:after{content:'✦';position:absolute;right:1px;bottom:-10px;font-size:16px;color:#ffe2a0;text-shadow:0 0 8px #cde9ff}
+#homeScreen .home-action button b{display:block;font-size:clamp(15px,4vw,20px);line-height:1;color:#9de7ff;text-shadow:0 0 9px #55baff;}
+#homeScreen .home-action small{display:block;color:#d9f5ff;font:500 clamp(7px,2vw,10px)/1.2 sans-serif;white-space:nowrap}
+#homeScreen #goTap{position:absolute;z-index:19;top:78%!important;left:30%!important;width:40%!important;height:7.5%!important;display:flex!important;flex-direction:column;justify-content:center;align-items:center;gap:2px;background:linear-gradient(170deg,#155994f5,#042e5af5 70%,#021b40ee)!important;border:2px solid #f4c981!important;border-radius:35% 7% 35% 7% / 25% 16% 25% 16%!important;box-shadow:0 0 11px #65d9ffc6,inset 0 0 15px #30aaff86!important;}
+#homeScreen #goTap:before,#homeScreen #goTap:after{content:'✦';position:absolute;top:-8px;font-size:19px;color:#ffdb86;text-shadow:0 0 8px #7bedff}#homeScreen #goTap:before{left:0}#homeScreen #goTap:after{right:0}
+#homeScreen #goTap span{font:900 clamp(14px,4.5vw,22px)/1.1 Georgia,'Yu Mincho',serif!important;color:#fff2c7!important;text-shadow:0 2px 4px #001b43!important}
+#homeScreen #goTap small{font:500 clamp(7px,2vw,10px)/1.1 sans-serif!important;color:#d8f6ff!important;text-shadow:none!important}
+#homeScreen .home-nav{z-index:31!important}
+@media(max-height:700px){#homeScreen .dynamic-home-event{top:10%;height:8%}#homeScreen .dynamic-home-favorite{top:20%;bottom:28%}#homeScreen .home-action.mission-action,#homeScreen .home-action.gift-action{top:73%}}
+/* ========= End HOME V3 ========= */
+
+
+/* CRITICAL: hide dormant screen SVG children so they cannot intercept active nav taps */
+#app > .screen:not(.active){display:none!important;pointer-events:none!important}
+#app > .screen.active{display:block!important;pointer-events:auto!important}
+/* ===== HOME V3.1: fix inherited transparent menu CSS and keep the art clean ===== */
+#homeScreen .home-backdrop-art{object-fit:fill!important}
+#homeScreen .dynamic-home-shade{background:linear-gradient(180deg,#03234c2e 0%,transparent 17%,#01275708 47%,#021a4147 91%,#071b3eaa 100%)!important;}
+#homeScreen .home-action{pointer-events:auto!important;opacity:1!important;visibility:visible!important}
+#homeScreen .home-action button{
+ display:flex!important;visibility:visible!important;opacity:1!important;
+ background:linear-gradient(155deg,rgba(33,114,167,.97),rgba(5,40,86,.97) 46%,rgba(3,26,64,.98))!important;
+ color:#fff0cf!important;font-size:clamp(12px,3.25vw,17px)!important;
+ border:2px solid #f4d190!important;border-radius:26% 9% 26% 9% / 33% 13% 33% 13%!important;
+ box-shadow:inset 0 0 0 1px #426e92,inset 0 0 18px #61c6f377,0 0 10px #153c72ad,0 3px 4px #10214a!important;
+ text-shadow:0 2px 3px #001329!important;font-weight:900!important;
+ line-height:1.07!important;padding:2px!important
+}
+#homeScreen .home-action button b{display:block!important;color:#a5eefe!important;font-size:clamp(16px,4.3vw,23px)!important;text-shadow:0 0 10px #59d5ff!important;line-height:1!important}
+#homeScreen .home-action button small{display:block!important;color:#f1f5ff!important;font-size:clamp(8px,2vw,11px)!important;text-shadow:0 1px 2px #001633!important;line-height:1.12!important}
+#homeScreen .home-action button:active{transform:scale(.98)}
+#homeScreen .home-action.summon-action,#homeScreen .home-action.train-action{top:32%!important}
+#homeScreen .home-action.library-action,#homeScreen .home-action.shop-action{top:49%!important}
+#homeScreen .home-action.mission-action,#homeScreen .home-action.gift-action{top:69.5%!important}
+#homeScreen .dynamic-home-hud{height:9.6%!important;gap:5px!important;grid-template-columns:25% 35% 1fr!important}
+#homeScreen .dynamic-home-hud>div{border-color:#f5d393!important;box-shadow:0 0 0 1px #9d7135,inset 0 0 15px #8edaff63,0 3px 7px #00153f9e!important;background:linear-gradient(155deg,#16679bcf,#04284ee9 60%,#071d42f2)!important}
+#homeScreen .dynamic-home-rank>small{color:#ffe7a8!important;font-size:clamp(9px,2.2vw,12px)!important}
+#homeScreen .dynamic-home-rank>strong{font-size:clamp(19px,5.3vw,30px)!important;color:#fff0ba!important}
+#homeScreen .dynamic-home-power>small:first-child{font-size:clamp(10px,2.65vw,13px)!important;color:#fff3bf!important}
+#homeScreen .dynamic-home-power>strong{font-size:clamp(22px,6.4vw,38px)!important;color:#fff1be!important}
+#homeScreen .dynamic-home-wallet span{color:#edf9ff!important;font-size:clamp(8px,2.2vw,11px)!important}
+#homeScreen .dynamic-home-wallet strong{color:#fff1c4!important;font-size:clamp(15px,4.1vw,25px)!important}
+#homeScreen .dynamic-home-event{box-shadow:0 0 0 1px #634d3e,inset 0 0 16px #a6ecff80,0 3px 11px #11386683!important;background:linear-gradient(95deg,#052755fa,#0a4679dd 67%,#033464e8)!important}
+#homeScreen .dynamic-home-event span{color:#fff3ca!important;text-shadow:0 2px 4px #00143f!important}
+#homeScreen .dynamic-home-transfer{display:none!important}
+#homeScreen .dynamic-home-favorite{top:19%!important;bottom:29%!important;left:20%!important;right:20%!important}
+#homeScreen .dynamic-home-favorite:before{background:radial-gradient(ellipse at 50% 49%,#c9f7ff19 0%,#247bda38 26%,#0c4d9640 56%,transparent 76%)!important}
+#homeScreen .home-fav-picture{top:10%!important;bottom:17%!important;left:-14%!important;right:-14%!important}
+#homeScreen .home-fav-picture img{object-fit:contain!important;filter:drop-shadow(0 0 13px #adf2ff66) drop-shadow(0 5px 18px #043866bb)!important}
+#homeScreen .home-fav-heading{color:#fff3c4!important;border-top:1px solid #e7ce7977;border-bottom:1px solid #c5aa7377}
+#homeScreen .home-fav-footer{bottom:12%!important}
+#homeScreen .home-change-favorite{bottom:2%!important;min-height:29px!important}
+#homeScreen #goTap{top:80.1%!important;height:7.2%!important;left:31%!important;width:38%!important}
+#homeScreen #goTap span{font-size:clamp(14px,4.4vw,21px)!important;color:#fff4c2!important}
+#homeScreen #goTap small{font-size:clamp(8px,1.9vw,10px)!important;color:#e0f6ff!important}
+#homeScreen .home-nav{z-index:39!important}
+@media(max-height:690px){#homeScreen .dynamic-home-favorite{top:20%!important;bottom:28%!important}#homeScreen .home-action.mission-action,#homeScreen .home-action.gift-action{top:69%!important}}
+
+/* ======================================================
+   HOME V4 – preserve original ornate painting; real stats/hero
+   - Original painted side gates/objects remain visible.
+   - New scenic magic arch hides the painted center heroine.
+   - Menus become invisible aligned touch targets.
+   - Existing favorite/save/game logic stays unchanged.
+   ====================================================== */
+#homeScreen {background:#071d37!important;}
+#homeScreen .home-backdrop-art{object-fit:fill!important;filter:none!important;transform:none!important;opacity:1!important;clip-path:inset(0 0 11.7% 0);z-index:1!important;}
+#homeScreen .dynamic-home-shade{pointer-events:none!important;background:linear-gradient(180deg,rgba(0,16,38,.10),transparent 16%,transparent 64%,rgba(3,21,46,.08) 82%,rgba(0,8,27,.25))!important;z-index:2!important}
+#homeScreen .dynamic-home-event,#homeScreen .dynamic-home-transfer{display:none!important;}
+/* arch blends into marble garden without putting another rectangular card on screen */
+#homeScreen .home-portal-scene{
+ position:absolute;z-index:8;top:20%;height:53%;left:13%;width:74%;
+ pointer-events:none;
+ background-image:radial-gradient(ellipse at 50% 38%,rgba(193,238,255,.17) 0%,rgba(7,72,141,.08) 45%,rgba(3,28,79,.20) 86%),url('../assets/7a65b8fc4d5b2f7bb381.webp');
+ background-position:center center;background-size:100% 100%;
+ -webkit-mask-image:radial-gradient(ellipse 66% 61% at 50% 48%,#000 64%,rgba(0,0,0,.92) 73%,rgba(0,0,0,.55) 86%,transparent 100%);
+ mask-image:radial-gradient(ellipse 66% 61% at 50% 48%,#000 64%,rgba(0,0,0,.92) 73%,rgba(0,0,0,.55) 86%,transparent 100%);
+ filter:saturate(1.13) contrast(1.03);
+}
+/* HUD gets the project's actual ornate frame assets, without baked-in numbers. */
+#homeScreen .dynamic-home-hud{
+ z-index:42!important;top:0!important;height:10.3%!important;
+ grid-template-columns:25% 36% 39%!important;gap:0!important;padding:3px 2px!important;
+ background:linear-gradient(180deg,#07305cef,#042248f9)!important;border-bottom:0!important;
+ box-shadow:0 1px 8px #031a3b93!important;
+}
+#homeScreen .dynamic-home-hud>div{border:0!important;border-radius:0!important;box-shadow:none!important;padding:5px 7px!important;background-color:transparent!important;background-repeat:no-repeat!important;background-size:100% 100%!important;background-position:center!important}
+#homeScreen .dynamic-home-rank{background-image:url('../assets/4fce1c8b0637f075aa90.webp')!important;display:grid!important;grid-template-columns:37% 63%!important;grid-template-rows:42% 58%!important;column-gap:0!important;padding:11px 5px!important;}
+#homeScreen .home-rank-avatar{position:relative!important;top:auto!important;left:auto!important;grid-column:1!important;grid-row:1 / span 2!important;width:100%!important;height:auto!important;max-height:85%!important;object-fit:contain!important;align-self:center;border-radius:50%;border:1px solid #e9cc86!important;}
+#homeScreen .dynamic-home-rank small{grid-column:2!important;grid-row:1!important;font:700 clamp(8px,2.6vw,11px)/1 Georgia,serif!important;color:#ffe6a5!important;align-self:end!important;text-align:center!important;}
+#homeScreen .dynamic-home-rank strong{grid-column:2!important;grid-row:2!important;align-self:start!important;font:700 clamp(16px,5.0vw,27px)/1.1 Georgia,serif!important;color:#fff0b9!important;}
+#homeScreen .dynamic-home-power{background-image:url('../assets/24a9a64deef7e59aab5c.webp')!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;padding:13px 16px!important;gap:0!important;}
+#homeScreen .dynamic-home-power>small:first-child{font:700 clamp(9px,2.9vw,14px)/1.05 Georgia,serif!important;color:#fff2c6!important;}
+#homeScreen .dynamic-home-power>strong{font:700 clamp(19px,6vw,35px)/1.05 Georgia,serif!important;color:#ffefbf!important;}
+#homeScreen .dynamic-home-power>small:last-child{font:700 clamp(7px,1.9vw,10px)/1.05 serif!important;color:#ccefff!important;}
+#homeScreen .dynamic-home-wallet{background-image:url('../assets/c1578361e2bc89ebbffc.webp')!important;display:flex!important;flex-direction:column!important;justify-content:center!important;padding:11px 13px 12px 20px!important;gap:0!important;}
+#homeScreen .dynamic-home-wallet>div{display:grid!important;grid-template-columns:50% 50%!important;min-height:37%!important;align-items:center!important;border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important;}
+#homeScreen .dynamic-home-wallet span{font:700 clamp(7px,2vw,11px)/1.1 sans-serif!important;color:#ecf9ff!important;}
+#homeScreen .dynamic-home-wallet strong{font:700 clamp(13px,4.4vw,26px)/1.1 Georgia,serif!important;color:#ffefb9!important;text-align:right!important;}
+/* Original side-menu artwork is retained. HTML buttons are invisible hotspots. */
+#homeScreen .home-action{z-index:24!important;width:24%!important;height:13%!important;pointer-events:auto!important;}
+#homeScreen .home-action.left{left:0!important}#homeScreen .home-action.right{right:0!important}
+#homeScreen .home-action.summon-action,#homeScreen .home-action.train-action{top:28%!important}
+#homeScreen .home-action.library-action,#homeScreen .home-action.shop-action{top:50%!important}
+#homeScreen .home-action.mission-action,#homeScreen .home-action.gift-action{top:69.5%!important}
+#homeScreen .home-action button{opacity:0!important;background:transparent!important;border:0!important;box-shadow:none!important;pointer-events:auto!important;}
+#homeScreen .home-action button:before,#homeScreen .home-action button:after{content:none!important;}
+#homeScreen .dynamic-home-favorite{
+ z-index:16!important;top:19%!important;bottom:27%!important;left:16%!important;right:16%!important;
+ pointer-events:none!important;background:transparent!important;border:0!important;box-shadow:none!important;
+}
+#homeScreen .dynamic-home-favorite:before,#homeScreen .dynamic-home-favorite:after{display:none!important}
+#homeScreen .home-fav-heading{display:none!important;}
+#homeScreen .home-fav-picture{z-index:2!important;left:-9%!important;right:-9%!important;top:10%!important;bottom:14%!important;pointer-events:none!important;background:none!important;border:0!important;overflow:visible!important;}
+#homeScreen .home-fav-picture:before,#homeScreen .home-fav-picture:after{display:none!important;}
+#homeScreen .home-fav-picture img{display:block!important;width:100%!important;height:100%!important;object-fit:contain!important;object-position:center center!important;max-width:100%!important;filter:drop-shadow(0 4px 14px #02365d) drop-shadow(0 0 8px #d9faff75) saturate(1.04)!important;mask-image:none!important;-webkit-mask-image:none!important;}
+#homeScreen .home-fav-footer{z-index:6!important;bottom:11%!important;left:0!important;right:0!important;height:8%!important;min-height:28px!important;pointer-events:none!important;background:linear-gradient(90deg,transparent,#041a40dd 17%,#064578dd 50%,#041a40dd 83%,transparent)!important;border-top:1px solid #ffda8c8e!important;border-bottom:1px solid #ffda8c8e!important;text-shadow:0 2px 4px #001632!important;}
+#homeScreen .home-fav-footer strong{font-size:clamp(10px,2.85vw,14px)!important;}
+#homeScreen .home-change-favorite{z-index:9!important;bottom:0!important;left:27%!important;width:46%!important;height:7%!important;min-height:27px!important;pointer-events:auto!important;font-size:clamp(9px,2.5vw,13px)!important;background:linear-gradient(180deg,#227fc1,#03264f)!important;border:2px solid #f3d18e!important;border-radius:12px!important;box-shadow:0 1px 9px #00264fc9,inset 0 0 8px #c5efff4b!important;}
+/* Tap portal sits exactly on ornate baked awakening crystal button. */
+#homeScreen #goTap{z-index:30!important;top:61.0%!important;left:29%!important;width:42%!important;height:7.5%!important;opacity:0!important;background:transparent!important;box-shadow:none!important;border:0!important;pointer-events:auto!important;}
+#homeScreen #goTap:before,#homeScreen #goTap:after{display:none!important}
+#homeScreen .home-nav{z-index:50!important;bottom:0!important;background-color:#071c38!important;background-repeat:no-repeat!important;background-size:100% 100%!important}
+/* Compatible with small iPhones. The navigation remains common. */
+@media(max-height:720px){#homeScreen .dynamic-home-hud{height:10.3%!important}#homeScreen .dynamic-home-favorite{top:18%!important;bottom:27%!important}#homeScreen .home-action.mission-action,#homeScreen .home-action.gift-action{top:69.5%!important}}
+
+
+/* v4.1: restore the complete original ornate background: no stretching castles, no blue cover card */
+#homeScreen .home-portal-scene{display:none!important}
+#homeScreen .dynamic-home-favorite{top:17%!important;bottom:29%!important;left:16%!important;right:16%!important}
+#homeScreen .home-fav-picture{top:-3%!important;bottom:27%!important;left:0%!important;right:0%!important}
+#homeScreen .home-fav-footer{bottom:21%!important;left:-4%!important;right:-4%!important;height:7.5%!important}
+#homeScreen .home-change-favorite{top:1%!important;bottom:auto!important;left:auto!important;right:-3%!important;width:39%!important;height:7%!important;min-height:24px!important;font-size:clamp(9px,2.4vw,12px)!important}
+#homeScreen .dynamic-home-hud .dynamic-home-rank{background-image:url('../assets/4fce1c8b0637f075aa90.webp')!important;background-size:100% 100%!important;background-color:transparent!important;padding:8px 6px 10px!important}
+#homeScreen .dynamic-home-hud .dynamic-home-power{background-image:url('../assets/24a9a64deef7e59aab5c.webp')!important;background-size:100% 100%!important;background-color:transparent!important;padding:14px 17px!important}
+#homeScreen .dynamic-home-hud .dynamic-home-wallet{background-image:url('../assets/c1578361e2bc89ebbffc.webp')!important;background-size:100% 100%!important;background-color:transparent!important;padding:11px 14px 11px 25px!important}
+#homeScreen .dynamic-home-hud{gap:0!important;}
+#homeScreen .home-ornate-foreground{position:absolute;z-index:23;top:27.2%;height:17.1%;width:27.6%;background-repeat:no-repeat;background-size:100% 100%;pointer-events:none;}
+#homeScreen .home-ornate-left{left:0;background-image:url('../assets/816dd9e3fbd6efcc69da.webp');-webkit-mask-image:linear-gradient(to right,#000 0%,#000 72%,transparent 100%);mask-image:linear-gradient(to right,#000 0%,#000 72%,transparent 100%);}
+#homeScreen .home-ornate-right{right:0;background-image:url('../assets/add5ae006c8f77549c96.webp');-webkit-mask-image:linear-gradient(to left,#000 0%,#000 72%,transparent 100%);mask-image:linear-gradient(to left,#000 0%,#000 72%,transparent 100%);}
+#homeScreen .home-action.summon-action,#homeScreen .home-action.train-action{top:28%!important}
+#homeScreen .home-action.library-action,#homeScreen .home-action.shop-action{top:50%!important}
+#homeScreen .home-action.mission-action,#homeScreen .home-action.gift-action{top:69.5%!important}
+#homeScreen .home-nav{background-color:#061b34!important}
+
+
+/* ================================================================
+  HOME v5 : integrated fantasy UI, no baked static text above HUD,
+            deliberate magic-mirror stage for ALL owned portraits.
+  All game logic/save, original ornate side scenery and shared nav preserved.
+================================================================ */
+#homeScreen{isolation:isolate!important;background:#082243!important}
+#homeScreen .home-backdrop-art{filter:none!important;transform:none!important;opacity:1!important;clip-path:inset(0 0 11.7% 0)!important;}
+#homeScreen .dynamic-home-shade{background:linear-gradient(180deg,rgba(1,14,35,.15) 0%,transparent 26%,transparent 75%,rgba(0,14,34,.15) 87%,#061c3d 100%)!important}
+/* TOP HUD — a single continuous gilded header, like the navigation footer */
+#homeScreen .dynamic-home-hud{
+ z-index:52!important;top:0!important;left:0!important;right:0!important;
+ height:10.25%!important;min-height:57px!important;display:grid!important;
+ grid-template-columns:25% 33% 42%!important;gap:0!important;
+ padding:5px 8px 5px!important;
+ background:
+  radial-gradient(circle at 49% -13%,rgba(103,214,255,.38),transparent 33%),
+  linear-gradient(180deg,#071b38 0%,#0c3154 45%,#07182f 100%)!important;
+ border-top:2px solid #efd892!important;border-bottom:2px solid #f3d891!important;
+ border-left:0!important;border-right:0!important;
+ border-radius:0!important;
+ box-shadow:0 2px 12px #001226ad,inset 0 1px 0 #7adfff50,inset 0 -1px 0 #56b8ed72!important;
+ overflow:visible!important;
+}
+#homeScreen .dynamic-home-hud:before{
+ content:'✧';position:absolute;top:-8px;left:49%;width:26px;height:18px;
+ transform:translateX(-50%);z-index:2;text-align:center;
+ color:#fff1b0;font-size:22px;line-height:18px;text-shadow:0 0 8px #7becff,0 0 10px #2975cf;
+}
+#homeScreen .dynamic-home-hud:after{
+ content:'';position:absolute;inset:0;pointer-events:none;
+ background:linear-gradient(90deg,transparent 24.6%,#e2b86b 24.8%,#fff4b4 25%,#e2b86b 25.2%,transparent 25.4%, transparent 57.6%,#e2b86b 57.8%,#fff4b4 58%,#e2b86b 58.2%,transparent 58.4%);
+ opacity:.72;
+}
+#homeScreen .dynamic-home-hud>div{
+ position:relative!important;min-width:0!important;
+ border:0!important;border-radius:0!important;
+ background:none!important;background-image:none!important;
+ box-shadow:none!important;gap:0!important;
+ padding:5px 5px!important;display:flex!important;align-items:center!important;justify-content:center!important;
+}
+#homeScreen .dynamic-home-hud>div:before{
+ content:'✦';position:absolute;top:1px;left:5px;font-size:8px;
+ color:#eaca75;text-shadow:0 0 5px #77dcff;pointer-events:none
+}
+#homeScreen .dynamic-home-hud small{color:#f7ead1!important;font-size:clamp(9px,2.5vw,11px)!important;line-height:1.1!important;white-space:nowrap!important;text-shadow:0 1px 3px #001529!important}
+#homeScreen .dynamic-home-hud strong{max-width:100%!important;overflow:hidden!important;text-overflow:clip!important;white-space:nowrap!important;color:#ffeab1!important;line-height:1.08!important;text-shadow:0 2px 3px #000d1b,0 0 9px #5cd2f55c!important;font-variant-numeric:tabular-nums!important}
+#homeScreen .dynamic-home-rank{display:grid!important;grid-template-columns:37% 63%!important;grid-template-rows:47% 53%!important;column-gap:1px!important;align-items:center!important;justify-items:center!important}
+#homeScreen .home-rank-avatar{
+ display:block!important;position:relative!important;grid-column:1!important;grid-row:1/span 2!important;
+ top:auto!important;left:auto!important;width:96%!important;height:88%!important;max-height:100%!important;
+ object-fit:contain!important;border:1px solid #f4d68e!important;
+ border-radius:50%!important;background:radial-gradient(circle,#235a80,#071d44)!important;
+ box-shadow:0 0 0 2px #142e50,0 0 0 3px #cf9d53,0 0 10px #4fd9ff7a!important;
+}
+#homeScreen .dynamic-home-rank small{grid-column:2!important;grid-row:1!important;align-self:end!important;font-size:clamp(9px,2.7vw,12px)!important;letter-spacing:.035em}
+#homeScreen .dynamic-home-rank strong{grid-column:2!important;grid-row:2!important;align-self:start!important;font:700 clamp(18px,5.3vw,26px)/1.04 Georgia,serif!important}
+#homeScreen .dynamic-home-power{display:flex!important;flex-direction:column!important;justify-content:center!important;padding-top:8px!important;padding-bottom:3px!important}
+#homeScreen .dynamic-home-power>small:first-child{font:700 clamp(9px,2.5vw,11px)/1.1 Georgia,serif!important}
+#homeScreen .dynamic-home-power>strong{font:700 clamp(24px,7.3vw,38px)/1 Georgia,serif!important;letter-spacing:.01em!important}
+#homeScreen .dynamic-home-power>small:last-child{font-size:clamp(8px,2.2vw,10px)!important}
+#homeScreen .dynamic-home-wallet{display:flex!important;flex-direction:column!important;align-items:stretch!important;justify-content:center!important;padding:5px 3px 5px 9px!important;gap:0!important}
+#homeScreen .dynamic-home-wallet>div{width:100%!important;height:48%!important;min-height:0!important;display:grid!important;grid-template-columns:minmax(0,53%) minmax(0,47%)!important;align-items:center!important;gap:1px!important;margin:0!important;border:0!important;background:none!important;box-shadow:none!important;padding:0 3px!important}
+#homeScreen .dynamic-home-wallet>div:first-child{border-bottom:1px solid #cbaa647d!important}
+#homeScreen .dynamic-home-wallet span{font:700 clamp(8px,2.24vw,11px)/1 sans-serif!important;text-shadow:0 2px 3px #000!important;white-space:nowrap!important;letter-spacing:-.04em}
+#homeScreen .dynamic-home-wallet strong{justify-self:end!important;text-align:right!important;font:700 clamp(15px,4.65vw,27px)/1 Georgia,serif!important;letter-spacing:-.02em!important}
+/* Home event stays painted once; new dummy label hidden. */
+#homeScreen .dynamic-home-event,#homeScreen .dynamic-home-transfer{display:none!important}
+/* A luminous gilded character mirror: physically anchors the portrait in the room. */
+#homeScreen .home-portal-scene{display:none!important}
+#homeScreen .dynamic-home-favorite{
+ position:absolute!important;top:20.5%!important;bottom:36.3%!important;
+ left:17.5%!important;right:17.5%!important;z-index:21!important;
+ border:0!important;border-radius:0!important;background:transparent!important;
+ box-shadow:none!important;padding:0!important;overflow:visible!important;
+ display:block!important;pointer-events:none!important;
+}
+#homeScreen .dynamic-home-favorite:before{
+ display:block!important;content:''!important;
+ position:absolute!important;inset:3% 7% 3%!important;z-index:0!important;
+ border:2px solid #edd291b8!important;border-radius:48% 48% 15% 15%/36% 36% 9% 9%!important;
+ background:
+  radial-gradient(ellipse at 50% 44%,#3e83b77d 0%,#225e9fb8 41%,#061c40d7 75%),
+  linear-gradient(180deg,#113c6bcc,#081b43ed)!important;
+ box-shadow:0 0 0 3px #082b4c80,0 0 0 4px #e9c1789c,0 0 20px #73c5ffe0,inset 0 0 24px #4da9e7b1,inset 0 0 0 5px #a8dcfd36!important;
+ opacity:1!important;pointer-events:none!important;
+}
+#homeScreen .dynamic-home-favorite:after{
+ display:block!important;content:'✦'!important;
+ position:absolute!important;z-index:5!important;left:50%!important;top:-1.5%!important;
+ width:44px!important;height:24px!important;text-align:center!important;
+ transform:translateX(-50%)!important;
+ background:none!important;color:#ffefb1!important;font-size:26px!important;
+ line-height:24px!important;text-shadow:0 0 9px #6ed4ff,0 0 13px #2d8cf1!important;
+ border:0!important;pointer-events:none!important;
+}
+#homeScreen .home-fav-heading{display:none!important}
+#homeScreen .home-fav-picture{
+ display:block!important;position:absolute!important;z-index:2!important;
+ left:4%!important;right:4%!important;top:3%!important;bottom:10%!important;
+ margin:0!important;padding:0!important;min-height:0!important;
+ border:0!important;border-radius:0!important;box-shadow:none!important;
+ background:none!important;overflow:visible!important;pointer-events:none!important;
+}
+#homeScreen .home-fav-picture:before{
+ display:block!important;content:''!important;position:absolute!important;
+ z-index:0!important;left:16%!important;right:16%!important;bottom:6%!important;height:20%!important;
+ border-radius:50%!important;background:radial-gradient(ellipse,#bcefff99,#3993e981 42%,transparent 73%)!important;
+ box-shadow:none!important;pointer-events:none!important;
+}
+#homeScreen .home-fav-picture:after{
+ display:block!important;content:''!important;position:absolute!important;
+ left:5%!important;right:5%!important;bottom:0!important;height:11%!important;z-index:3!important;
+ border-bottom:2px solid #f4daa3!important;border-radius:50%!important;
+ background:radial-gradient(ellipse at center,#8fe9ff9c,transparent 65%)!important;
+ box-shadow:0 4px 15px #63bfff60!important;pointer-events:none!important;
+}
+#homeScreen .home-fav-picture img{
+ display:block!important;position:relative!important;z-index:2!important;
+ width:100%!important;height:100%!important;max-width:100%!important;
+ object-fit:contain!important;object-position:center bottom!important;
+ mask-image:linear-gradient(180deg,#000 0%,#000 65%,#000d 80%,transparent 99%)!important;
+ -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 65%,#000d 80%,transparent 99%)!important;
+ filter:drop-shadow(0 0 7px #e9faff70) drop-shadow(0 12px 11px #06142bba)!important;
+ transform:none!important;
+}
+#homeScreen .home-fav-footer{
+ position:absolute!important;left:0!important;right:0!important;bottom:0!important;z-index:7!important;
+ width:100%!important;height:10%!important;min-height:27px!important;
+ display:flex!important;align-items:center!important;justify-content:center!important;gap:5px!important;
+ margin:0!important;padding:4px 10px!important;
+ border-top:1px solid #ffe1a2b0!important;border-bottom:1px solid #edca84b8!important;
+ border-radius:16px 3px 16px 3px!important;
+ background:linear-gradient(100deg,#03132bd9,#0c3567f4 22%,#0a2c5ef2 73%,#03132be3)!important;
+ box-shadow:0 0 9px #2c94d966,inset 0 0 8px #6cd3ff2d!important;
+ pointer-events:none!important;text-shadow:0 2px 3px #000!important;
+}
+#homeScreen .home-fav-footer:before{content:'✦';position:absolute;left:5px;color:#ffdda3;font-size:10px}
+#homeScreen .home-fav-footer:after{content:'✦';position:absolute;right:5px;color:#ffdda3;font-size:10px}
+#homeScreen .home-fav-footer span{flex:none!important;color:#ffe2a2!important;letter-spacing:-.12em!important;font-size:clamp(10px,2.75vw,14px)!important}
+#homeScreen .home-fav-footer strong{flex:0 1 auto!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;font-size:clamp(11px,3.0vw,15px)!important;color:#fff9e3!important}
+#homeScreen .home-fav-footer small{flex:none!important;color:#e2eeff!important;font-size:clamp(8px,2.13vw,11px)!important}
+#homeScreen .home-change-favorite{
+ z-index:38!important;pointer-events:auto!important;position:absolute!important;
+ top:-12%!important;right:-25%!important;left:auto!important;bottom:auto!important;
+ width:40%!important;height:8.5%!important;min-height:26px!important;
+ border:1px solid #ffe1a2!important;border-radius:17px 3px 17px 3px!important;
+ background:linear-gradient(180deg,#165fa0,#092958 70%,#061d40)!important;
+ color:#fff0b6!important;box-shadow:0 0 0 2px #123252bb,inset 0 1px #e6ffff6e,0 3px 7px #061527dd!important;
+ font-size:clamp(10px,2.8vw,13px)!important;font-weight:800!important;
+}
+#homeScreen .home-change-favorite:after{content:'✧';margin-left:3px;color:#b0efff}
+/* the menu scenery remains from the original art; bring the magical gates in front */
+#homeScreen .home-ornate-foreground{z-index:28!important;pointer-events:none!important}
+#homeScreen .home-action{z-index:34!important}
+#homeScreen .home-action button{opacity:0!important;pointer-events:auto!important;}
+#homeScreen #goTap{z-index:35!important;top:60.5%!important;left:29%!important;width:42%!important;height:8%!important;opacity:0!important;pointer-events:auto!important;}
+/* BOTTOM NAV : top gilded rail and navy footing echo the upper HUD */
+#homeScreen .home-nav,.gacha-bottom-nav,.character-bottom-nav{
+ bottom:0!important;height:11.7%!important;background-color:#071b35!important;
+ border-top:2px solid #f1cf82!important;box-shadow:0 -2px 10px #03172b72!important;
+}
+#homeScreen .home-nav{z-index:50!important}
+#homeScreen .home-nav:before{
+ content:'✦';position:absolute;left:50%;top:-12px;transform:translateX(-50%);
+ width:24px;text-align:center;color:#fff1b7;text-shadow:0 0 9px #7cdbff;z-index:2;pointer-events:none;
+}
+@media (max-height:650px){
+ #homeScreen .dynamic-home-hud{height:10.4%!important;min-height:49px!important}
+ #homeScreen .dynamic-home-favorite{top:21.5%!important;bottom:36.5%!important}
+ #homeScreen .home-change-favorite{top:-12%!important}
+}
+
+
+/* HOME v5 integrated HUD replaces legacy image-based layout completely */
+#homeScreen .v5-unified-hud{
+ position:absolute;top:0;left:0;right:0;z-index:56;height:10.25%;min-height:56px;
+ display:grid;grid-template-columns:25% 33% 42%;gap:0;overflow:hidden;
+ padding:5px 7px;
+ background:radial-gradient(ellipse at 50% -18%,#4baee653,transparent 53%),
+ linear-gradient(180deg,#071c3a 0%,#0b3156 48%,#06172f 100%);
+ border-top:2px solid #f4dca1;border-bottom:2px solid #f0cf85;
+ box-shadow:0 3px 10px #03162cbe,inset 0 1px 0 #77d9ff88,inset 0 -1px 0 #76cce95c;
+ color:#fff2ce;text-shadow:0 1px 3px #00112a;
+}
+#homeScreen .v5-unified-hud:after{
+ content:'';pointer-events:none;position:absolute;inset:0;
+ background:linear-gradient(90deg,transparent 25%,#e0b76a 25.08%,#fff3b9 25.25%,#e0b76a 25.42%,transparent 25.6%,transparent 58%,#e0b76a 58.08%,#fff3b9 58.25%,#e0b76a 58.42%,transparent 58.6%);
+}
+#homeScreen .v5-unified-hud>div{min-width:0;min-height:0;position:relative;padding:0 4px;overflow:hidden;}
+#homeScreen .v5-unified-hud>div:before{content:'✦';position:absolute;left:1px;top:0;color:#eed491;font-size:7px;text-shadow:0 0 4px #6ed7ff;}
+#homeScreen .v5-hud-rank{display:flex;align-items:center;justify-content:flex-start;gap:5px;}
+#homeScreen .v5-avatar-ring{position:relative;flex:none;height:min(38px,82%);width:min(38px,43%);border:1px solid #ffe6a6;border-radius:50%;background:radial-gradient(circle,#3679b2,#0a3157);box-shadow:0 0 0 2px #153451,0 0 0 3px #af8a54,0 0 6px #70e5ff66;overflow:hidden;}
+#homeScreen .v5-avatar-ring img{display:block!important;width:100%;height:100%;object-fit:contain;}
+#homeScreen .v5-avatar-ring img[hidden]{display:none!important}
+#homeScreen .v5-rank-copy{min-width:0;display:flex;flex:1;flex-direction:column;align-items:center;justify-content:center;gap:0;}
+#homeScreen .v5-rank-copy span{font:700 clamp(9px,2.6vw,12px)/1.25 Georgia,serif;white-space:nowrap}
+#homeScreen .v5-rank-copy strong{font:700 clamp(18px,5.5vw,27px)/1.1 Georgia,serif;max-width:100%;white-space:nowrap;color:#fff1bd}
+#homeScreen .v5-hud-power{display:flex;flex-direction:column;align-items:center;justify-content:center;}
+#homeScreen .v5-hud-power span{font:700 clamp(10px,2.8vw,13px)/1.2 Georgia,serif;}
+#homeScreen .v5-hud-power strong{font:700 clamp(23px,7.3vw,38px)/1 Georgia,serif;letter-spacing:.015em;color:#fff1bd;white-space:nowrap;max-width:100%;overflow:hidden;font-variant-numeric:tabular-nums;}
+#homeScreen .v5-hud-power small{font:700 clamp(8px,2.1vw,10px)/1.15 Georgia,serif;color:#d4f3ff;}
+#homeScreen .v5-hud-wallet{display:flex;flex-direction:column;justify-content:center;padding-left:8px;}
+#homeScreen .v5-hud-wallet>div{width:100%;height:47%;min-height:0;display:grid;grid-template-columns:minmax(0,54%) minmax(0,46%);align-items:center;gap:0;}
+#homeScreen .v5-hud-wallet>div:first-child{border-bottom:1px solid #d4bc797c;}
+#homeScreen .v5-hud-wallet span{min-width:0;font:700 clamp(8px,2.3vw,11px)/1 sans-serif;letter-spacing:-.055em;white-space:nowrap;}
+#homeScreen .v5-hud-wallet strong{font:700 clamp(16px,4.7vw,25px)/1 Georgia,serif;text-align:right;color:#ffefbb;overflow:hidden;white-space:nowrap;font-variant-numeric:tabular-nums;}
+#homeScreen .dynamic-home-favorite{bottom:40%!important}
+#homeScreen .home-change-favorite{top:1%!important;right:-8%!important;width:40%!important;}
+@media (max-height:650px){#homeScreen .dynamic-home-favorite{top:21.5%!important;bottom:40%!important}}
+
+
+/* ornate continuity between HUD and bottom controls */
+#homeScreen .v5-unified-hud .v5-hud-rank:after,
+#homeScreen .v5-unified-hud .v5-hud-power:after{
+ content:'✧';position:absolute;z-index:5;right:-9px;top:50%;
+ width:18px;height:18px;transform:translateY(-50%);font-size:19px;line-height:18px;
+ color:#ffefb4;text-align:center;text-shadow:0 0 6px #75d9ff,0 0 10px #76caff;
+ pointer-events:none;
+}
+#homeScreen .v5-unified-hud>div{overflow:visible}
+#homeScreen .v5-unified-hud .v5-hud-wallet{overflow:hidden}
+/* gold orbital platform joins the hero to the fantasy temple altar */
+#homeScreen .v5-orbit{
+ display:block;position:absolute;left:-1%;right:-1%;bottom:8%;height:15%;z-index:5;
+ border-radius:50%;border:2px solid #eed39a;
+ box-shadow:0 0 0 3px #1636568a,0 0 9px #cdf7ffdc,
+ inset 0 0 8px #6acbffb2,0 0 17px #75cbff7a;
+ background:radial-gradient(ellipse at center,rgba(132,227,255,.32),transparent 70%);
+ transform:perspective(340px) rotateX(63deg);pointer-events:none;
+}
+#homeScreen .v5-orbit:before{
+ content:'';position:absolute;left:7%;right:7%;top:17%;bottom:17%;
+ border-radius:50%;border:1px solid #ffebbaad;
+ box-shadow:0 0 8px #8fdcffe5,inset 0 0 8px #6bd5ffc4;
+}
+#homeScreen .v5-orbit:after{
+ content:'◆';position:absolute;left:calc(50% - 14px);bottom:-20px;
+ width:28px;height:28px;font-size:22px;line-height:28px;text-align:center;
+ color:#dbfaff;text-shadow:0 0 10px #38b8ff,0 0 15px #5cecff;
+ transform:rotateX(-63deg);
+}
+
+
+/* Final: keep the baked original center heroine fully covered by an opaque portal */
+#homeScreen .dynamic-home-favorite:before{
+ inset:2% 2% 3%!important;
+ background:radial-gradient(ellipse at 50% 42%,#27659b 0%,#155080 49%,#071f47 82%,#061a3c 100%)!important;
+ box-shadow:0 0 0 2px #092b4dc9,0 0 0 4px #e9c178b0,0 0 17px 5px #0a38669c,
+ inset 0 0 24px #4da9e7a8,inset 0 0 0 4px #a8dcfd36!important;
+}
+
+
+/* HOME v6 — environment-first character compositing, no static identity text */
+#homeScreen{background:#08223a!important;isolation:isolate!important}
+#homeScreen .home-backdrop-art{filter:contrast(1.03) saturate(1.09)!important;object-fit:fill!important;opacity:1!important;}
+#homeScreen .dynamic-home-shade{
+ z-index:1!important;pointer-events:none!important;
+ background:linear-gradient(180deg,rgba(3,18,38,.06),transparent 19%,transparent 73%,rgba(6,35,67,.06) 81%,rgba(4,14,29,.11) 89%,transparent 94%)!important;
+}
+/* Focal magic mist and a luminous vertical sanctuary, not a blue rectangle */
+#homeScreen .home-portal-scene{
+ display:block!important;position:absolute!important;z-index:9!important;
+ top:23%!important;left:7%!important;width:86%!important;height:51%!important;
+ border:0!important;box-shadow:none!important;pointer-events:none!important;
+ background:radial-gradient(ellipse at 50% 48%,rgba(46,116,180,.96) 0%,rgba(58,134,197,.93) 37%,rgba(97,173,213,.88) 53%,rgba(110,185,221,.54) 66%,transparent 81%)!important;
+ backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);
+ opacity:.95!important;-webkit-mask-image:radial-gradient(ellipse,black 35%,transparent 76%)!important;
+ mask-image:radial-gradient(ellipse,black 35%,transparent 76%)!important;
+}
+#homeScreen .home-portal-scene:before{
+ display:block!important;content:''!important;position:absolute!important;
+ top:5%;left:8%;right:8%;bottom:15%!important;
+ background:none!important;border-top:2px solid rgba(255,234,181,.76)!important;
+ border-left:1px solid rgba(244,216,154,.29)!important;
+ border-right:1px solid rgba(244,216,154,.29)!important;
+ border-bottom:0!important;border-radius:48% 48% 0 0!important;
+ box-shadow:0 -8px 22px rgba(136,216,255,.15),inset 0 8px 17px rgba(255,249,223,.13)!important;
+ opacity:1!important;
+}
+#homeScreen .home-portal-scene:after{
+ content:'✧';position:absolute;top:0%;left:50%;transform:translateX(-50%);
+ color:#dcf7ff;font-size:24px;text-shadow:0 0 10px #66dfff,0 0 20px #278bf5;
+}
+#homeScreen .dynamic-home-favorite{
+ z-index:19!important;top:25%!important;bottom:32%!important;
+ left:11%!important;right:11%!important;
+ border:0!important;background:none!important;box-shadow:none!important;
+ overflow:visible!important;pointer-events:none!important;
+}
+/* Remove ALL obsolete opaque mirrors and labels. Favorite selection lives in character screen. */
+#homeScreen .dynamic-home-favorite:before,
+#homeScreen .dynamic-home-favorite:after{display:none!important;content:none!important;}
+#homeScreen .home-fav-heading,#homeScreen .home-fav-footer{display:none!important;}
+#homeScreen .home-fav-picture{
+ display:block!important;position:absolute!important;z-index:3!important;
+ left:-14%!important;right:-14%!important;top:3%!important;bottom:-5%!important;
+ overflow:visible!important;border:0!important;background:transparent!important;
+ box-shadow:none!important;border-radius:0!important;pointer-events:none!important;
+}
+#homeScreen .home-fav-picture:before{
+ display:block!important;content:''!important;position:absolute!important;
+ left:10%!important;right:10%!important;bottom:-4%!important;height:31%!important;
+ background:radial-gradient(ellipse at 50% 66%,rgba(215,251,255,.75),rgba(104,202,255,.30) 35%,rgba(30,124,240,.09) 57%,transparent 78%)!important;
+ filter:blur(7px)!important;border:0!important;box-shadow:none!important;
+}
+#homeScreen .home-fav-picture:after{
+ content:''!important;display:block!important;position:absolute!important;
+ left:13%!important;right:13%!important;bottom:-4%!important;height:15%!important;
+ border:1.5px solid rgba(253,231,165,.85)!important;border-radius:50%!important;
+ box-shadow:0 0 12px rgba(105,213,255,.86),inset 0 0 9px rgba(119,215,255,.75)!important;
+ background:radial-gradient(ellipse,rgba(195,246,255,.21),transparent 70%)!important;
+ transform:perspective(340px) rotateX(60deg)!important;
+}
+#homeScreen .home-fav-picture img{
+ display:block!important;position:absolute!important;z-index:2!important;
+ left:50%!important;bottom:0!important;top:auto!important;
+ width:130%!important;height:100%!important;max-width:none!important;
+ object-fit:contain!important;object-position:center bottom!important;
+ transform:translateX(-50%)!important;
+ /* Gentle upper-rim clarity with lower-body atmosphere fade */
+ mask-image:linear-gradient(to bottom,transparent 0%,#000 6%,#000 52%,#000f 64%,#000e 76%,transparent 99%)!important;
+ -webkit-mask-image:linear-gradient(to bottom,transparent 0%,#000 6%,#000 52%,#000f 64%,#000e 76%,transparent 99%)!important;
+ filter:drop-shadow(0 0 2px #ffffff7d) drop-shadow(0 0 9px #8ad9ff45) saturate(.96) contrast(.96)!important;
+}
+#homeScreen .home-fav-picture #homeFavoriteEmpty{position:absolute!important;inset:30% 10%!important;z-index:4!important;}
+#homeScreen .v5-orbit{
+ display:block!important;position:absolute!important;z-index:6!important;
+ left:3%!important;right:3%!important;bottom:2%!important;height:12%!important;
+ background:radial-gradient(ellipse,rgba(148,239,255,.12),transparent 70%)!important;
+ border:1px solid #f9e8bdad!important;box-shadow:0 0 14px #56c5fca8,inset 0 0 9px #6cddff86!important;
+ transform:perspective(350px) rotateX(64deg)!important;
+}
+#homeScreen .v5-orbit:before{border:1px solid #e9ffffa1!important;box-shadow:0 0 10px #87d9ff99!important}
+#homeScreen .v5-orbit:after{display:none!important;}
+#homeScreen .home-change-favorite{
+ z-index:45!important;pointer-events:auto!important;
+ position:absolute!important;top:-2%!important;right:-12%!important;
+ width:34px!important;height:34px!important;min-height:34px!important;
+ padding:0!important;border-radius:50%!important;
+ background:radial-gradient(circle at 45% 27%,#25699f,#072c54 74%)!important;
+ border:2px solid #f6d38e!important;box-shadow:0 0 8px #51bbed7a,inset 0 0 5px #d1edfa65!important;
+ color:#ffedb4!important;font-size:19px!important;line-height:30px!important;
+}
+#homeScreen .home-change-favorite:after{content:''!important;display:none!important;}
+/* The original ornamental scene buttons stay visible; transparent click layers remain functional. */
+#homeScreen .home-ornate-foreground{z-index:26!important;}
+#homeScreen .home-action{z-index:32!important;}
+#homeScreen #goTap{z-index:40!important;}
+/* HUD is a sibling of the lower navigation: one midnight-blue/gold visual language. */
+#homeScreen .v5-unified-hud{
+ z-index:55!important;height:10.25%!important;
+ border-top:1px solid #e8cf9a!important;border-bottom:2px solid #f1d796!important;
+ background:radial-gradient(ellipse at 50% -50%,rgba(102,221,255,.31),transparent 67%),
+ linear-gradient(180deg,#041629f7,#0c3159f7 46%,#061b39fb)!important;
+ box-shadow:0 4px 14px #0315288c,inset 0 0 9px #4ba7d04a!important;
+}
+#homeScreen .v5-unified-hud:before{
+ content:'✦';position:absolute;z-index:3;left:50%;top:-9px;transform:translateX(-50%);
+ font-size:21px;line-height:21px;color:#d5f9ff;text-shadow:0 0 8px #329cf9,0 0 12px #d5ffff;
+ pointer-events:none;
+}
+#homeScreen .v5-hud-power strong{color:#fff1cb!important}
+#homeScreen .v5-hud-wallet>div{border-color:#ebd39265!important}
+#homeScreen .home-nav,.gacha-bottom-nav,.character-bottom-nav{
+ background-color:#071b35!important;border-top:2px solid #e9cc8a!important;
+}
+/* Safe layout on small/short iPhones */
+@media(max-height:690px){
+ #homeScreen .dynamic-home-favorite{top:24%!important;bottom:31%!important}
+ #homeScreen .home-portal-scene{top:26%!important;height:46%!important}
+}
+
+/* v6 final: button visibility, remove baked heroine crest behind the favorite */
+#homeScreen .home-portal-scene{
+ top:18.5%!important;left:8%!important;width:84%!important;height:54%!important;
+ background:
+  radial-gradient(ellipse at 50% 23%,rgba(51,129,193,.98) 0%,rgba(83,162,208,.90) 25%,rgba(105,183,230,.37) 47%,rgba(152,218,252,.10) 72%,transparent 83%),radial-gradient(ellipse at 50% 67%,rgba(152,224,252,.38),rgba(96,182,239,.11) 53%,transparent 82%)!important;
+ backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+ -webkit-mask-image:radial-gradient(ellipse 51% 51% at 50% 50%,#000 33%,transparent 100%)!important;
+ mask-image:radial-gradient(ellipse 51% 51% at 50% 50%,#000 33%,transparent 100%)!important;
+}
+#homeScreen .home-portal-scene:before{
+ top:16%!important;bottom:18%!important;border-color:#e4d19d85!important;
+}
+#homeScreen .v5-unified-hud{
+ background:radial-gradient(ellipse at 50% -50%,#3383aa53,transparent 68%),linear-gradient(180deg,#041629 0%,#0b3054 45%,#05172e 100%)!important;
+}
+#homeScreen #goTap{
+ display:flex!important;position:absolute!important;z-index:43!important;pointer-events:auto!important;
+ top:61.5%!important;left:27%!important;width:46%!important;height:9%!important;
+ padding:3px 2px!important;min-height:42px!important;
+ opacity:1!important;visibility:visible!important;
+ flex-direction:column;align-items:center;justify-content:center!important;
+ overflow:visible!important;
+ border:2px solid #f0d697!important;border-radius:32% 13% 30% 13% / 38% 33% 36% 33%!important;
+ background:radial-gradient(ellipse at 50% 4%,rgba(106,217,255,.42),transparent 75%),linear-gradient(180deg,#165b9ceF,#0a3769ee 49%,#071e45f4)!important;
+ color:#ffedc1!important;text-shadow:0 2px 4px #011d3e,0 0 6px #5aaeff9b!important;
+ box-shadow:0 0 0 3px #102d51b6,0 0 0 4px #dabc80c4,0 5px 10px #10233884,inset 0 0 9px #9de7ff70!important;
+}
+#homeScreen #goTap span{display:block;font:700 clamp(17px,5.5vw,29px)/1.1 Georgia,"Yu Mincho",serif;white-space:nowrap;}
+#homeScreen #goTap small{display:block;font-size:clamp(7px,2.2vw,10px);margin-top:3px;white-space:nowrap;color:#def6ff;}
+#homeScreen #goTap:before{content:'✦';position:absolute;left:-10px;top:33%;color:#e5f7ff;font-size:19px;text-shadow:0 0 8px #32b7ff;}
+#homeScreen #goTap:after{content:'✦';position:absolute;right:-10px;top:33%;color:#e5f7ff;font-size:19px;text-shadow:0 0 8px #32b7ff;}
+#homeScreen .home-change-favorite{right:-8%!important;top:-4%!important;}
+#homeScreen .home-change-favorite:hover{filter:brightness(1.1)}
+#homeScreen .home-nav{background-color:#071b35!important;}
+
+/* v7.2 — beloved v6 menu / navigation and live save are retained. Rebalance only the home hero. */
+#homeScreen .dynamic-home-favorite{
+  top:29.5%!important;bottom:35.2%!important;left:20%!important;right:20%!important;
+  pointer-events:none!important;z-index:20!important;
+}
+#homeScreen .home-fav-picture{
+ left:-13%!important;right:-13%!important;top:0!important;bottom:-6%!important;
+}
+#homeScreen .home-fav-picture img{
+ width:98%!important;height:100%!important;object-position:center bottom!important;
+ mask-image:linear-gradient(to bottom,transparent 0%,#000 4%,#000 50%,#000e 70%,transparent 97%)!important;
+ -webkit-mask-image:linear-gradient(to bottom,transparent 0%,#000 4%,#000 50%,#000e 70%,transparent 97%)!important;
+ filter:drop-shadow(0 0 2px #fcffff75) drop-shadow(0 2px 9px #092a4c8a) saturate(.94) contrast(.95)!important;
+}
+#homeScreen .home-change-favorite{
+ top:0!important;right:-31%!important;min-height:32px!important;
+}
+#homeScreen .home-fav-picture:before{
+ opacity:.55!important;filter:blur(13px)!important;
+}
+#homeScreen .home-fav-picture:after{opacity:.70!important;}
+#homeScreen .v5-orbit{opacity:.64!important;bottom:1%!important;}
+#homeScreen #goTap{z-index:43!important;}
+/* The top and lower HUD keep their single v6 style and shared coordinates. */
+
+#homeScreen .home-portal-scene{background:radial-gradient(ellipse at 50% 43%,#80c5e4bc 0%,#8fcde5a2 41%,transparent 75%)!important;opacity:.72!important;top:22%!important;height:45%!important;left:9%!important;width:82%!important;}
+
+#homeScreen .dynamic-home-favorite{top:32.5%!important;bottom:35.5%!important;left:23%!important;right:23%!important;}
+#homeScreen .home-fav-picture img{width:94%!important;height:100%!important;}
+#homeScreen .home-change-favorite{top:-10%!important;right:-35%!important}
+
+
+/* ===== Home v8: fully separated clean art + UI kit ===== */
+#homeScreen{isolation:isolate!important;background:#06182e!important;overflow:hidden!important}
+#homeScreen .kit-world{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;z-index:0;pointer-events:none;user-select:none}
+#homeScreen .kit-world-light{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(0,14,32,.25),transparent 20%,transparent 72%,rgba(3,15,36,.11) 89%,rgba(3,12,32,.20)),radial-gradient(ellipse at 50% 51%,rgba(135,215,255,.13),transparent 31%)}
+#homeScreen .kit-top{position:absolute;left:0;right:0;top:0;z-index:80;height:12%;display:grid;grid-template-columns:29% 37% 34%;align-items:stretch;background:linear-gradient(180deg,#04162ebf,#082a4a88 78%,#061e3480);border-bottom:1px solid #dec88b9e;box-shadow:0 4px 10px #06132f3b;color:#fff2c8;pointer-events:none}
+#homeScreen .kit-top>div{position:relative;min-width:0;min-height:0}
+#homeScreen .kit-hud-art{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;pointer-events:none}
+#homeScreen .kit-top strong{position:absolute;z-index:2;white-space:nowrap;font-family:Georgia,'Yu Mincho',serif;color:#fff2c4;text-shadow:0 2px 3px #00172e,0 0 5px #0b366d;font-variant-numeric:tabular-nums}
+#homeScreen .kit-rank-avatar{position:absolute;left:8.7%;top:25%;height:47%;width:35%;border-radius:50%;object-fit:cover;z-index:2;filter:saturate(.85);border:1px solid #ffecc6;box-shadow:0 0 6px #67c9ff88}
+#homeScreen .kit-rank-avatar[hidden],#homeScreen .kit-rank-avatar:not([src]){display:none!important}
+#homeScreen .kit-rank-number{left:55%;right:13%;text-align:center;top:51%;font-size:clamp(17px,5.0vw,29px);line-height:1}
+#homeScreen #homeTapPower{left:10%;right:10%;top:46%;font-size:clamp(20px,6.4vw,34px);text-align:center;line-height:1}
+#homeScreen .kit-power-unit{position:absolute;top:72%;width:100%;text-align:center;z-index:2;font:700 clamp(7px,1.85vw,10px)/1 Georgia,serif;color:#d9efff;text-shadow:0 1px 3px #000}
+#homeScreen .kit-wallet .kit-pt-label,#homeScreen .kit-wallet .kit-keys-label{position:absolute;z-index:2;left:22%;color:#e8f6ff;font:700 clamp(7px,2vw,11px)/1.2 'Yu Gothic',sans-serif;text-shadow:0 1px 3px #000}
+#homeScreen .kit-wallet .kit-pt-label{top:36%}#homeScreen .kit-wallet .kit-keys-label{top:64%}
+#homeScreen #homePT,#homeScreen #homeKeys{left:49%;right:10%;text-align:right;font-size:clamp(14px,4.5vw,26px);line-height:1}
+#homeScreen #homePT{top:32%}#homeScreen #homeKeys{top:61%}
+#homeScreen .kit-event{position:absolute;z-index:19;top:13%;left:3%;width:44%;height:10%;display:flex;align-items:center;justify-content:center;pointer-events:none;filter:drop-shadow(0 2px 5px #0b375880)}
+#homeScreen .kit-event>img{position:absolute;inset:0;width:100%;height:100%;object-fit:fill}
+#homeScreen .kit-event>div{position:relative;text-align:center;text-shadow:0 1px 3px #000,0 0 5px #2368b9;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.2}
+#homeScreen .kit-event small{font-size:clamp(7px,2vw,10px);color:#fff1c7}
+#homeScreen .kit-event strong{font:700 clamp(13px,4vw,24px)/1.15 'Yu Mincho',serif;color:#fff5d5;white-space:nowrap}
+#homeScreen .kit-transfer{position:absolute;z-index:21;top:14%;right:3%;width:26%;height:9%;border:0;background:transparent;padding:0;cursor:pointer;filter:drop-shadow(0 2px 4px #0520348c)}
+#homeScreen .kit-transfer>img{position:absolute;inset:0;width:100%;height:100%;object-fit:fill}
+#homeScreen .kit-transfer span{position:relative;font:bold clamp(10px,2.8vw,16px)/1.15 'Yu Mincho',serif;color:#fff0c0;text-shadow:0 2px 4px #000}
+#homeScreen .kit-transfer small{display:block;font-size:clamp(7px,1.9vw,10px);color:#a4e8ff}
+#homeScreen .kit-character-aura{position:absolute;pointer-events:none;z-index:9;left:26%;right:26%;top:36%;height:30%;background:radial-gradient(ellipse at 50% 72%,#bdfaff3d,#489ff71e 48%,transparent 76%)}
+#homeScreen .kit-favorite.dynamic-home-favorite{position:absolute!important;z-index:12!important;left:24%!important;right:24%!important;top:30%!important;bottom:34%!important;width:auto!important;height:auto!important;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;pointer-events:none!important;overflow:visible!important;display:block!important;padding:0!important;opacity:1!important;transform:none!important}
+#homeScreen .kit-favorite::before,#homeScreen .kit-favorite::after{display:none!important;content:none!important}
+#homeScreen .kit-character-picture{position:absolute;inset:0;z-index:1;overflow:visible;pointer-events:none}
+#homeScreen .kit-character-picture img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 5px 8px #14385083) saturate(.91);-webkit-mask-image:linear-gradient(180deg,#000 0%,#000 73%,#000b 88%,transparent 100%);mask-image:linear-gradient(180deg,#000 0%,#000 73%,#000b 88%,transparent 100%)}
+#homeScreen #homeFavoriteImage[hidden]{display:none!important}
+#homeScreen #homeFavoriteEmpty{position:absolute;top:35%;left:0;right:0;display:none;text-align:center;font-size:12px;color:#f0e6b4;text-shadow:0 2px 3px #000}
+#homeScreen .kit-favorite-switch{position:absolute!important;z-index:36!important;right:5%!important;top:23.5%!important;left:auto!important;bottom:auto!important;width:11%!important;height:7%!important;min-width:35px;min-height:35px;border:0!important;border-radius:0!important;padding:0!important;background:transparent!important;box-shadow:none!important;cursor:pointer;pointer-events:auto!important;opacity:1!important;overflow:visible!important}
+#homeScreen .kit-favorite-switch>img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 4px #061b31a0)}
+#homeScreen .kit-favorite-switch::after,#homeScreen .kit-favorite-switch::before{display:none!important;content:none!important}
+#homeScreen .kit-facility{position:absolute;z-index:29;display:block;border:0;background:transparent;padding:0;cursor:pointer;filter:drop-shadow(0 2px 4px #0524407a);touch-action:manipulation}
+#homeScreen .kit-facility>img{width:100%;height:100%;object-fit:fill;pointer-events:none}
+#homeScreen .kit-facility:active,#homeScreen .kit-awakening:active{transform:scale(.96);filter:brightness(1.12)}
+#homeScreen .kit-summon{top:29%;left:0%;width:31%;height:15%}#homeScreen .kit-training{top:29%;right:0%;width:31%;height:15%}
+#homeScreen .kit-archive{top:48.5%;left:0%;width:31%;height:15%}#homeScreen .kit-exchange{top:48.5%;right:0%;width:31%;height:15%}
+#homeScreen .kit-mission{top:70%;left:6%;width:40%;height:14%}#homeScreen .kit-gift{top:70%;right:6%;width:40%;height:14%}
+#homeScreen .kit-awakening{position:absolute!important;z-index:35!important;top:64%!important;left:26%!important;width:48%!important;height:11%!important;right:auto!important;bottom:auto!important;opacity:1!important;display:block!important;padding:0!important;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;cursor:pointer;pointer-events:auto!important}
+#homeScreen .kit-awakening>img{width:100%;height:100%;object-fit:fill;filter:drop-shadow(0 3px 5px #063c6677);pointer-events:none}
+#homeScreen .kit-awakening:before,#homeScreen .kit-awakening:after{display:none!important;content:none!important}
+#homeScreen #goTap.kit-awakening{top:64%!important;left:26%!important;width:48%!important;height:11%!important;opacity:1!important;background:none!important;box-shadow:none!important;pointer-events:auto!important}
+#homeScreen #goTap.kit-awakening:before,#homeScreen #goTap.kit-awakening:after{display:none!important;content:none!important}
+/* final visual pass: preserve artwork proportions and give facilities legible weight */
+#homeScreen .kit-hud-art{object-fit:contain!important}
+#homeScreen .kit-summon{top:28%!important;left:-1%!important;width:36%!important;height:17%!important}
+#homeScreen .kit-training{top:28%!important;right:-1%!important;width:36%!important;height:17%!important}
+#homeScreen .kit-archive{top:47.6%!important;left:-1%!important;width:36%!important;height:17%!important}
+#homeScreen .kit-exchange{top:47.6%!important;right:-1%!important;width:36%!important;height:17%!important}
+#homeScreen .kit-mission{top:75.1%!important;left:3%!important;width:43%!important;height:12.8%!important}
+#homeScreen .kit-gift{top:75.1%!important;right:3%!important;width:43%!important;height:12.8%!important}
+#homeScreen #goTap.kit-awakening{top:64.2%!important;left:22.5%!important;width:55%!important;height:12.0%!important}
+/* one shared nav asset family across all screens; the browser owns sizing and click targets */
+#homeScreen .kit-shared-nav.home-nav,#gachaScreen .kit-shared-nav.gacha-bottom-nav,#characterScreen .kit-shared-nav.character-bottom-nav{position:absolute!important;z-index:90!important;left:0!important;right:0!important;top:auto!important;bottom:0!important;width:100%!important;height:12%!important;display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;align-items:stretch!important;padding:0!important;gap:0!important;background:#071b35ef!important;background-image:none!important;border:0!important;border-top:1px solid #f4d68c!important;border-radius:0!important;box-shadow:0 -2px 10px #0315295e!important;opacity:1!important;overflow:visible!important;pointer-events:auto!important}
+.kit-shared-nav::before,.kit-shared-nav::after{display:none!important;content:none!important}
+.kit-shared-nav .kit-nav-plate{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;opacity:.73;pointer-events:none;z-index:0}
+#homeScreen .kit-shared-nav>button,#gachaScreen .kit-shared-nav>button,#characterScreen .kit-shared-nav>button{position:relative!important;width:100%!important;height:100%!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;z-index:1!important;border:0!important;border-radius:0!important;background:transparent!important;background-image:none!important;background-color:transparent!important;box-shadow:none!important;outline:none!important;color:transparent!important;text-shadow:none!important;font-size:0!important;line-height:0!important;opacity:1!important;padding:0!important;margin:0!important;display:flex!important;align-items:center!important;justify-content:center!important;cursor:pointer;pointer-events:auto!important;overflow:visible!important}
+.kit-shared-nav>button::before,.kit-shared-nav>button::after{display:none!important;content:none!important}
+.kit-shared-nav>button>img{position:relative;display:block;width:105%;height:104%;max-width:none;object-fit:contain;object-position:center center;pointer-events:none;filter:drop-shadow(0 2px 2px #0007)}
+.kit-shared-nav>button:active{filter:brightness(1.13)}
+@media(max-height:630px){#homeScreen .kit-top{height:12.5%}#homeScreen .kit-event{top:13%;height:9%}#homeScreen .kit-favorite.dynamic-home-favorite{top:30%!important;bottom:35%!important}}
+
+/* === v9: unified HUD, native-aspect facilities, coherent awakening core === */
+#homeScreen .kit-top{
+  height:12.1%!important;grid-template-columns:30% 34% 36%!important;
+  background:rgba(4,21,41,.68)!important;border:0!important;
+  box-shadow:0 4px 12px rgba(0,13,29,.28)!important;isolation:isolate;
+}
+#homeScreen .v9-hud-backplate{position:absolute;inset:0;width:100%;height:100%;z-index:0;object-fit:fill;pointer-events:none}
+#homeScreen .kit-top .kit-hud-art{display:none!important}
+#homeScreen .kit-top>div{z-index:1;min-width:0;min-height:0}
+#homeScreen .kit-top .kit-rank{padding:0}
+#homeScreen .kit-rank-avatar{
+ left:10%!important;top:31%!important;width:39%!important;height:auto!important;
+ aspect-ratio:1;border:2px solid #f5df9e!important;
+ box-shadow:0 0 0 3px #143759c9,0 0 9px #4aa6ed88!important;object-fit:cover!important;
+}
+#homeScreen .v9-rank-label,#homeScreen .v9-power-label{
+ position:absolute;z-index:3;display:block;font-family:Georgia,'Yu Mincho',serif;
+ color:#fff1ca;text-shadow:0 1px 4px #00162c,0 0 6px #0d4a7a;
+ line-height:1.05;white-space:nowrap;font-weight:700;
+}
+#homeScreen .v9-rank-label{left:49%;right:5%;top:36%;text-align:center;font-size:clamp(9px,2.3vw,13px)}
+#homeScreen .kit-rank-number{
+ left:51%!important;right:6%!important;top:53%!important;
+ text-align:center!important;font-size:clamp(17px,5.4vw,29px)!important;line-height:1.0!important;
+}
+#homeScreen .v9-power-label{left:0;right:0;top:29%;text-align:center;font-size:clamp(10px,2.9vw,15px)}
+#homeScreen #homeTapPower{
+ top:47%!important;left:7%!important;right:7%!important;
+ text-align:center!important;font-size:clamp(24px,7vw,37px)!important;line-height:1!important;
+}
+#homeScreen .kit-power-unit{top:75%!important;left:0!important;right:0!important;font-size:clamp(7px,1.95vw,10px)!important}
+#homeScreen .kit-wallet .kit-pt-label,#homeScreen .kit-wallet .kit-keys-label{
+ left:14%!important;font-size:clamp(8px,2.25vw,11px)!important;
+}
+#homeScreen .kit-wallet .kit-pt-label{top:40%!important}
+#homeScreen .kit-wallet .kit-keys-label{top:66%!important}
+#homeScreen #homePT,#homeScreen #homeKeys{
+ left:44%!important;right:17%!important;font-size:clamp(15px,4.9vw,25px)!important;line-height:1.0!important;
+ overflow:visible;white-space:nowrap;text-align:right!important;
+}
+#homeScreen #homePT{top:36%!important}
+#homeScreen #homeKeys{top:64%!important}
+
+/* Facility sprites are rendered at their natural 1.45:1 aspect ratio: no vertical stretching */
+#homeScreen .kit-facility{filter:drop-shadow(0 3px 3px #072c4b84)!important;transition:transform .12s ease!important}
+#homeScreen .kit-facility>img{object-fit:contain!important;width:100%!important;height:100%!important}
+#homeScreen .kit-summon{left:0%!important;right:auto!important;top:30.3%!important;width:32.5%!important;height:12.2%!important}
+#homeScreen .kit-training{right:0%!important;left:auto!important;top:30.3%!important;width:32.5%!important;height:12.2%!important}
+#homeScreen .kit-archive{left:0%!important;right:auto!important;top:48.0%!important;width:32.5%!important;height:12.2%!important}
+#homeScreen .kit-exchange{right:0%!important;left:auto!important;top:48.0%!important;width:32.5%!important;height:12.2%!important}
+#homeScreen .kit-mission{left:3.5%!important;right:auto!important;top:77.5%!important;width:40%!important;height:10.5%!important}
+#homeScreen .kit-gift{right:3.5%!important;left:auto!important;top:77.5%!important;width:40%!important;height:10.5%!important}
+
+/* Favorite characters never have baked-in stat plates on home. */
+#homeScreen .kit-favorite.dynamic-home-favorite{
+ left:22%!important;right:22%!important;top:34%!important;bottom:34.5%!important;
+}
+#homeScreen .kit-character-aura{
+ top:42%!important;left:22%!important;right:22%!important;height:27%!important;
+ background:radial-gradient(ellipse at 50% 78%,rgba(154,232,255,.28) 0%,rgba(75,173,249,.13) 38%,transparent 76%)!important;
+}
+#homeScreen .kit-character-picture img{
+ object-fit:contain!important;object-position:center bottom!important;
+ filter:drop-shadow(0px 6px 7px rgba(2,35,61,.43)) saturate(.89) brightness(1.02)!important;
+ -webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 74%,rgba(0,0,0,.92) 86%,transparent 100%)!important;
+ mask-image:linear-gradient(to bottom,#000 0%,#000 74%,rgba(0,0,0,.92) 86%,transparent 100%)!important;
+}
+/* Subordinate labels are not repeated over the character illustration. */
+#homeScreen .kit-favorite :is(#homeFavoriteName,#homeFavoriteStars,#homeFavoriteLevel,#homeFavoriteStatus){display:none!important}
+#homeScreen .kit-favorite-switch{top:25%!important;right:4%!important;width:10%!important;height:6%!important;min-width:32px!important;min-height:32px!important}
+
+/* Awakening core is a facility sign, not a separate oversized floating window */
+#homeScreen #goTap.kit-awakening{
+ left:27.5%!important;right:auto!important;top:67.0%!important;
+ width:45%!important;height:9.4%!important;display:flex!important;
+ align-items:center!important;justify-content:center!important;
+ background:transparent!important;border:0!important;box-shadow:none!important;
+ filter:drop-shadow(0 3px 4px rgba(4,34,58,.62))!important;
+}
+#homeScreen #goTap.kit-awakening>img{
+ width:100%!important;height:100%!important;object-fit:contain!important;
+ filter:none!important;
+}
+#homeScreen #goTap.kit-awakening:active{transform:scale(.97)!important;filter:brightness(1.15)!important}
+#homeScreen .kit-event{left:2.5%!important;top:13.0%!important;width:46%!important;height:9.8%!important}
+#homeScreen .kit-transfer{right:3%!important;top:14%!important;width:27%!important;height:8.6%!important}
+/* Nav: preserve identical layout across home, growth and gacha; keep art from touching screen edges. */
+#homeScreen .kit-shared-nav.home-nav,#gachaScreen .kit-shared-nav.gacha-bottom-nav,#characterScreen .kit-shared-nav.character-bottom-nav{
+ height:11.7%!important;background-color:#081d37!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;
+}
+.kit-shared-nav>button>img{width:99%!important;height:98%!important;object-fit:contain!important}
+@media (max-width:360px){
+ #homeScreen .kit-top{height:12.5%!important}
+ #homeScreen .kit-rank-avatar{left:8%!important;width:41%!important}
+ #homeScreen .kit-wallet .kit-pt-label,#homeScreen .kit-wallet .kit-keys-label{left:15%!important;font-size:7.7px!important}
+ #homeScreen #homePT,#homeScreen #homeKeys{right:12%!important;font-size:clamp(13px,4.7vw,22px)!important}
+}
+@media (max-height:710px){
+ #homeScreen .kit-favorite.dynamic-home-favorite{top:33%!important;bottom:36%!important}
+ #homeScreen .kit-mission,#homeScreen .kit-gift{top:76.9%!important}
+}
+
+
+/* === v10 HOME LAYOUT LOCK: three readable HUD cards, clear hierarchy for facilities and core. ===
+   Only home presentation; all gameplay, save, and navigation code is inherited from v9. */
+#homeScreen .kit-top {
+  left:0!important;right:0!important;top:0!important;
+  height:12.3%!important;display:grid!important;
+  grid-template-columns:31.5% 32.5% 36%!important;
+  align-items:center!important;gap:0!important;
+  background:linear-gradient(180deg,rgba(6,29,55,.63),rgba(5,35,62,.30) 74%,transparent)!important;
+  border:0!important;box-shadow:none!important;
+  isolation:isolate!important;overflow:visible!important;
+}
+/* Replace the too-continuous v9 ribbon with the separately illustrated, matching triptych. */
+#homeScreen .kit-top .v9-hud-backplate {display:none!important}
+#homeScreen .kit-top>div {
+  height:100%!important;width:100%!important;
+  position:relative!important;min-width:0!important;
+  isolation:isolate!important;overflow:visible!important;
+}
+#homeScreen .kit-top .kit-hud-art {
+  display:block!important;position:absolute!important;z-index:0!important;
+  inset:0!important;width:100%!important;height:100%!important;
+  object-fit:fill!important;pointer-events:none!important;
+  filter:drop-shadow(0 2px 3px rgba(5,30,57,.46))!important;
+}
+/* RANK and TapPower titles already belong to their frame artwork. Keep numbers live. */
+#homeScreen .v9-rank-label,#homeScreen .v9-power-label {display:none!important}
+#homeScreen .kit-rank-avatar {
+  position:absolute!important;z-index:2!important;left:13%!important;top:30%!important;
+  width:39%!important;height:auto!important;aspect-ratio:1!important;
+  border-radius:50%!important;object-fit:cover!important;
+  border:1px solid rgba(250,233,188,.84)!important;
+  box-shadow:0 0 0 2px #1738578a,0 0 9px #64c9f567!important;
+}
+#homeScreen .kit-rank-number {
+  z-index:3!important;top:58%!important;left:51%!important;right:6%!important;
+  text-align:center!important;font-size:clamp(17px,5.4vw,29px)!important;
+  line-height:1.0!important;
+}
+#homeScreen #homeTapPower {
+  z-index:3!important;top:57%!important;left:8%!important;right:8%!important;
+  font-size:clamp(22px,6.4vw,36px)!important;
+  line-height:1!important;text-align:center!important;
+}
+#homeScreen .kit-power-unit {
+  top:81%!important;left:0!important;right:0!important;
+  font-size:clamp(7px,1.8vw,10px)!important;line-height:1!important;
+}
+/* Wallet frame has pictograms already: leave clear space between them and live numbers. */
+#homeScreen .kit-wallet .kit-pt-label,#homeScreen .kit-wallet .kit-keys-label {
+  z-index:2!important;left:31%!important;
+  font-size:clamp(7px,1.9vw,10px)!important;line-height:1!important;
+}
+#homeScreen .kit-wallet .kit-pt-label{top:38%!important}
+#homeScreen .kit-wallet .kit-keys-label{top:67%!important}
+#homeScreen #homePT,#homeScreen #homeKeys {
+  z-index:3!important;left:46%!important;right:15%!important;
+  text-align:right!important;font-size:clamp(15px,4.3vw,23px)!important;
+  line-height:1!important;font-variant-numeric:tabular-nums!important;
+  overflow:visible!important;white-space:nowrap!important;
+}
+#homeScreen #homePT{top:36%!important}
+#homeScreen #homeKeys{top:64%!important}
+/* Two main entrances, two quieter secondary places, and a lightly subdued bottom pair. */
+#homeScreen .kit-facility {
+  filter:drop-shadow(0 2px 3px rgba(4,32,58,.36))!important;
+  transition:filter .14s ease, transform .12s ease!important;
+}
+#homeScreen .kit-facility>img{object-fit:contain!important;width:100%!important;height:100%!important}
+#homeScreen .kit-summon,
+#homeScreen .kit-training {
+  top:30.0%!important;width:34.0%!important;height:13.2%!important;
+  opacity:1!important;
+}
+#homeScreen .kit-summon{left:-.7%!important;right:auto!important}
+#homeScreen .kit-training{right:-.7%!important;left:auto!important}
+#homeScreen .kit-archive,
+#homeScreen .kit-exchange {
+  top:49.0%!important;width:30.5%!important;height:11.4%!important;
+  opacity:.96!important;
+}
+#homeScreen .kit-archive{left:1%!important;right:auto!important}
+#homeScreen .kit-exchange{right:1%!important;left:auto!important}
+#homeScreen .kit-mission,
+#homeScreen .kit-gift {
+  top:78.5%!important;width:37.5%!important;height:9.0%!important;
+  opacity:.96!important;
+}
+#homeScreen .kit-mission{left:6%!important;right:auto!important}
+#homeScreen .kit-gift{right:6%!important;left:auto!important}
+#homeScreen .kit-facility:active{filter:brightness(1.13) drop-shadow(0 1px 5px rgba(79,197,255,.5))!important}
+/* Main action uses the very same blue/gold material as facility signs, not a new bounding plate. */
+#homeScreen #goTap.kit-awakening {
+  left:24%!important;right:auto!important;top:66.1%!important;
+  width:52%!important;height:10.8%!important;
+  opacity:1!important;z-index:35!important;
+  border:0!important;border-radius:0!important;padding:0!important;
+  background:transparent!important;box-shadow:none!important;
+  filter:drop-shadow(0 3px 5px rgba(4,28,55,.43)) drop-shadow(0 0 5px rgba(71,194,249,.28))!important;
+}
+#homeScreen #goTap.kit-awakening>img{object-fit:contain!important;width:100%!important;height:100%!important}
+#homeScreen #goTap.kit-awakening:active{transform:scale(.965)!important;filter:brightness(1.17) drop-shadow(0 0 8px rgba(102,219,255,.58))!important}
+/* Fit the fixed home source artwork and click geometry on short iPhones without changing the shared nav. */
+@media(max-width:360px){
+ #homeScreen .kit-top{grid-template-columns:32% 32% 36%!important}
+ #homeScreen .kit-rank-avatar{left:12%!important;width:38%!important}
+ #homeScreen .kit-wallet .kit-pt-label,#homeScreen .kit-wallet .kit-keys-label{left:30%!important;font-size:7px!important}
+ #homeScreen #homePT,#homeScreen #homeKeys{right:13%!important;font-size:clamp(13px,4.1vw,20px)!important}
+}
+/* v10 HUD legibility refinement: keep circular art truly round; avoid duplicated units. */
+#homeScreen .kit-top .kit-hud-art{object-fit:contain!important}
+#homeScreen #homeTapPower{top:59%!important;font-size:clamp(20px,5.3vw,30px)!important}
+#homeScreen .kit-power-unit{display:none!important}
+#homeScreen .kit-rank-avatar{left:12%!important;top:30%!important;width:38%!important}
+#homeScreen .kit-rank-number{top:60%!important}
+#homeScreen .kit-wallet .kit-pt-label,#homeScreen .kit-wallet .kit-keys-label{left:29%!important;font-size:clamp(7px,1.75vw,9px)!important}
+#homeScreen #homePT,#homeScreen #homeKeys{left:49%!important;right:17%!important;font-size:clamp(13px,3.85vw,21px)!important}
+
+/* === v11.1: user-approved balance — readable triptych + restrained core focus. ===
+   Kept completely in home presentation; no gameplay/save modifications. */
+#homeScreen .kit-top {
+  height:14.0%!important;
+  grid-template-columns:31.5% 32.5% 36%!important;
+}
+/* Render native image proportions; transparency around the frame is intentional. */
+#homeScreen .kit-top .kit-hud-art{object-fit:contain!important}
+#homeScreen .kit-rank-avatar{
+  left:12%!important;top:30%!important;width:37%!important;
+}
+#homeScreen .kit-rank-number{
+  left:52%!important;right:7%!important;top:55%!important;
+  font-size:clamp(17px,5.5vw,29px)!important;
+}
+#homeScreen #homeTapPower{
+  left:8%!important;right:8%!important;top:54%!important;
+  font-size:clamp(23px,6.6vw,35px)!important;
+}
+/* The painted wallet pictograms remain; labels and numbers sit INSIDE each row. */
+#homeScreen .kit-wallet .kit-pt-label,
+#homeScreen .kit-wallet .kit-keys-label{
+  left:29%!important;font-size:clamp(8px,2.13vw,11px)!important;
+  letter-spacing:-.04em!important;white-space:nowrap!important;
+}
+#homeScreen .kit-wallet .kit-pt-label{top:42%!important}
+#homeScreen .kit-wallet .kit-keys-label{top:67%!important}
+#homeScreen #homePT,#homeScreen #homeKeys{
+  left:53%!important;right:9%!important;
+  font-size:clamp(15px,4.3vw,22px)!important;
+  text-align:right!important;white-space:nowrap!important;
+  font-variant-numeric:tabular-nums!important;
+}
+#homeScreen #homePT{top:40%!important}
+#homeScreen #homeKeys{top:65%!important}
+/* Slightly larger than v10, deliberately smaller than the rejected oversized mock. */
+#homeScreen #goTap.kit-awakening{
+  top:65.7%!important;left:21.3%!important;width:57.4%!important;
+  height:11.6%!important;z-index:35!important;
+  filter:drop-shadow(0 3px 5px rgba(4,28,55,.43)) drop-shadow(0 0 5px rgba(71,194,249,.23))!important;
+}
+#homeScreen #goTap.kit-awakening>img:first-child{
+  width:100%!important;height:100%!important;object-fit:contain!important;
+}
+#homeScreen #goTap.kit-awakening>.v11-core-crystal{
+  display:block!important;position:absolute!important;pointer-events:none!important;
+  width:21%!important;height:66%!important;left:8.5%!important;top:17%!important;
+  object-fit:contain!important;opacity:.92!important;
+  filter:drop-shadow(0 0 5px rgba(77,202,255,.48))!important;
+}
+@media(max-width:360px){
+  #homeScreen .kit-top{grid-template-columns:32% 32% 36%!important}
+  #homeScreen .kit-wallet .kit-pt-label,#homeScreen .kit-wallet .kit-keys-label{font-size:7.6px!important}
+  #homeScreen #homePT,#homeScreen #homeKeys{font-size:clamp(13px,4.2vw,19px)!important}
+}
+@media(max-height:710px){
+  #homeScreen .kit-top{height:13.6%!important}
+  #homeScreen #goTap.kit-awakening{top:65.3%!important;height:11.2%!important}
+}
+
+/* === v11.2 APPROVED HOME: calm typography, larger core, legible navigation ===
+   Presentation-only overrides. All game logic and persistent save keys untouched. */
+#homeScreen .kit-top {
+  height:13.7%!important;
+  grid-template-columns:31.5% 32.5% 36%!important;
+}
+#homeScreen .kit-rank-number,
+#homeScreen #homeTapPower,
+#homeScreen #homePT,
+#homeScreen #homeKeys{
+  font-family:Georgia,"Times New Roman",serif!important;
+  font-weight:400!important;
+  font-variant-numeric:lining-nums tabular-nums!important;
+  letter-spacing:-.035em!important;
+  color:#fff5db!important;
+  text-shadow:0 1px 3px rgba(1,20,42,.74)!important;
+}
+#homeScreen .kit-rank-number{
+  top:55.5%!important;
+  left:51.5%!important;right:8%!important;
+  font-size:clamp(17px,5.1vw,26px)!important;
+}
+#homeScreen #homeTapPower{
+  top:55.5%!important;
+  font-size:clamp(22px,6.15vw,32px)!important;
+}
+#homeScreen .kit-wallet .kit-pt-label,
+#homeScreen .kit-wallet .kit-keys-label{
+  left:29%!important;
+  font-size:clamp(8px,2.05vw,10px)!important;
+  font-weight:500!important;
+  text-shadow:0 1px 3px rgba(0,19,40,.75)!important;
+}
+#homeScreen #homePT,#homeScreen #homeKeys{
+  left:52%!important;right:10%!important;
+  font-size:clamp(15px,4vw,21px)!important;
+}
+#homeScreen .kit-top .kit-hud-art{
+  filter:drop-shadow(0 1px 2px rgba(3,25,49,.35))!important;
+}
+/* A gently prominent primary route, below the wolf but clear of the lower menus. */
+#homeScreen #goTap.kit-awakening{
+  left:18.5%!important;width:63%!important;
+  top:64.8%!important;height:12.1%!important;
+  filter:drop-shadow(0 3px 4px rgba(4,28,55,.37))!important;
+}
+#homeScreen #goTap.kit-awakening>.v11-core-crystal{
+  width:18%!important;height:62%!important;left:9.5%!important;top:19%!important;
+  opacity:.80!important;
+  filter:drop-shadow(0 0 3px rgba(77,202,255,.30))!important;
+}
+/* Lift small facilities clear of the taller shared nav and increase their tappable area. */
+#homeScreen .kit-mission,#homeScreen .kit-gift{
+  top:76.5%!important;width:39%!important;height:9.2%!important;
+}
+#homeScreen .kit-mission{left:4.5%!important}
+#homeScreen .kit-gift{right:4.5%!important}
+/* The bottom bar icons are painted assets. Scale the *actual art*, not just its hit boxes. */
+#homeScreen .kit-shared-nav.home-nav,
+#gachaScreen .kit-shared-nav.gacha-bottom-nav,
+#characterScreen .kit-shared-nav.character-bottom-nav{
+  height:13.4%!important;
+  background-color:#071d35!important;
+}
+.kit-shared-nav>button{
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  overflow:visible!important;
+}
+.kit-shared-nav>button>img{
+  position:relative!important;
+  display:block!important;
+  width:112%!important;height:105%!important;
+  max-width:none!important;
+  flex:none!important;
+  object-fit:contain!important;
+  filter:drop-shadow(0 1px 1px rgba(0,0,0,.28))!important;
+}
+.kit-shared-nav>button.kit-selected{z-index:2!important}
+@media (max-width:360px){
+  #homeScreen #homePT,#homeScreen #homeKeys{font-size:clamp(13px,3.65vw,18px)!important;right:9%!important}
+  #homeScreen #goTap.kit-awakening{left:18%!important;width:64%!important}
+}
+@media (max-height:710px){
+  #homeScreen .kit-top{height:13.4%!important}
+  #homeScreen #goTap.kit-awakening{top:64.5%!important;height:11.6%!important}
+  #homeScreen .kit-mission,#homeScreen .kit-gift{top:75.9%!important}
+  #homeScreen .kit-shared-nav.home-nav,#gachaScreen .kit-shared-nav.gacha-bottom-nav,#characterScreen .kit-shared-nav.character-bottom-nav{height:13.3%!important}
+}
+
+/* === v11.3: HUD legibility + key call-to-action scale ===
+   Presentation layer only. This does not modify rewards, data or navigation. */
+/* The existing art has separator ornaments printed into the WebP texture.
+   Place locally-color-matched patches *inside* the panels, leaving gilded edges and text alone.
+   Live values render on top of those patches. */
+#homeScreen .kit-power::after{
+  content:"";position:absolute;pointer-events:none;z-index:1;
+  left:13%;right:13%;top:58%;height:23%;
+  border-radius:5px;
+  background:linear-gradient(180deg,#05284e 0%,#07254a 55%,#062143 100%);
+  box-shadow:0 0 5px 2px rgba(6,33,68,.47);
+}
+#homeScreen #homeTapPower{
+  z-index:3!important;left:13%!important;right:13%!important;
+  top:57.2%!important;height:24%!important;
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  font-size:clamp(20px,5.65vw,29px)!important;
+  line-height:1!important;font-weight:400!important;
+  text-shadow:0 1px 2px #00172c!important;
+}
+#homeScreen .kit-rank::after{
+  content:"";position:absolute;pointer-events:none;z-index:1;
+  left:55%;right:9%;top:59.5%;height:22%;border-radius:4px;
+  background:linear-gradient(180deg,#052747,#062443 70%,#062342 100%);
+  box-shadow:0 0 4px 2px rgba(5,30,57,.48);
+}
+#homeScreen .kit-rank-number{
+  z-index:3!important;left:55%!important;right:9%!important;
+  top:59%!important;height:24%!important;
+  display:flex!important;justify-content:center!important;align-items:center!important;
+  font-size:clamp(17px,5.0vw,25px)!important;line-height:1!important;
+  font-weight:400!important;
+}
+/* Wallet stars are baked into both rows of the source art.
+   Cover just the tiny ornaments (not the outer gems), recovering clean numeric space. */
+#homeScreen .kit-wallet::before,#homeScreen .kit-wallet::after{
+  content:"";position:absolute;z-index:1;pointer-events:none;
+  left:78%;width:11.8%;height:16%;border-radius:4px;
+  background:linear-gradient(90deg,#052749 0%,#062548 60%,#052444 100%);
+  box-shadow:0 0 3px 2px rgba(5,36,72,.30);
+}
+#homeScreen .kit-wallet::before{top:42%}
+#homeScreen .kit-wallet::after{top:65.5%}
+/* Keep two clean, generously sized numeric zones next to the labels. */
+#homeScreen .kit-wallet .kit-pt-label,
+#homeScreen .kit-wallet .kit-keys-label{
+  left:29%!important;max-width:24%!important;
+  font-size:clamp(7.7px,1.9vw,10px)!important;
+}
+#homeScreen #homePT,#homeScreen #homeKeys{
+  z-index:3!important;
+  left:52%!important;right:11.5%!important;
+  font-size:clamp(13px,3.9vw,18px)!important;
+  font-weight:400!important;
+  letter-spacing:-.035em!important;
+  text-align:right!important;
+  overflow:visible!important;
+}
+#homeScreen #homePT{top:39.8%!important}
+#homeScreen #homeKeys{top:64.8%!important}
+/* Primary touch target: measured growth without recreating artwork. */
+#homeScreen #goTap.kit-awakening{
+  top:63.0%!important;left:14.5%!important;width:71%!important;
+  height:12.3%!important;z-index:35!important;
+  filter:drop-shadow(0 3px 4px rgba(4,28,55,.34))!important;
+}
+#homeScreen #goTap.kit-awakening>.v11-core-crystal{
+  width:23%!important;height:72%!important;
+  left:7.5%!important;top:14%!important;
+  opacity:.87!important;
+  filter:drop-shadow(0 0 3px rgba(77,202,255,.36))!important;
+}
+/* Enlarge the artwork, not just its transparent clickable container. */
+#homeScreen .kit-mission,#homeScreen .kit-gift{
+  top:75.5%!important;width:43%!important;height:10.8%!important;
+  opacity:1!important;
+  filter:drop-shadow(0 2px 3px rgba(4,32,58,.33))!important;
+}
+#homeScreen .kit-mission{left:1.7%!important;right:auto!important}
+#homeScreen .kit-gift{right:1.7%!important;left:auto!important}
+/* The narrow iPhone breakpoint must honor the new spacing too. */
+@media(max-width:360px){
+  #homeScreen #homePT,#homeScreen #homeKeys{
+    left:52%!important;right:12%!important;
+    font-size:clamp(12px,3.45vw,17px)!important;
+  }
+  #homeScreen .kit-wallet .kit-pt-label,
+  #homeScreen .kit-wallet .kit-keys-label{
+    left:28.5%!important;font-size:7.5px!important;
+  }
+  #homeScreen .kit-rank-number{font-size:clamp(15px,4.8vw,23px)!important}
+}
+@media(max-height:710px){
+  #homeScreen #goTap.kit-awakening{top:62.9%!important;height:12.0%!important}
+  #homeScreen .kit-mission,#homeScreen .kit-gift{top:75.0%!important;height:10.6%!important}
+}
+
+
+/* === v11.4: visual refinement after iPhone review ===
+   Visual-only changes; RANK logic and existing save remain unmodified. */
+/* Make the future rank number area clearer without inventing a player rank.
+   Current save has no established playerRank progression, so the honest dash remains. */
+#homeScreen .kit-rank::after{
+  left:52.5%!important;right:8.5%!important;
+  top:58%!important;height:27%!important;
+}
+#homeScreen .kit-rank-number{
+  left:53%!important;right:8.5%!important;
+  top:55.5%!important;height:29%!important;
+  font-size:clamp(19px,5.4vw,27px)!important;
+  text-align:center!important;
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  font-variant-numeric:tabular-nums lining-nums!important;
+}
+/* Keep the awakening button the approved restrained width, make the
+   existing freestanding crystal medallion clearly legible at phone size. */
+#homeScreen #goTap.kit-awakening{
+  top:62.8%!important;
+  height:12.35%!important;
+  left:14.5%!important;width:71%!important;
+}
+#homeScreen #goTap.kit-awakening>.v11-core-crystal{
+  left:1.3%!important;top:7%!important;
+  width:27.5%!important;height:86%!important;
+  opacity:.97!important;
+  object-fit:contain!important;
+  filter:drop-shadow(0 0 5px rgba(78,202,255,.36))!important;
+}
+/* Increase the *painted* facility artwork rather than the tap area alone.
+   Both fit above the shared navigation without adding an extra menu row. */
+#homeScreen .kit-mission,#homeScreen .kit-gift{
+  top:75.0%!important;width:46%!important;height:11.25%!important;
+  filter:drop-shadow(0 2px 3px rgba(4,32,58,.28))!important;
+}
+#homeScreen .kit-mission{left:0.5%!important;right:auto!important}
+#homeScreen .kit-gift{right:0.5%!important;left:auto!important}
+@media(max-width:360px){
+  #homeScreen .kit-rank-number{font-size:clamp(17px,5.0vw,24px)!important}
+  #homeScreen .kit-mission,#homeScreen .kit-gift{width:46%;height:11%!important;top:75.1%!important}
+  #homeScreen #goTap.kit-awakening>.v11-core-crystal{width:27%!important}
+}
+@media(max-height:710px){
+  #homeScreen #goTap.kit-awakening{top:62.5%!important;height:12.0%!important}
+  #homeScreen .kit-mission,#homeScreen .kit-gift{top:74.5%!important;height:11.35%!important}
+}
+
+/* === v11.5 final home visual adjustments === */
+/* Contain the decorative crystal within the left side of the awakening button. */
+#homeScreen #goTap.kit-awakening > .v11-core-crystal {
+  left:6.5%!important;
+  top:19%!important;
+  width:19.5%!important;
+  height:62%!important;
+  opacity:.92!important;
+  object-fit:contain!important;
+  filter:drop-shadow(0 0 3px rgba(78,202,255,.30))!important;
+}
+/* Preserve button width and move attention to the readable facility artwork. */
+#homeScreen .kit-mission,
+#homeScreen .kit-gift {
+  top:74.8%!important;
+  width:47%!important;
+  height:11.7%!important;
+}
+#homeScreen .kit-mission {left:0%!important;right:auto!important}
+#homeScreen .kit-gift {right:0%!important;left:auto!important}
+@media (max-width:360px) {
+  #homeScreen .kit-mission,
+  #homeScreen .kit-gift {
+    width:47%!important;
+    height:11.4%!important;
+    top:74.8%!important;
+  }
+}
+@media (max-height:710px) {
+  #homeScreen .kit-mission,
+  #homeScreen .kit-gift {
+    top:74.2%!important;
+    height:11.4%!important;
+  }
+}
+
+
+/* v11.6: final conservative alignment corrections */
+#homeScreen #goTap.kit-awakening > .v11-core-crystal {
+  left:11%!important;
+  top:22%!important;
+  width:16%!important;
+  height:56%!important;
+  opacity:.88!important;
+  filter:drop-shadow(0 0 2px rgba(78,202,255,.25))!important;
+}
+/* Artwork contains rasterized text; enlarge its painted area without overlap. */
+#homeScreen .kit-mission,#homeScreen .kit-gift {
+  top:74.6%!important;
+  width:48.5%!important;
+  height:12%!important;
+  object-fit:fill!important;
+}
+#homeScreen .kit-mission{left:0%!important;right:auto!important}
+#homeScreen .kit-gift{right:0%!important;left:auto!important}
+@media(max-width:360px){
+  #homeScreen .kit-mission,#homeScreen .kit-gift{width:48.5%!important;height:11.7%!important;top:74.6%!important}
+}
+

@@ -1,0 +1,12 @@
+
+/* The old 27.5% vertical padding was calculated from screen WIDTH, while the bottom nav is 12.6% of HEIGHT.
+   On shorter iPhone viewports this exposed a horizontal band of the decorative background and cut the next product card early. */
+#shopScreen .shop-page {
+  bottom: max(12.6%, 60px) !important;
+  padding-bottom: 0 !important;
+}
+#shopScreen .shop-scroll {
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  overscroll-behavior-y: contain;
+}
