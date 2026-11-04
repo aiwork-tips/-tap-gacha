@@ -14,10 +14,14 @@ on:
 permissions:
   contents: read
 jobs:
-  chromium-qa:
+  browser-qa:
     if: github.ref == 'refs/heads/test-modular-upload-rc02'
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, webkit]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -25,10 +29,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Install Chromium and browser testing package
+      - name: Install ${{ matrix.browser }} and browser testing package
         run: |
           python -m pip install playwright
-          python -m playwright install --with-deps chromium
+          python -m playwright install --with-deps ${{ matrix.browser }}
       - name: Serve actual modular files over HTTP
         run: |
           nohup python -m http.server 8877 --bind 127.0.0.1 > /tmp/tapgacha-http.log 2>&1 &
@@ -44,15 +48,17 @@ jobs:
                   time.sleep(.25)
           else: raise SystemExit('HTTP server unavailable')
           PY
-      - name: Test gameplay and save reload in real mobile Chromium
+      - name: Test gameplay and save reload in ${{ matrix.browser }} mobile viewport
+        env:
+          QA_BROWSER: ${{ matrix.browser }}
         run: python tools/qa_browser.py
       - name: Publish screenshots and test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: rc02-mobile-browser-qa
+          name: rc02-mobile-browser-qa-${{ matrix.browser }}
           path: |
             qa-screenshots/*.png
-            qa-results.json
+            qa-results-${{ matrix.browser }}.json
           if-no-files-found: warn
           retention-days: 14
