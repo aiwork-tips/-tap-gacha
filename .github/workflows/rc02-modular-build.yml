@@ -1,0 +1,44 @@
+name: Build RC02 modular test branch
+on:
+  push:
+    branches:
+      - test-modular-upload-rc02
+    paths:
+      - .github/workflows/rc02-modular-build.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  modularize:
+    if: github.ref == 'refs/heads/test-modular-upload-rc02'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: test-modular-upload-rc02
+          fetch-depth: 0
+          persist-credentials: true
+      - name: Generate full 109-file RC02 bundle from verified main RC06
+        run: python3 tools/build_rc02_from_main.py
+      - name: Verify bundle structure and syntax
+        run: |
+          python3 - <<'PY'
+          import pathlib
+          root=pathlib.Path('.')
+          assert len(list((root/'assets').iterdir()))==84
+          assert len(list((root/'css').glob('style-*.css')))==20
+          assert len(list((root/'js').glob('script-*.js')))==4
+          assert (root/'index.html').exists()
+          print('Inventory PASS: 109 game files')
+          PY
+          for file in js/script-*.js; do node --check "$file"; done
+      - name: Commit full bundle to TEST BRANCH ONLY
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- index.html css js assets
+          if ! git diff --cached --quiet; then
+            git commit -m "Build audited RC02 as 109 modular game files"
+            git push origin HEAD:test-modular-upload-rc02
+          fi
