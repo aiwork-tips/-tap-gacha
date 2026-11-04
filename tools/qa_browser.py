@@ -79,8 +79,6 @@ with sync_playwright() as pw:
     page.screenshot(path=str(SHOTS/'character-320.png'))
     check('320px no horizontal overflow',page.evaluate('document.documentElement.scrollWidth<=window.innerWidth+2'))
     check('no JavaScript runtime errors',not errors)
-    (ROOT/'qa-results.json').write_text(json.dumps({'passed':len(passed),'checks':passed,'runtime_errors':errors,'broken_images':missing},ensure_ascii=False,indent=2),encoding='utf-8')
-    print(f'ALL {len(passed)} CHECKS PASS',flush=True)
 
     # Isolated deterministic fixture: validate cap, MAX, repeated 10-level hold and save reload.
     training=context.new_page()
@@ -103,9 +101,7 @@ with sync_playwright() as pw:
     training.locator('#charLevelUp').click(force=True)
     tstate=lambda:training.evaluate("JSON.parse(localStorage.getItem('tapgacha_save_v3'))")
     check('10-level training batch',tstate()['characters']['c001']['level']==11)
-    print('AFTER 10:',tstate()['characters']['c001'],flush=True)
     training.locator('#charQuantityMax').click(force=True)
-    print('AFTER MAX:',tstate()['characters']['c001'],flush=True)
     check('MAX stops at level cap 50',tstate()['characters']['c001']['level']==50)
     keys_before=tstate()['keys']
     training.locator('#charLimitBreak').click(force=True)
@@ -123,5 +119,6 @@ with sync_playwright() as pw:
     training.screenshot(path=str(SHOTS/'character-trained-390.png'))
     check('training no runtime errors',not errors)
     training.close()
-
+    (ROOT/'qa-results.json').write_text(json.dumps({'passed':len(passed),'checks':passed,'runtime_errors':errors,'broken_images':missing},ensure_ascii=False,indent=2),encoding='utf-8')
+    print(f'ALL {len(passed)} CHECKS PASS',flush=True)
     browser.close()
