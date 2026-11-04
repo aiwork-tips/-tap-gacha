@@ -43,6 +43,7 @@ with sync_playwright() as pw:
     after=state()
     check('tap PT saved',after['points']==before['points']+before['tapPower'])
     check('tap stats saved',after['stats']['taps']==before['stats']['taps']+1)
+    check('tap chest progress advances',after.get('tapRewardProgress',{}).get('count',0)==before.get('tapRewardProgress',{}).get('count',0)+1)
     page.locator('#backHome').click(force=True)
     page.locator('[data-home-go="gacha"]').click(force=True)
     check('gacha navigation',page.locator('#gachaScreen.active').count()==1)
@@ -79,6 +80,7 @@ with sync_playwright() as pw:
     page.reload(wait_until='load',timeout=60000)
     after=state()
     check('reload preserves progress',all(before[k]==after[k] for k in ('points','keys','stats')))
+    check('tap chest progress survives navigation and reload',after['tapRewardProgress']['count']==before['tapRewardProgress']['count'])
     missing=page.evaluate("Array.from(document.images).filter(i => i.getAttribute('src') && i.complete && !i.naturalWidth).map(i=>i.src)")
     check('visible images load',not missing)
     page.set_viewport_size({'width':320,'height':568})
@@ -131,6 +133,42 @@ with sync_playwright() as pw:
     training.screenshot(path=str(SHOTS/f'{ENGINE}-character-trained-390.png'))
     check('training no runtime errors',not errors)
     training.close()
+    # Data safety: corrupted unified saves must never be overwritten.
+    protected=browser.new_context(viewport={'width':390,'height':844},is_mobile=True,has_touch=True)
+    protected.add_init_script("""(() => {
+      if(sessionStorage.getItem('__qa_corrupt_seeded')) return;
+      localStorage.setItem('tapgacha_save_v3','{not-json');
+      sessionStorage.setItem('__qa_corrupt_seeded','1');
+    })()""")
+    protect_page=protected.new_page()
+    protect_page.on('pageerror',lambda err:errors.append('corrupt: '+str(err)))
+    protect_page.goto(URL,wait_until='load')
+    check('corrupt unified save remains intact',protect_page.evaluate("localStorage.getItem('tapgacha_save_v3')")=='{not-json')
+    protect_page.locator('#goTap').click(force=True)
+    protect_page.locator('#tapZone').click(force=True)
+    check('corrupted save blocks game writes',protect_page.evaluate("localStorage.getItem('tapgacha_save_v3')")=='{not-json')
+    protect_page.reload(wait_until='load')
+    check('corrupt save protected across reload',protect_page.evaluate("localStorage.getItem('tapgacha_save_v3')")=='{not-json')
+    protected.close()
+    # Existing client legacy keys take precedence and become a v3 save.
+    old=browser.new_context(viewport={'width':390,'height':844},is_mobile=True,has_touch=True)
+    old.add_init_script("""(() => {
+      if(sessionStorage.getItem('__qa_legacy_seeded')) return;
+      localStorage.setItem('tapgacha_pt','777');
+      localStorage.setItem('tapgacha_collection',JSON.stringify({c01:{owned:true,level:2,shards:15}}));
+      localStorage.setItem('gV2',JSON.stringify({pts:9999}));
+      sessionStorage.setItem('__qa_legacy_seeded','1');
+    })()""")
+    old_page=old.new_page()
+    old_page.on('pageerror',lambda err:errors.append('legacy: '+str(err)))
+    old_page.goto(URL,wait_until='load')
+    imported=old_page.evaluate("JSON.parse(localStorage.getItem('tapgacha_save_v3'))")
+    check('legacy points preserve current-key priority',imported['points']==777)
+    check('legacy character ID normalizes without losing levels',imported['characters']['c001']['level']==2 and imported['characters']['c001']['shards']==15)
+    old_page.reload(wait_until='load')
+    check('legacy migration remains stable after reload',old_page.evaluate("JSON.parse(localStorage.getItem('tapgacha_save_v3')).points")==777)
+    old.close()
+    check('new save safety checks produce no runtime exceptions',not errors)
     (ROOT/f'qa-results-{ENGINE}.json').write_text(json.dumps({'browser':ENGINE,'passed':len(passed),'checks':passed,'runtime_errors':errors,'broken_images':missing,'resource_failures':resource_failures},ensure_ascii=False,indent=2),encoding='utf-8')
     print(f'ALL {len(passed)} CHECKS PASS',flush=True)
     browser.close()
