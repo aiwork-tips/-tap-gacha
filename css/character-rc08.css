@@ -197,6 +197,7 @@
 }
 #characterScreen #charBuyKey .char-button-ink{font-size:clamp(10px,2.6vw,12px)!important}
 #characterScreen .char-list-caption{
+  position:relative!important;
   height:clamp(31px,4.7vh,38px)!important;
   flex:0 0 clamp(31px,4.7vh,38px)!important;
   border:0!important;margin:0!important;
