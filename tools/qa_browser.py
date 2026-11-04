@@ -81,4 +81,41 @@ with sync_playwright() as pw:
     check('no JavaScript runtime errors',not errors)
     (ROOT/'qa-results.json').write_text(json.dumps({'passed':len(passed),'checks':passed,'runtime_errors':errors,'broken_images':missing},ensure_ascii=False,indent=2),encoding='utf-8')
     print(f'ALL {len(passed)} CHECKS PASS',flush=True)
+
+    # Isolated deterministic fixture: validate cap, MAX, repeated 10-level hold and save reload.
+    training=context.new_page()
+    training.on('pageerror',lambda err:errors.append('training: '+str(err)))
+    training.goto(URL,wait_until='load',timeout=60000)
+    training.evaluate("""() => {
+      const s=JSON.parse(localStorage.getItem('tapgacha_save_v3'));
+      s.characters.c001={owned:true,level:1,cap:50,shards:5000};
+      s.keys=3;s.points=12450;
+      localStorage.setItem('tapgacha_save_v3',JSON.stringify(s));
+    }""")
+    training.reload(wait_until='load')
+    training.locator('[data-home-go="character"]').click(force=True)
+    training.locator('#characterGrid [data-character-id="c001"]').click(force=True)
+    training.locator('#charQuantity10').click(force=True)
+    training.locator('#charLevelUp').click(force=True)
+    tstate=lambda:training.evaluate("JSON.parse(localStorage.getItem('tapgacha_save_v3'))")
+    check('10-level training batch',tstate()['characters']['c001']['level']==11)
+    training.locator('#charQuantityMax').click(force=True)
+    check('MAX stops at level cap 50',tstate()['characters']['c001']['level']==50)
+    keys_before=tstate()['keys']
+    training.locator('#charLimitBreak').click(force=True)
+    check('cap unlock reaches 100 and consumes one key',tstate()['characters']['c001']['cap']==100 and tstate()['keys']==keys_before-1)
+    box=training.locator('#charLevelUp').bounding_box()
+    assert box is not None
+    training.mouse.move(box['x']+box['width']/2,box['y']+box['height']/2)
+    training.mouse.down()
+    training.wait_for_timeout(950)
+    training.mouse.up()
+    check('holding 10-level mode repeatedly trains',tstate()['characters']['c001']['level']>60)
+    levels_before=tstate()['characters']['c001']['level']
+    training.reload(wait_until='load')
+    check('trained level survives reload',tstate()['characters']['c001']['level']==levels_before)
+    training.screenshot(path=str(SHOTS/'character-trained-390.png'))
+    check('training no runtime errors',not errors)
+    training.close()
+
     browser.close()
