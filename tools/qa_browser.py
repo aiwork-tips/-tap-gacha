@@ -8,6 +8,8 @@ ROOT = Path(__file__).resolve().parents[1]
 SHOTS = ROOT/'qa-screenshots'
 SHOTS.mkdir(exist_ok=True)
 URL = os.getenv('QA_URL','http://127.0.0.1:8877/index.html')
+ENGINE = os.getenv('QA_BROWSER','chromium').strip().lower()
+assert ENGINE in ('chromium','webkit'), ENGINE
 passed=[]
 errors=[]
 
@@ -17,10 +19,15 @@ def check(label, ok):
     print('PASS:',label,flush=True)
 
 with sync_playwright() as pw:
-    browser=pw.chromium.launch(headless=True,args=['--no-sandbox','--disable-dev-shm-usage'])
+    launch = {'headless': True}
+    if ENGINE=='chromium': launch['args']=['--no-sandbox','--disable-dev-shm-usage']
+    browser=getattr(pw,ENGINE).launch(**launch)
     context=browser.new_context(viewport={'width':390,'height':844},device_scale_factor=1,is_mobile=True,has_touch=True)
     page=context.new_page()
     page.on('pageerror',lambda err:errors.append(str(err)))
+    resource_failures=[]
+    page.on('response',lambda response:resource_failures.append(f'{response.status} {response.url}') if response.status>=400 and ('/assets/' in response.url or '/css/' in response.url or '/js/' in response.url) else None)
+    page.on('requestfailed',lambda request:resource_failures.append(f'failed {request.url}') if ('/assets/' in request.url or '/css/' in request.url or '/js/' in request.url) else None)
     response=page.goto(URL,wait_until='load',timeout=60000)
     check('HTTP 200',response.status==200)
     page.wait_for_timeout(500)
@@ -28,7 +35,7 @@ with sync_playwright() as pw:
         return page.evaluate("JSON.parse(localStorage.getItem('tapgacha_save_v3'))")
     check('home initializes',page.locator('#homeScreen.active').count()==1 and state()['schemaVersion']==3)
     check('six screens',page.locator('section.screen').count()==6)
-    page.screenshot(path=str(SHOTS/'home-390.png'))
+    page.screenshot(path=str(SHOTS/f'{ENGINE}-home-390.png'))
     before=state()
     page.locator('#goTap').click(force=True)
     check('tap navigation',page.locator('#tapScreen.active').count()==1)
@@ -39,7 +46,7 @@ with sync_playwright() as pw:
     page.locator('#backHome').click(force=True)
     page.locator('[data-home-go="gacha"]').click(force=True)
     check('gacha navigation',page.locator('#gachaScreen.active').count()==1)
-    page.screenshot(path=str(SHOTS/'gacha-390.png'))
+    page.screenshot(path=str(SHOTS/f'{ENGINE}-gacha-390.png'))
     before=state()
     page.locator('.gacha-draw[data-pulls="1000"]').click(force=True)
     after=state()
@@ -49,7 +56,7 @@ with sync_playwright() as pw:
     page.locator('#gachaBackHome').click(force=True)
     page.locator('[data-home-go="character"]').click(force=True)
     check('character navigation',page.locator('#characterScreen.active').count()==1)
-    page.screenshot(path=str(SHOTS/'character-390.png'))
+    page.screenshot(path=str(SHOTS/f'{ENGINE}-character-390.png'))
     page.locator('#charRosterToggle').click(force=True)
     check('roster expanded',page.locator('#charRosterToggle').get_attribute('aria-pressed')=='true')
     page.locator('#charRosterToggle').click(force=True)
@@ -58,7 +65,7 @@ with sync_playwright() as pw:
     page.locator('#charBackHome').click(force=True)
     page.locator('[data-home-go="shop"]').click(force=True)
     check('shop navigation',page.locator('#shopScreen.active').count()==1)
-    page.screenshot(path=str(SHOTS/'shop-390.png'))
+    page.screenshot(path=str(SHOTS/f'{ENGINE}-shop-390.png'))
     before=state()
     page.locator('#shopBuyKey').click(force=True)
     after=state()
@@ -66,7 +73,7 @@ with sync_playwright() as pw:
     page.locator('#shopBackHome').click(force=True)
     page.locator('[data-home-go="quest"]').click(force=True)
     check('quest navigation',page.locator('#questScreen.active').count()==1)
-    page.screenshot(path=str(SHOTS/'quest-390.png'))
+    page.screenshot(path=str(SHOTS/f'{ENGINE}-quest-390.png'))
     page.locator('#questBackHome').click(force=True)
     before=state()
     page.reload(wait_until='load',timeout=60000)
@@ -76,8 +83,13 @@ with sync_playwright() as pw:
     check('visible images load',not missing)
     page.set_viewport_size({'width':320,'height':568})
     page.locator('[data-home-go="character"]').click(force=True)
-    page.screenshot(path=str(SHOTS/'character-320.png'))
+    page.screenshot(path=str(SHOTS/f'{ENGINE}-character-320.png'))
     check('320px no horizontal overflow',page.evaluate('document.documentElement.scrollWidth<=window.innerWidth+2'))
+    check('320px roster is vertically scrollable',page.evaluate("""() => {let el=document.querySelector('#characterScreen .char-scroll');return el && el.scrollHeight>el.clientHeight && getComputedStyle(el).overflowY!=='hidden'}"""))
+    page.set_viewport_size({'width':430,'height':932})
+    page.screenshot(path=str(SHOTS/f'{ENGINE}-character-430.png'))
+    check('430px no horizontal overflow',page.evaluate('document.documentElement.scrollWidth<=window.innerWidth+2'))
+    check('all game asset responses are successful',not resource_failures)
     check('no JavaScript runtime errors',not errors)
 
     # Isolated deterministic fixture: validate cap, MAX, repeated 10-level hold and save reload.
@@ -116,9 +128,9 @@ with sync_playwright() as pw:
     levels_before=tstate()['characters']['c001']['level']
     training.reload(wait_until='load')
     check('trained level survives reload',tstate()['characters']['c001']['level']==levels_before)
-    training.screenshot(path=str(SHOTS/'character-trained-390.png'))
+    training.screenshot(path=str(SHOTS/f'{ENGINE}-character-trained-390.png'))
     check('training no runtime errors',not errors)
     training.close()
-    (ROOT/'qa-results.json').write_text(json.dumps({'passed':len(passed),'checks':passed,'runtime_errors':errors,'broken_images':missing},ensure_ascii=False,indent=2),encoding='utf-8')
+    (ROOT/f'qa-results-{ENGINE}.json').write_text(json.dumps({'browser':ENGINE,'passed':len(passed),'checks':passed,'runtime_errors':errors,'broken_images':missing,'resource_failures':resource_failures},ensure_ascii=False,indent=2),encoding='utf-8')
     print(f'ALL {len(passed)} CHECKS PASS',flush=True)
     browser.close()
