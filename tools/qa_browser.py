@@ -86,11 +86,15 @@ with sync_playwright() as pw:
     training=context.new_page()
     training.on('pageerror',lambda err:errors.append('training: '+str(err)))
     training.goto(URL,wait_until='load',timeout=60000)
-    training.evaluate("""() => {
+    # pagehide saves the in-memory game state on reload. Apply the fixture *before*
+    # the new document's game script, once, to avoid overwriting it with the old state.
+    training.add_init_script("""() => {
+      if(sessionStorage.getItem('__qa_training_fixture_applied')) return;
       const s=JSON.parse(localStorage.getItem('tapgacha_save_v3'));
       s.characters.c001={owned:true,level:1,cap:50,shards:5000};
       s.keys=3;s.points=12450;
       localStorage.setItem('tapgacha_save_v3',JSON.stringify(s));
+      sessionStorage.setItem('__qa_training_fixture_applied','1');
     }""")
     training.reload(wait_until='load')
     training.locator('[data-home-go="character"]').click(force=True)
@@ -100,7 +104,6 @@ with sync_playwright() as pw:
     tstate=lambda:training.evaluate("JSON.parse(localStorage.getItem('tapgacha_save_v3'))")
     check('10-level training batch',tstate()['characters']['c001']['level']==11)
     training.locator('#charQuantityMax').click(force=True)
-    print('MAX DIAG:', {'record':tstate()['characters']['c001'],'button':training.locator('#charQuantityMax').evaluate('(b)=>({disabled:b.disabled,title:b.title})'),'selected':training.locator('#selectedLevel').inner_text()},flush=True)
     check('MAX stops at level cap 50',tstate()['characters']['c001']['level']==50)
     keys_before=tstate()['keys']
     training.locator('#charLimitBreak').click(force=True)
