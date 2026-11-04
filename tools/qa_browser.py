@@ -100,6 +100,7 @@ with sync_playwright() as pw:
     tstate=lambda:training.evaluate("JSON.parse(localStorage.getItem('tapgacha_save_v3'))")
     check('10-level training batch',tstate()['characters']['c001']['level']==11)
     training.locator('#charQuantityMax').click(force=True)
+    print('MAX DIAG:', {'record':tstate()['characters']['c001'],'button':training.locator('#charQuantityMax').evaluate('(b)=>({disabled:b.disabled,title:b.title})'),'selected':training.locator('#selectedLevel').inner_text()},flush=True)
     check('MAX stops at level cap 50',tstate()['characters']['c001']['level']==50)
     keys_before=tstate()['keys']
     training.locator('#charLimitBreak').click(force=True)
