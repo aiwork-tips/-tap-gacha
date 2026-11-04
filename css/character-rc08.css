@@ -268,3 +268,14 @@
   #characterScreen .char-scroll{padding:5px 4px!important}
   #characterScreen .char-grid{gap:5px 3px!important}
 }
+
+/* Frame belongs to portrait itself: an absolute pseudo-frame crossed the hero art
+   at narrow widths; 9-slice on the live IMG keeps the frame on its own edges. */
+#characterScreen .char-detail::before{display:none!important;content:none!important}
+#characterScreen .char-portrait{
+  border:9px solid transparent!important;
+  border-image-source:url("../assets/rc08-portrait-frame.svg")!important;
+  border-image-slice:52!important;
+  border-image-width:9px!important;
+  border-image-repeat:stretch!important;
+}
