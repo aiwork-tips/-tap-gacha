@@ -7,7 +7,6 @@
   screen.classList.toggle('roster-expanded',expanded);
   toggle.setAttribute('aria-pressed',String(expanded));
   toggle.setAttribute('aria-label',expanded?'育成パネルに戻る':'キャラ一覧を広く表示する');
-  toggle.textContent=expanded?'育成へ戻る ⌃':'一覧を広く見る ⌄';
  }
  if(!screen || !toggle || !grid) return;
  toggle.addEventListener('click',()=>setExpanded(!screen.classList.contains('roster-expanded')));

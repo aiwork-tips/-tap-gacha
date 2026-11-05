@@ -7,7 +7,7 @@
 <meta content="#071827" name="theme-color"/>
 <meta content="yes" name="apple-mobile-web-app-capable"/>
 <meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
-<title>Ver.11.8 TRAIN-RC08 · タップ育成ガチャ -覚醒-</title>
+<title>Ver.11.8 TRAIN-RC09 · タップ育成ガチャ -覚醒-</title>
 <!-- Unified Save Rev.3: tapgacha_save_v3 / legacy gV2 preserved read-only -->
 <link rel="stylesheet" href="css/style-01.css">
 
@@ -180,44 +180,120 @@
 
 
 <section class="screen" id="characterScreen">
-  <img class="character-background" src="assets/692805a0a15c9e2a3195.webp" alt="">
+  <img class="character-background" src="assets/2f41a6f6e229cc01b483.webp" alt="">
   <div class="character-shade"></div>
   <div class="character-area">
     <header class="char-top">
-      <button class="char-home" id="charBackHome"><span class="char-button-ink">⌂ ホーム</span></button>
-      <div class="char-header-title">キャラ育成</div>
-      <div class="char-top-pt">所持 PT <b id="charPT">0</b></div>
+      <button type="button" class="char-home char-gilt" id="charBackHome">
+        <span class="char-button-ink"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 11 12 2l10 9-2 2-2-2v9h-5v-6h-2v6H6v-9l-2 2z"/></svg>ホーム</span>
+      </button>
+      <h2 class="char-header-title">キャラ育成</h2>
+      <div class="char-top-pt char-gilt"><span>所持 PT</span><b id="charPT">0</b></div>
     </header>
     <div class="char-stats">
-      <div class="char-stat">所持キャラ<strong id="charOwned">0 / 15</strong></div>
-      <div class="char-stat">総レベル<strong id="charTotalLevels">0</strong></div>
-      <div class="char-stat">TapPower<strong id="charTapPower">1</strong></div>
-    </div>
-    <div class="char-detail" id="characterDetail">
-      <img id="selectedPortrait" class="char-portrait" alt="">
-      <div class="char-info">
-        <div id="selectedRarity" class="char-rarity">★</div>
-        <div id="selectedName" class="char-name">キャラを選択</div>
-        <div id="selectedTags" class="char-tags"></div>
-        <div id="selectedLevel" class="char-level">Lv 1 / 50</div>
-        <div class="char-shards-row">
-          <div id="selectedShardCount" class="char-shards"></div>
-          <div class="char-level-quantity" role="group" aria-label="レベルアップ回数">
-            <span class="char-quantity-label">回数</span>
-            <button type="button" class="char-quantity-button is-selected" id="charQuantity1" aria-pressed="true" aria-label="1レベルずつ上げる">1</button>
-            <button type="button" class="char-quantity-button" id="charQuantity10" aria-pressed="false" aria-label="最大10レベルまとめて上げる">10</button>
-            <button type="button" class="char-quantity-button char-max-button" id="charQuantityMax" aria-label="欠片で育成できる最大レベルまで一括で上げる">MAX</button>
-          </div>
-        </div>
-        <div class="char-shard-track"><div id="charShardFill" class="char-shard-fill"></div></div>
-        <button class="char-action" id="charLevelUp"><span class="char-button-ink">レベルアップ</span></button>
-        <button class="char-action" id="charLimitBreak"><span class="char-button-ink">上限解放</span></button>
+      <div class="char-stat char-gilt">
+        <svg class="char-stat-icon" viewBox="0 0 28 28" aria-hidden="true"><path d="M14 3a4 4 0 1 1 0 8 4 4 0 0 1 0-8zM7 23v-4a7 7 0 0 1 14 0v4zM5 6a3 3 0 1 1 0 6 3 3 0 0 1 0-6zm18 0a3 3 0 1 1 0 6 3 3 0 0 1 0-6zM1 20v-3a5 5 0 0 1 7-4 9 9 0 0 0-2 7zm21 0a9 9 0 0 0-2-7 5 5 0 0 1 7 4v3z"/></svg>
+        <span class="char-stat-copy">所持キャラ<strong id="charOwned">0 / 15</strong></span>
       </div>
-      <button id="charFavoriteButton" class="char-favorite-button" aria-label="このキャラをお気に入り設定する"><span class="char-button-ink">☆ ホームに設定</span></button>
+      <div class="char-stat char-gilt">
+        <svg class="char-stat-icon" viewBox="0 0 28 28" aria-hidden="true"><path d="M13 25C5 25 1 17 3 10c2 0 4 2 5 4-3 0-4-1-5-2l1 4c2-1 4 1 5 3-2 0-4 0-5-2l2 4c3-1 5 1 6 3l1 1zm2 0c8 0 12-8 10-15-2 0-4 2-5 4 3 0 4-1 5-2l-1 4c-2-1-4 1-5 3 2 0 4 0 5-2l-2 4c-3-1-5 1-6 3l-1 1zM4 9c1-3 3-5 6-6 0 3-2 6-6 6zm20 0c-1-3-3-5-6-6 0 3 2 6 6 6z"/></svg>
+        <span class="char-stat-copy">総レベル<strong id="charTotalLevels">0</strong></span>
+      </div>
+      <div class="char-stat char-gilt">
+        <svg class="char-stat-icon" viewBox="0 0 28 28" aria-hidden="true"><path d="m5 25-2-2L19 7l2 2zm12-11 8 8-2 2-8-8zM8 12 4 8l2-2 4 4zm15-8 1-4 1 4 3 1-3 1-1 4-1-4-3-1zM6 2l1 3 3 1-3 1-1 3-1-3-3-1 3-1z"/></svg>
+        <span class="char-stat-copy">TapPower<strong id="charTapPower">1</strong></span>
+      </div>
     </div>
-    <div class="char-buy"><span>🔑 上限解放の鍵 <strong id="charKeys">3</strong> 個</span><button id="charBuyKey"><span class="char-button-ink">鍵を購入 5,000 PT</span></button></div>
-    <div class="char-list-caption"><span>キャラクター一覧</span><button type="button" id="charRosterToggle" class="char-roster-toggle" aria-pressed="false" aria-label="キャラ一覧を広く表示する">一覧を広く見る ⌄</button></div>
-    <div class="char-scroll"><div id="characterGrid" class="char-grid"></div></div>
+    <div class="char-detail char-gilt" id="characterDetail">
+      <svg class="char-frame-art" viewBox="0 0 400 220" preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <linearGradient id="charFiligreeGold" x1="0" y1="0" x2="1" y2="1">
+            <stop stop-color="#fff0ad"/><stop offset=".42" stop-color="#ffe1a0"/><stop offset=".7" stop-color="#a8652d"/><stop offset="1" stop-color="#ffce74"/>
+          </linearGradient>
+          <g id="charFiligreeCorner" fill="none" stroke="url(#charFiligreeGold)" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke-width="2.8" d="M1 35C2 13 13 2 35 1M3 24C8 25 13 22 13 17C13 13 9 13 9 16C9 18 11 19 12 18M24 3C25 8 22 13 17 13C13 13 13 9 16 9C18 9 19 11 18 12"/>
+            <path stroke-width="1.3" d="M3 42C4 30 7 28 12 27C16 27 18 25 18 22M42 3C30 4 28 7 27 12C27 16 25 18 22 18M5 18C7 9 13 7 18 5"/>
+            <path fill="#ffe7a2" stroke-width=".6" d="M8 11C10 6 15 5 18 6C14 8 13 11 8 11ZM11 8C6 10 5 15 6 18C8 14 11 13 11 8Z"/>
+          </g>
+        </defs>
+        <use href="#charFiligreeCorner"/>
+        <use href="#charFiligreeCorner" transform="translate(400 0) scale(-1 1)"/>
+        <use href="#charFiligreeCorner" transform="translate(0 220) scale(1 -1)"/>
+        <use href="#charFiligreeCorner" transform="translate(400 220) scale(-1 -1)"/>
+      </svg>
+      <div class="char-portrait-card char-gilt">
+        <img id="selectedPortrait" class="char-portrait" alt="">
+        <svg class="char-frame-art" viewBox="0 0 136 210" preserveAspectRatio="none" aria-hidden="true">
+          <use href="#charFiligreeCorner"/>
+          <use href="#charFiligreeCorner" transform="translate(136 0) scale(-1 1)"/>
+          <use href="#charFiligreeCorner" transform="translate(0 210) scale(1 -1)"/>
+          <use href="#charFiligreeCorner" transform="translate(136 210) scale(-1 -1)"/>
+          <path d="m68 1 8 5-8 6-8-6Z" fill="#7ad9ff" stroke="#ffe8a3"/>
+          <path d="m68 2 2 4-2 4-2-4Z" fill="#f5fcff"/>
+        </svg>
+        <span id="portraitStars" class="char-portrait-stars" aria-hidden="true"></span>
+        <button type="button" id="charFavoriteButton" class="char-favorite-button" aria-label="このキャラをお気に入り設定する">
+          <span class="char-button-ink">☆ ホームに設定</span>
+        </button>
+      </div>
+      <div class="char-info">
+        <div class="char-identity">
+          <span id="selectedRarity" class="char-rarity">★</span>
+          <span id="selectedName" class="char-name">キャラを選択</span>
+        </div>
+        <div id="selectedTags" class="char-tags"></div>
+        <div class="char-level-row">
+          <div id="selectedLevel" class="char-level">Lv 1 / 50</div>
+          <span id="charCapBadge" class="char-cap-badge" hidden>レベル上限</span>
+        </div>
+        <div id="selectedShardCount" class="char-shards"></div>
+        <div class="char-shard-track"><div id="charShardFill" class="char-shard-fill"></div></div>
+        <div class="char-level-quantity" role="group" aria-label="レベルアップ回数">
+          <span class="char-quantity-label">育成回数</span>
+          <button type="button" class="char-quantity-button is-selected" id="charQuantity1" aria-pressed="true" aria-label="1レベルずつ上げる">1</button>
+          <button type="button" class="char-quantity-button" id="charQuantity10" aria-pressed="false" aria-label="最大10レベルまとめて上げる">10</button>
+          <button type="button" class="char-quantity-button char-max-button" id="charQuantityMax" aria-label="欠片で育成できる最大レベルまで一括で上げる">MAX</button>
+        </div>
+        <div class="char-actions">
+          <button type="button" class="char-action char-gilt" id="charLevelUp">
+            <span class="char-button-ink">レベルアップ</span>
+            <small class="char-action-note"></small>
+          </button>
+          <button type="button" class="char-action char-gilt" id="charLimitBreak">
+            <span class="char-button-ink"><img src="assets/97ef2de12f25b2d73f7b.webp" alt="">上限解放</span>
+            <small class="char-action-note"></small>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="char-buy char-gilt">
+      <span class="char-keys-copy"><img src="assets/97ef2de12f25b2d73f7b.webp" alt="">上限解放の鍵 <strong id="charKeys">3</strong> 個</span>
+      <button type="button" id="charBuyKey"><span class="char-button-ink"><span class="char-buy-gem" aria-hidden="true">◆</span>鍵を購入 5,000 PT</span></button>
+    </div>
+    <div class="char-roster char-gilt">
+      <header class="char-list-caption">
+        <button type="button" id="charRosterToggle" class="char-roster-toggle" aria-pressed="false" aria-controls="charRosterScroll" aria-label="キャラ一覧を広く表示する">
+          <span>キャラクター一覧</span><span class="char-roster-chevron" aria-hidden="true">⌄</span>
+        </button>
+        <label class="char-roster-tool">
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1 2h14l-5 6v5l-4 2V8z"/></svg><span aria-hidden="true">絞り込み</span>
+          <select id="charRosterFilter" aria-label="キャラクターの絞り込み">
+            <option value="all">すべて</option><option value="owned">所持キャラ</option><option value="locked">未所持キャラ</option>
+          </select>
+        </label>
+        <label class="char-roster-tool">
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 1 1 5h2v9h2V5h2zm8 14 3-4h-2V2h-2v9H9z"/></svg><span aria-hidden="true">並び替え</span>
+          <select id="charRosterSort" aria-label="キャラクターの並び替え">
+            <option value="default">標準順</option><option value="level">レベルが高い順</option><option value="rarity">レア度が高い順</option>
+          </select>
+        </label>
+        <strong id="charRosterCount" class="char-roster-count">0 / 15</strong>
+      </header>
+      <div id="charRosterScroll" class="char-scroll">
+        <div id="characterGrid" class="char-grid"></div>
+        <p id="charRosterEmpty" class="char-roster-empty" hidden>条件に合うキャラがいません</p>
+      </div>
+    </div>
   </div>
   <nav class="character-bottom-nav kit-shared-nav" aria-label="共通メニュー"><img class="kit-nav-plate" draggable="false" alt="" src="assets/ed176f03ac36291e8af3.webp"><button type="button" aria-label="ホーム" data-character-nav="ホーム" class="kit-nav-item "><img alt="" draggable="false" src="assets/ef9974387a6a32635375.webp"></button><button type="button" aria-label="キャラ" data-character-nav="キャラ" class="kit-nav-item kit-selected"><img alt="" draggable="false" src="assets/511cdead8b7879d0e639.webp"></button><button type="button" aria-label="ガチャ" data-character-nav="ガチャ" class="kit-nav-item "><img alt="" draggable="false" src="assets/cb710db0ad7af546ba02.webp"></button><button type="button" aria-label="図鑑" data-character-nav="図鑑" class="kit-nav-item "><img alt="" draggable="false" src="assets/7440a0b3f308e7565643.webp"></button><button type="button" aria-label="その他" data-character-nav="その他" class="kit-nav-item "><img alt="" draggable="false" src="assets/d6ef01f5d4e112c2a3c7.webp"></button></nav>
 </section>
@@ -291,7 +367,7 @@
       <div class="shop-bridge"><button type="button" class="shop-to-character" id="shopGoCharacter">キャラ育成へ →</button></div>
       <div class="shop-future">現在購入できるのは「上限解放の鍵」のみです。<br>新アイテムの価格・効果は後日決定します。</div>
     </div>
-    <span class="shop-version">Ver.11.8 · TRAIN-RC08</span>
+    <span class="shop-version">Ver.11.8 · TRAIN-RC09</span>
   </div>
 </section>
 
@@ -301,7 +377,7 @@
 <section class="screen" id="questScreen" aria-label="依頼掲示板">
   <img id="questBackdrop" class="quest-backdrop" alt="" aria-hidden="true" />
   <div class="quest-scrim"></div>
-  <span class="quest-version">Ver.11.8 · TRAIN-RC08</span>
+  <span class="quest-version">Ver.11.8 · TRAIN-RC09</span>
   <div class="quest-shell">
     <header class="quest-top">
       <div class="quest-head"><button id="questBackHome" type="button" class="quest-home">⌂ ホーム</button><h1 class="quest-title">依頼掲示板</h1></div>
@@ -323,7 +399,7 @@
 </section>
 
 <div class="toast" id="toast"></div>
-<div id="devBuildLabel" aria-label="開発検証版 Ver.11.8 TRAIN-RC08">Ver.11.8 · TRAIN-RC08</div>
+<div id="devBuildLabel" aria-label="開発検証版 Ver.11.8 TRAIN-RC09">Ver.11.8 · TRAIN-RC09</div>
 </main>
 <script src="js/script-01.js"></script>
 
@@ -334,7 +410,7 @@
 
 <link rel="stylesheet" href="css/style-18.css">
 
-<!-- TRAIN-RC08: iOS safe rapid training; isolated centered labels (visuals only). -->
+<!-- Character training layout and touch controls. -->
 <link rel="stylesheet" href="css/style-19.css">
 <link rel="stylesheet" href="css/style-20.css">
 <link rel="stylesheet" href="css/character-rc08.css">

@@ -35,22 +35,28 @@ with sync_playwright() as pw:
         return page.evaluate("JSON.parse(localStorage.getItem('tapgacha_save_v3'))")
     check('home initializes',page.locator('#homeScreen.active').count()==1 and state()['schemaVersion']==3)
     check('six screens',page.locator('section.screen').count()==6)
-    # RC08 character graphics remain separate assets; labels, levels, controls
-    # and portraits must remain live DOM elements rather than baked into art.
+    # Verify the rendered layout and the independent borders on the live controls.
     page.locator('[data-home-go="character"]').click(force=True)
-    image_sources=page.evaluate("""() => ({
-      panel:getComputedStyle(document.querySelector('#characterScreen .char-detail'),'::after').borderImageSource,
-      portrait:getComputedStyle(document.querySelector('#selectedPortrait')).borderImageSource,
-      action:getComputedStyle(document.querySelector('#charLevelUp')).backgroundImage,
-      counter:document.querySelector('#charTotalLevels').textContent.trim()
-    })""")
-    check('RC08 ornate image border loaded as separate layer','rc08-ornate-panel.svg' in image_sources['panel'])
-    check('RC08 portrait frame loaded as separate layer','rc08-portrait-frame.svg' in image_sources['portrait'])
-    check('RC08 button art separated from clickable control','rc08-action-plate.svg' in image_sources['action'])
+    page.wait_for_function("""() => document.querySelector('#characterScreen .character-background').naturalWidth > 0""")
+    check('RC09 temple art is visible behind the entire screen', page.evaluate("""() =>
+      getComputedStyle(document.querySelector('#characterScreen .character-background')).opacity === '1'
+    """))
+    check('RC09 title is live text',page.locator('#characterScreen h2').inner_text()=='キャラ育成')
+    check('RC09 frames are visible independently of external art',page.evaluate("""() => {
+      const frames = [...document.querySelectorAll('#characterScreen .char-gilt')];
+      return frames.length >= 10 && frames.every(frame => {
+        const style = getComputedStyle(frame);
+        return style.borderImageSource === 'none' && style.borderTopStyle === 'solid' &&
+          parseFloat(style.borderTopWidth) > 0 && style.borderTopColor !== 'rgba(0, 0, 0, 0)';
+      });
+    }"""))
     detail=page.locator('#characterDetail').bounding_box()
     portrait=page.locator('#selectedPortrait').bounding_box()
-    check('RC08 portrait visibly enlarged',detail is not None and portrait is not None and portrait['width']/detail['width']>.32)
-    check('RC08 live stats remain readable',bool(image_sources['counter']) and page.locator('#charTotalLevels').is_visible())
+    check('RC09 portrait fills the left third',detail is not None and portrait is not None and .29<portrait['width']/detail['width']<.38)
+    check('RC09 live stats remain readable',page.locator('#charTotalLevels').inner_text()=='0' and page.locator('#charTotalLevels').is_visible())
+    page.locator('#charRosterFilter').select_option('owned')
+    check('RC09 owned filter shows the empty roster message',page.locator('#characterGrid .char-tile').count()==0 and page.locator('#charRosterEmpty').is_visible())
+    page.locator('#charRosterFilter').select_option('all')
     page.locator('#charBackHome').click(force=True)
     page.screenshot(path=str(SHOTS/f'{ENGINE}-home-390.png'))
     before=state()
@@ -82,6 +88,14 @@ with sync_playwright() as pw:
     page.locator('#charRosterToggle').click(force=True)
     check('roster collapsed',page.locator('#charRosterToggle').get_attribute('aria-pressed')=='false')
     check('15 character tiles',page.locator('#characterGrid [data-character-id]').count()==15)
+    before=state()
+    page.locator('#charRosterSort').select_option('rarity')
+    check('RC09 rarity sort moves the highest rarity to the front',page.locator('#characterGrid .char-tile em').first.inner_text()=='★★★')
+    page.locator('#charRosterSort').select_option('default')
+    check('RC09 roster display controls preserve the save',state()==before)
+    page.locator('#charBuyKey').click()
+    after=state()
+    check('RC09 character screen key button updates and saves PT and keys',after['points']==before['points']-5000 and after['keys']==before['keys']+1)
     page.locator('#charBackHome').click(force=True)
     page.locator('[data-home-go="shop"]').click(force=True)
     check('shop navigation',page.locator('#shopScreen.active').count()==1)
@@ -110,6 +124,14 @@ with sync_playwright() as pw:
     page.set_viewport_size({'width':430,'height':932})
     page.screenshot(path=str(SHOTS/f'{ENGINE}-character-430.png'))
     check('430px no horizontal overflow',page.evaluate('document.documentElement.scrollWidth<=window.innerWidth+2'))
+    page.set_viewport_size({'width':393,'height':654})
+    check('RC09 two full roster rows fit above the iPhone navigation',page.evaluate("""() => {
+      const scroll = document.getElementById('charRosterScroll').getBoundingClientRect();
+      const tile = document.querySelectorAll('#characterGrid .char-tile')[9].getBoundingClientRect();
+      const nav = document.querySelector('#characterScreen .character-bottom-nav').getBoundingClientRect();
+      return tile.bottom <= scroll.bottom && scroll.bottom <= nav.top;
+    }"""))
+    page.screenshot(path=str(SHOTS/f'{ENGINE}-character-393x654.png'))
     check('all game asset responses are successful',not resource_failures)
     check('no JavaScript runtime errors',not errors)
 
@@ -137,6 +159,7 @@ with sync_playwright() as pw:
     training.locator('#charQuantityMax').click(force=True)
     check('MAX stops at level cap 50',tstate()['characters']['c001']['level']==50)
     check('MAX does not auto unlock cap or consume keys',tstate()['characters']['c001']['cap']==50 and tstate()['keys']==3)
+    check('RC09 cap badge appears at the current cap',training.locator('#charCapBadge').is_visible())
     keys_before=tstate()['keys']
     training.locator('#charLimitBreak').click(force=True)
     check('cap unlock reaches 100 and consumes one key',tstate()['characters']['c001']['cap']==100 and tstate()['keys']==keys_before-1)
@@ -144,8 +167,12 @@ with sync_playwright() as pw:
     assert box is not None
     training.mouse.move(box['x']+box['width']/2,box['y']+box['height']/2)
     training.mouse.down()
-    training.wait_for_timeout(950)
-    training.mouse.up()
+    try:
+        training.wait_for_function("""() =>
+          JSON.parse(localStorage.getItem('tapgacha_save_v3')).characters.c001.level > 60
+        """, polling=100, timeout=3500)
+    finally:
+        training.mouse.up()
     check('holding 10-level mode repeatedly trains',tstate()['characters']['c001']['level']>60)
     check('training updates saved tap power',tstate()['tapPower']>=2)
     levels_before=tstate()['characters']['c001']['level']
@@ -154,15 +181,18 @@ with sync_playwright() as pw:
     training.locator('[data-home-go="character"]').click(force=True)
     training.locator('#characterGrid [data-character-id="c001"]').click(force=True)
     check('trained character detail visible after reload',training.locator('#characterScreen.active').count()==1 and 'Lv' in training.locator('#selectedLevel').inner_text())
-    check('RC08 training quantity buttons clear the shard gauge', training.evaluate("""() => {
+    check('RC09 gauge, quantity buttons and actions occupy separate rows', training.evaluate("""() => {
       const detail = document.getElementById('characterDetail');
-      const gaugeTop = detail.querySelector('.char-shard-track').getBoundingClientRect().top;
+      const gaugeBottom = detail.querySelector('.char-shard-track').getBoundingClientRect().bottom;
+      const actionsTop = detail.querySelector('.char-actions').getBoundingClientRect().top;
       const buttons = [...detail.querySelectorAll('.char-quantity-button')];
       return buttons.length === 3 && buttons.every(button => {
         const bounds = button.getBoundingClientRect();
-        return bounds.height > 0 && bounds.bottom < gaugeTop;
+        return bounds.height > 0 && bounds.top > gaugeBottom && bounds.bottom < actionsTop;
       });
     }"""))
+    training.locator('#charFavoriteButton').click()
+    check('RC09 portrait button saves the home favorite',tstate()['favoriteCharacterId']=='c001')
     training.screenshot(path=str(SHOTS/f'{ENGINE}-character-trained-390.png'))
     check('training no runtime errors',not errors)
     training.close()
