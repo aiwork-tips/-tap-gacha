@@ -7,7 +7,7 @@
 <meta content="#071827" name="theme-color"/>
 <meta content="yes" name="apple-mobile-web-app-capable"/>
 <meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
-<title>Ver.11.8 TRAIN-RC10 · タップ育成ガチャ -覚醒-</title>
+<title>Ver.11.8 TRAIN-RC11 · タップ育成ガチャ -覚醒-</title>
 <!-- Unified Save Rev.3: tapgacha_save_v3 / legacy gV2 preserved read-only -->
 <link rel="stylesheet" href="css/style-01.css">
 
@@ -60,7 +60,7 @@
   <button type="button" aria-label="晶貨交換所・ショップ" class="kit-facility kit-exchange" data-home-go="shop"><img alt="" draggable="false" src="assets/29b931e459b063cbfd2e.webp"></button>
   <button type="button" aria-label="依頼掲示板・ミッション" class="kit-facility kit-mission" data-home-go="quest"><img alt="" draggable="false" src="assets/479c6919cdaed61b7f96.webp"></button>
   <button type="button" aria-label="贈物の宝箱・プレゼント" class="kit-facility kit-gift" data-home-planned="贈物の宝箱"><img alt="" draggable="false" src="assets/fc29c8c5fe7ce26964b6.webp"></button>
-  <button id="goTap" type="button" class="kit-awakening" aria-label="覚醒核へ タップでPTを獲得"><img class="v117-plaque" alt="" src="assets/79e263697d1b0d8b28a3.png"><span class="v117-copy"><strong>覚醒核へ</strong><small>タップでPTを獲得</small></span></button>
+  <button id="goTap" type="button" class="kit-awakening" aria-label="覚醒核へ タップでPTを獲得"><img class="v117-plaque" alt="" src="assets/rc11-awakening.webp"><span class="v117-copy"><strong>覚醒核へ</strong><small>タップでPTを獲得</small></span></button>
   <nav class="home-nav kit-shared-nav" aria-label="共通メニュー"><img class="kit-nav-plate" draggable="false" alt="" src="assets/ed176f03ac36291e8af3.webp"><button type="button" aria-label="ホーム" data-nav="ホーム" class="kit-nav-item kit-selected"><img alt="" draggable="false" src="assets/e1b75980705352470bf3.webp"></button><button type="button" aria-label="キャラ" data-nav="キャラ" class="kit-nav-item "><img alt="" draggable="false" src="assets/1c1be698e50cc29d3ace.webp"></button><button type="button" aria-label="ガチャ" data-nav="ガチャ" class="kit-nav-item "><img alt="" draggable="false" src="assets/cb710db0ad7af546ba02.webp"></button><button type="button" aria-label="図鑑" data-nav="図鑑" class="kit-nav-item "><img alt="" draggable="false" src="assets/7440a0b3f308e7565643.webp"></button><button type="button" aria-label="その他" data-nav="その他" class="kit-nav-item "><img alt="" draggable="false" src="assets/d6ef01f5d4e112c2a3c7.webp"></button></nav>
 </section>
 <section class="screen" id="tapScreen">
@@ -74,7 +74,7 @@
 <image height="151" href="assets/455077ca69650df41606.webp" preserveaspectratio="none" width="310" x="690" y="25"/>
 <g class="v15-back-hit" id="backHome" role="button" tabindex="0">
 <rect fill="transparent" height="78" width="240" x="60" y="70"></rect>
-<text class="v15-label v15-home-label" x="190" y="108">⌂ ホームへ戻る</text>
+<text class="v15-label v15-home-label" x="190" y="108">ホームへ戻る</text>
 </g>
 <text class="v15-label v15-top-label" x="500" y="85">TapPower · 1 TAP</text>
 <text class="v15-number v15-power-number" id="powerBox" x="500" y="124"><tspan id="tapPower">25</tspan><tspan> PT</tspan></text>
@@ -184,22 +184,22 @@
   <div class="character-shade"></div>
   <div class="character-area">
     <header class="char-top">
-      <button type="button" class="char-home char-gilt" id="charBackHome">
+      <button type="button" class="char-home char-art-frame" id="charBackHome">
         <span class="char-button-ink"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 11 12 2l10 9-2 2-2-2v9h-5v-6h-2v6H6v-9l-2 2z"/></svg>ホーム</span>
       </button>
       <h2 class="char-header-title">キャラ育成</h2>
-      <div class="char-top-pt char-gilt"><span>所持 PT</span><b id="charPT">0</b></div>
+      <div class="char-top-pt char-art-frame"><span>所持 PT</span><b id="charPT">0</b></div>
     </header>
     <div class="char-stats">
-      <div class="char-stat char-gilt">
+      <div class="char-stat char-art-frame">
         <svg class="char-stat-icon" viewBox="0 0 28 28" aria-hidden="true"><path d="M14 3a4 4 0 1 1 0 8 4 4 0 0 1 0-8zM7 23v-4a7 7 0 0 1 14 0v4zM5 6a3 3 0 1 1 0 6 3 3 0 0 1 0-6zm18 0a3 3 0 1 1 0 6 3 3 0 0 1 0-6zM1 20v-3a5 5 0 0 1 7-4 9 9 0 0 0-2 7zm21 0a9 9 0 0 0-2-7 5 5 0 0 1 7 4v3z"/></svg>
         <span class="char-stat-copy">所持キャラ<strong id="charOwned">0 / 15</strong></span>
       </div>
-      <div class="char-stat char-gilt">
+      <div class="char-stat char-art-frame">
         <svg class="char-stat-icon" viewBox="0 0 28 28" aria-hidden="true"><path d="M13 25C5 25 1 17 3 10c2 0 4 2 5 4-3 0-4-1-5-2l1 4c2-1 4 1 5 3-2 0-4 0-5-2l2 4c3-1 5 1 6 3l1 1zm2 0c8 0 12-8 10-15-2 0-4 2-5 4 3 0 4-1 5-2l-1 4c-2-1-4 1-5 3 2 0 4 0 5-2l-2 4c-3-1-5 1-6 3l-1 1zM4 9c1-3 3-5 6-6 0 3-2 6-6 6zm20 0c-1-3-3-5-6-6 0 3 2 6 6 6z"/></svg>
         <span class="char-stat-copy">総レベル<strong id="charTotalLevels">0</strong></span>
       </div>
-      <div class="char-stat char-gilt">
+      <div class="char-stat char-art-frame">
         <svg class="char-stat-icon" viewBox="0 0 28 28" aria-hidden="true"><path d="m5 25-2-2L19 7l2 2zm12-11 8 8-2 2-8-8zM8 12 4 8l2-2 4 4zm15-8 1-4 1 4 3 1-3 1-1 4-1-4-3-1zM6 2l1 3 3 1-3 1-1 3-1-3-3-1 3-1z"/></svg>
         <span class="char-stat-copy">TapPower<strong id="charTapPower">1</strong></span>
       </div>
@@ -250,16 +250,16 @@
         <div class="char-shard-track"><div id="charShardFill" class="char-shard-fill"></div></div>
         <div class="char-level-quantity" role="group" aria-label="レベルアップ回数">
           <span class="char-quantity-label">育成回数</span>
-          <button type="button" class="char-quantity-button is-selected" id="charQuantity1" aria-pressed="true" aria-label="1レベルずつ上げる">1</button>
-          <button type="button" class="char-quantity-button" id="charQuantity10" aria-pressed="false" aria-label="最大10レベルまとめて上げる">10</button>
-          <button type="button" class="char-quantity-button char-max-button" id="charQuantityMax" aria-label="欠片で育成できる最大レベルまで一括で上げる">MAX</button>
+          <button type="button" class="char-quantity-button char-art-frame is-selected" id="charQuantity1" aria-pressed="true" aria-label="1レベルずつ上げる">1</button>
+          <button type="button" class="char-quantity-button char-art-frame" id="charQuantity10" aria-pressed="false" aria-label="最大10レベルまとめて上げる">10</button>
+          <button type="button" class="char-quantity-button char-max-button char-art-frame" id="charQuantityMax" aria-label="欠片で育成できる最大レベルまで一括で上げる">MAX</button>
         </div>
         <div class="char-actions">
-          <button type="button" class="char-action" id="charLevelUp">
+          <button type="button" class="char-action char-art-frame" id="charLevelUp">
             <span class="char-button-ink">レベルアップ</span>
             <small class="char-action-note"></small>
           </button>
-          <button type="button" class="char-action" id="charLimitBreak">
+          <button type="button" class="char-action char-art-frame" id="charLimitBreak">
             <span class="char-button-ink"><img src="assets/97ef2de12f25b2d73f7b.webp" alt="">上限解放</span>
             <small class="char-action-note"></small>
           </button>
@@ -376,7 +376,7 @@
       <div class="shop-bridge"><button type="button" class="shop-to-character" id="shopGoCharacter">キャラ育成へ →</button></div>
       <div class="shop-future">現在購入できるのは「上限解放の鍵」のみです。<br>新アイテムの価格・効果は後日決定します。</div>
     </div>
-    <span class="shop-version">Ver.11.8 · TRAIN-RC10</span>
+    <span class="shop-version">Ver.11.8 · TRAIN-RC11</span>
   </div>
 </section>
 
@@ -386,7 +386,7 @@
 <section class="screen" id="questScreen" aria-label="依頼掲示板">
   <img id="questBackdrop" class="quest-backdrop" alt="" aria-hidden="true" />
   <div class="quest-scrim"></div>
-  <span class="quest-version">Ver.11.8 · TRAIN-RC10</span>
+  <span class="quest-version">Ver.11.8 · TRAIN-RC11</span>
   <div class="quest-shell">
     <header class="quest-top">
       <div class="quest-head"><button id="questBackHome" type="button" class="quest-home">⌂ ホーム</button><h1 class="quest-title">依頼掲示板</h1></div>
@@ -408,7 +408,7 @@
 </section>
 
 <div class="toast" id="toast"></div>
-<div id="devBuildLabel" aria-label="開発検証版 Ver.11.8 TRAIN-RC10">Ver.11.8 · TRAIN-RC10</div>
+<div id="devBuildLabel" aria-label="開発検証版 Ver.11.8 TRAIN-RC11">Ver.11.8 · TRAIN-RC11</div>
 </main>
 <script src="js/script-01.js"></script>
 
