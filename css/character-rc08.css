@@ -26,7 +26,7 @@
   font-family: var(--char-serif);
 }
 
-/* Keep the real borders visible independently of the decorative artwork. */
+/* The detail and roster panels retain their independent borders. */
 #characterScreen .char-gilt {
   border: 1px solid var(--char-gold) !important;
   border-top-color: #ffe8ad !important;
@@ -35,6 +35,25 @@
   border-radius: var(--char-radius, 13px) !important;
   background: var(--char-panel, linear-gradient(165deg, #0a3767, #061a38 65%, #08375c)) !important;
   box-shadow: var(--char-glow, inset 0 0 0 1px #ffe0a172, inset 0 0 12px #3298d958, 0 0 7px #8ad4ff92) !important;
+}
+/* Remove the legacy face so the artwork alone defines the frame. */
+#characterScreen .char-art-frame,
+#characterScreen .char-art-frame:is(.char-quantity-button, #charLevelUp, #charLimitBreak) {
+  position: relative;
+  isolation: isolate;
+  border: 0 !important;
+  border-image: none !important;
+  border-radius: 0 !important;
+  background: none !important;
+  box-shadow: none !important;
+}
+#characterScreen .char-art-frame::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--char-frame-art) center / 100% 100% no-repeat;
+  pointer-events: none;
 }
 #characterScreen .char-button-ink {
   display: flex !important;
@@ -58,9 +77,7 @@
 }
 #characterScreen .char-home,
 #characterScreen .char-top-pt {
-  --char-radius: 19px;
-  --char-panel: radial-gradient(ellipse at 50% 96%, #146db0 0%, transparent 63%),
-    linear-gradient(165deg, #0d4880, #061c3b 52%, #072b53);
+  --char-frame-art: url("../assets/rc11-compact.webp");
   height: clamp(34px, 6vh, 48px) !important;
   width: 100% !important;
   min-height: 0 !important;
@@ -69,19 +86,15 @@
   font-size: clamp(10px, 3.1vw, 15px) !important;
   color: var(--char-cream) !important;
   font-family: inherit;
+  text-shadow: 0 1px 3px #031329;
 }
 #characterScreen .char-home svg {
   width: 1em;
   height: 1em;
   fill: currentColor;
 }
-#characterScreen .char-home.char-gilt {
-  --char-panel: var(--char-control-face);
-  --char-glow: var(--char-control-bevel);
-  position: relative;
-}
-#characterScreen :is(.char-home, #charFavoriteButton)::before,
-#characterScreen :is(.char-home, #charFavoriteButton)::after {
+#characterScreen #charFavoriteButton::before,
+#characterScreen #charFavoriteButton::after {
   content: "";
   position: absolute;
   top: 50%;
@@ -92,8 +105,8 @@
   background: linear-gradient(135deg, #e4ffff, #1e90d0 60%, #123b86);
   pointer-events: none;
 }
-#characterScreen :is(.char-home, #charFavoriteButton)::before { left: 5px; }
-#characterScreen :is(.char-home, #charFavoriteButton)::after { right: 5px; }
+#characterScreen #charFavoriteButton::before { left: 5px; }
+#characterScreen #charFavoriteButton::after { right: 5px; }
 #characterScreen .char-header-title {
   display: grid !important;
   place-items: center;
@@ -115,11 +128,12 @@
   display: grid !important;
   align-content: center;
   justify-items: center;
-  gap: 1px;
+  gap: 0;
+  line-height: 1.05;
   font-size: clamp(8px, 2.6vw, 12px) !important;
 }
 #characterScreen .char-top-pt b {
-  font: 800 clamp(12px, 4.2vw, 23px) / 1 var(--char-serif) !important;
+  font: 800 clamp(12px, 4vw, 22px) / 1 var(--char-serif) !important;
   font-variant-numeric: tabular-nums;
 }
 
@@ -128,16 +142,18 @@
   gap: clamp(4px, 1.15vw, 8px) !important;
 }
 #characterScreen .char-stat {
+  --char-frame-art: url("../assets/rc11-stat.webp");
   display: grid !important;
   grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: 1fr;
   align-items: center;
   gap: clamp(3px, 1vw, 7px) !important;
-  padding: 3px clamp(4px, 1.6vw, 11px) !important;
+  padding: 3px clamp(8px, 2.4vw, 12px) !important;
   color: #fff4dc !important;
   font: 750 clamp(8px, 2.65vw, 13px) / 1.02 var(--char-serif) !important;
 }
 #characterScreen .char-stat-icon {
-  width: clamp(16px, 5.3vw, 27px);
+  width: clamp(15px, 4.9vw, 24px);
   fill: #ffdc83;
   filter: drop-shadow(0 0 3px #f4b54576);
 }
@@ -331,10 +347,9 @@
   gap: 3px;
   height: clamp(23px, 4.05vh, 33px);
   min-width: 0;
-  padding: 2px;
-  border: 1px solid #cba45d;
-  border-radius: 15px;
-  background: linear-gradient(#071834, #031324);
+  padding: 0;
+  border: 0;
+  background: none;
 }
 #characterScreen .char-quantity-label {
   display: grid;
@@ -342,30 +357,23 @@
   min-width: 0;
   color: #fff2cf;
   font: 800 clamp(8px, 2.45vw, 12px) / 1 var(--char-serif) !important;
+  text-shadow: 0 1px 3px #041428;
 }
 #characterScreen .char-quantity-button {
+  --char-frame-art: url("../assets/rc11-quantity.webp");
   width: 100% !important;
   height: 100% !important;
   min-width: 0 !important;
   padding: 0 !important;
-  border: 1px solid #ddb875 !important;
-  border-top-color: #ffe8a9 !important;
-  border-bottom-color: #ad7c43 !important;
-  border-radius: 10px !important;
   color: var(--char-cream) !important;
-  background: var(--char-control-face) !important;
-  box-shadow: var(--char-control-bevel) !important;
   font: 800 clamp(10px, 3.6vw, 17px) / 1 var(--char-serif) !important;
+  text-shadow: 0 1px 2px #041428;
 }
-#characterScreen .char-quantity-button.is-selected {
-  background: radial-gradient(ellipse at 50% 110%, #24a7f3, transparent 73%),
-    linear-gradient(#177bb7, #073d87 64%, #0a3283) !important;
-  border-color: #ffde91 !important;
-  box-shadow: inset 0 0 8px #7eefffba, 0 0 6px #48d4ff8a !important;
+#characterScreen .char-quantity-button.is-selected::before {
+  filter: brightness(1.55) saturate(1.26) drop-shadow(0 0 2px #59c9ff);
 }
 #characterScreen #charQuantityMax {
-  background: linear-gradient(165deg, #997038, #573921 45%, #3e2c1f 57%, #8a6234) !important;
-  box-shadow: inset 0 1px #ffedb3a6, inset 0 -2px #ad784a88, inset 0 0 8px #f6c77856 !important;
+  --char-frame-art: url("../assets/rc11-max.webp");
 }
 #characterScreen .char-actions {
   display: grid;
@@ -373,51 +381,24 @@
   gap: clamp(3px, 1vw, 6px);
 }
 #characterScreen .char-action {
-  position: relative;
-  isolation: isolate;
+  --char-frame-art: url("../assets/rc11-level-up.webp");
   display: flex !important;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 2px;
-  height: clamp(36px, 6.25vh, 53px) !important;
+  gap: 1px;
+  height: clamp(38px, 6.9vh, 56px) !important;
   min-height: 0 !important;
   max-height: none !important;
   padding: 0 2px !important;
   color: #fff6dc !important;
   text-shadow: 0 1px 3px #07182c;
 }
-#characterScreen #charLevelUp,
 #characterScreen #charLimitBreak {
-  background: transparent !important;
-  border: 0 !important;
-  box-shadow: none !important;
-}
-/* The fallback fits behind the painted rim so only one edge is visible. */
-#characterScreen .char-action::before,
-#characterScreen .char-action::after {
-  content: "";
-  position: absolute;
-  pointer-events: none;
-}
-#characterScreen .char-action::before {
-  z-index: -2;
-  inset: 16% 12%;
-  border: 1px solid #e6bb6e;
-  border-radius: 10px;
-  background: var(--char-control-face);
-  box-shadow: var(--char-control-bevel);
-}
-#characterScreen .char-action::after {
-  z-index: -1;
-  inset: 0;
-  background: url("../assets/d881ecdbf5cfd6d41381.webp") center / 100% 125% no-repeat;
-}
-#characterScreen .char-action:enabled::after {
-  filter: brightness(1.12) drop-shadow(0 1px 2px #020d23b8);
+  --char-frame-art: url("../assets/rc11-cap-unlock.webp");
 }
 #characterScreen .char-action .char-button-ink {
-  font: 850 clamp(10px, 3.55vw, 17px) / 1.1 var(--char-serif) !important;
+  font: 850 clamp(10px, 3.4vw, 17px) / 1.1 var(--char-serif) !important;
 }
 #characterScreen .char-action .char-button-ink img {
   width: 1.1em;
@@ -426,12 +407,19 @@
 }
 #characterScreen .char-action-note {
   color: #fff0c3;
-  font: 750 clamp(7px, 2.4vw, 12px) / 1 var(--char-serif);
+  font: 750 clamp(7px, 2.25vw, 11px) / 1 var(--char-serif);
   white-space: nowrap;
 }
-#characterScreen .char-action:disabled {
-  opacity: .86 !important;
-  filter: saturate(.58) brightness(.88) !important;
+#characterScreen .char-art-frame:disabled {
+  color: #d0d5df !important;
+  opacity: 1 !important;
+  filter: none !important;
+}
+#characterScreen .char-art-frame:disabled::before {
+  filter: saturate(.42) brightness(.66);
+}
+#characterScreen .char-action:disabled .char-action-note {
+  color: inherit;
 }
 
 #characterScreen .char-buy {

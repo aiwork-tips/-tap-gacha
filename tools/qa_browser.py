@@ -35,14 +35,17 @@ with sync_playwright() as pw:
         return page.evaluate("JSON.parse(localStorage.getItem('tapgacha_save_v3'))")
     check('home initializes',page.locator('#homeScreen.active').count()==1 and state()['schemaVersion']==3)
     check('six screens',page.locator('section.screen').count()==6)
-    # Verify the rendered layout and the independent borders on the live controls.
+    page.wait_for_function("document.querySelector('#goTap .v117-plaque').naturalWidth > 0")
+    check('RC11 awakening plaque and live label',page.locator('#goTap .v117-plaque').get_attribute('src').endswith('rc11-awakening.webp')
+          and page.locator('#goTap .v117-copy strong').inner_text()=='覚醒核へ')
+    # Verify the picture frames and live controls in the rendered layout.
     page.locator('[data-home-go="character"]').click(force=True)
     page.wait_for_function("""() => document.querySelector('#characterScreen .character-background').naturalWidth > 0""")
     check('RC09 temple art is visible behind the entire screen', page.evaluate("""() =>
       getComputedStyle(document.querySelector('#characterScreen .character-background')).opacity === '1'
     """))
     check('RC09 title is live text',page.locator('#characterScreen h2').inner_text()=='キャラ育成')
-    check('RC09 frames are visible independently of external art',page.evaluate("""() => {
+    check('detail and roster panels retain their independent frames',page.evaluate("""() => {
       const frames = [...document.querySelectorAll('#characterScreen .char-gilt')];
       return frames.length >= 9 && frames.every(frame => {
         const style = getComputedStyle(frame);
@@ -50,17 +53,24 @@ with sync_playwright() as pw:
           parseFloat(style.borderTopWidth) > 0 && style.borderTopColor !== 'rgba(0, 0, 0, 0)';
       });
     }"""))
-    check('training buttons have one painted rim and a visible fallback',page.evaluate("""() =>
-      [...document.querySelectorAll('#characterScreen .char-action')].every(button => {
-        const shell = getComputedStyle(button);
-        const fallback = getComputedStyle(button, '::before');
-        const art = getComputedStyle(button, '::after');
-        return shell.borderTopWidth === '0px' && shell.boxShadow === 'none' &&
-          shell.backgroundColor === 'rgba(0, 0, 0, 0)' && shell.backgroundImage === 'none' &&
-          fallback.borderTopStyle === 'solid' && parseFloat(fallback.borderTopWidth) > 0 &&
-          art.backgroundImage.includes('d881ecdbf5cfd6d41381.webp');
+    picture_files=['rc11-compact.webp']*2+['rc11-stat.webp']*3+['rc11-quantity.webp']*2+[
+        'rc11-max.webp','rc11-level-up.webp','rc11-cap-unlock.webp'
+    ]
+    check('RC11 each generated frame replaces the old border and background',page.locator('#characterScreen .char-art-frame').evaluate_all("""
+      (frames, files) => frames.length === files.length && frames.every((frame, index) => {
+        const shell = getComputedStyle(frame);
+        const art = getComputedStyle(frame, '::before');
+        return shell.borderTopWidth === '0px' && shell.borderImageSource === 'none' &&
+          shell.boxShadow === 'none' && shell.backgroundImage === 'none' &&
+          shell.backgroundColor === 'rgba(0, 0, 0, 0)' &&
+          art.backgroundImage.includes(files[index]) && art.backgroundSize === '100% 100%';
       })
-    """))
+    """,picture_files))
+    check('RC11 the quantity buttons have no surrounding box',page.locator('.char-level-quantity').evaluate("""group => {
+      const css = getComputedStyle(group);
+      return css.borderTopWidth === '0px' && css.backgroundImage === 'none' &&
+        css.backgroundColor === 'rgba(0, 0, 0, 0)';
+    }"""))
     catalog=page.locator('#characterGrid .char-tile').evaluate_all("""tiles =>
       Object.fromEntries(tiles.map(tile => [
         tile.dataset.characterId,
@@ -79,6 +89,7 @@ with sync_playwright() as pw:
     before=state()
     page.locator('#goTap').click(force=True)
     check('tap navigation',page.locator('#tapScreen.active').count()==1)
+    check('RC11 tap return label only shows the text',page.locator('#backHome text').text_content()=='ホームへ戻る')
     page.locator('#tapZone').click(force=True)
     after=state()
     check('tap PT saved',after['points']==before['points']+before['tapPower'])
@@ -156,6 +167,7 @@ with sync_playwright() as pw:
     page.locator('#charBuyKey').click()
     after=state()
     check('RC09 character screen key button updates and saves PT and keys',after['points']==before['points']-5000 and after['keys']==before['keys']+1)
+    check('RC11 the framed PT value updates after key purchase',page.locator('#charPT').inner_text()==f"{after['points']:,}")
     page.locator('#charBackHome').click(force=True)
     page.locator('[data-home-go="shop"]').click(force=True)
     check('shop navigation',page.locator('#shopScreen.active').count()==1)
@@ -216,6 +228,14 @@ with sync_playwright() as pw:
     training.locator('#charLevelUp').click(force=True)
     tstate=lambda:training.evaluate("JSON.parse(localStorage.getItem('tapgacha_save_v3'))")
     check('10-level training batch',tstate()['characters']['c001']['level']==11)
+    check('RC11 the image-framed stats remain live after training',training.evaluate("""() => {
+      const save = JSON.parse(localStorage.getItem('tapgacha_save_v3'));
+      const owned = Object.values(save.characters).filter(character => character.owned);
+      const levels = owned.reduce((sum, character) => sum + (character.level || 1), 0);
+      return document.getElementById('charOwned').textContent === `${owned.length} / 15` &&
+        document.getElementById('charTotalLevels').textContent === levels.toLocaleString('ja-JP') &&
+        document.getElementById('charTapPower').textContent === save.tapPower.toLocaleString('ja-JP');
+    }"""))
     training.locator('#charQuantityMax').click(force=True)
     check('MAX stops at level cap 50',tstate()['characters']['c001']['level']==50)
     check('MAX does not auto unlock cap or consume keys',tstate()['characters']['c001']['cap']==50 and tstate()['keys']==3)
