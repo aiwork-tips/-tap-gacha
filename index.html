@@ -7,7 +7,7 @@
 <meta content="#071827" name="theme-color"/>
 <meta content="yes" name="apple-mobile-web-app-capable"/>
 <meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
-<title>Ver.11.8 TRAIN-RC09 · タップ育成ガチャ -覚醒-</title>
+<title>Ver.11.8 TRAIN-RC10 · タップ育成ガチャ -覚醒-</title>
 <!-- Unified Save Rev.3: tapgacha_save_v3 / legacy gV2 preserved read-only -->
 <link rel="stylesheet" href="css/style-01.css">
 
@@ -168,8 +168,8 @@
     <div class="gacha-actions">
       <button class="gacha-draw" data-pulls="1"><strong>1回召喚</strong><span>1 PT</span></button>
       <button class="gacha-draw" data-pulls="10"><strong>10回召喚</strong><span>10 PT・★2以上1体保証</span></button>
-      <button class="gacha-draw mass" data-pulls="100"><strong>100回召喚</strong><span>100 PT・★3 1体保証・集計表示</span></button>
-      <button class="gacha-draw mass" data-pulls="1000"><strong>1000回召喚</strong><span>1000 PT・★3最低10・集計表示</span></button>
+      <button class="gacha-draw mass" data-pulls="100"><strong>100回召喚</strong><span>100 PT・★3 1体保証</span></button>
+      <button class="gacha-draw mass" data-pulls="1000"><strong>1000回召喚</strong><span>1000 PT・★3 10体保証</span></button>
     </div>
   </div>
 
@@ -255,11 +255,11 @@
           <button type="button" class="char-quantity-button char-max-button" id="charQuantityMax" aria-label="欠片で育成できる最大レベルまで一括で上げる">MAX</button>
         </div>
         <div class="char-actions">
-          <button type="button" class="char-action char-gilt" id="charLevelUp">
+          <button type="button" class="char-action" id="charLevelUp">
             <span class="char-button-ink">レベルアップ</span>
             <small class="char-action-note"></small>
           </button>
-          <button type="button" class="char-action char-gilt" id="charLimitBreak">
+          <button type="button" class="char-action" id="charLimitBreak">
             <span class="char-button-ink"><img src="assets/97ef2de12f25b2d73f7b.webp" alt="">上限解放</span>
             <small class="char-action-note"></small>
           </button>
@@ -268,7 +268,16 @@
     </div>
     <div class="char-buy char-gilt">
       <span class="char-keys-copy"><img src="assets/97ef2de12f25b2d73f7b.webp" alt="">上限解放の鍵 <strong id="charKeys">3</strong> 個</span>
-      <button type="button" id="charBuyKey"><span class="char-button-ink"><span class="char-buy-gem" aria-hidden="true">◆</span>鍵を購入 5,000 PT</span></button>
+      <button type="button" id="charBuyKey">
+        <span class="char-button-ink">
+          <svg class="char-buy-gem" viewBox="0 0 24 18" aria-hidden="true">
+            <path d="M2 6 6 2h12l4 4-10 10Z" fill="#54caff" stroke="#fff0b9"/>
+            <path d="m2 6 10 1L6 2zm16-4-6 5 10-1z" fill="#dcf9ff"/>
+            <path d="m2 6 10 10-4-9zm20 0L12 16l4-9z" fill="#1676c3"/>
+          </svg>
+          鍵を購入 5,000 PT
+        </span>
+      </button>
     </div>
     <div class="char-roster char-gilt">
       <header class="char-list-caption">
@@ -367,7 +376,7 @@
       <div class="shop-bridge"><button type="button" class="shop-to-character" id="shopGoCharacter">キャラ育成へ →</button></div>
       <div class="shop-future">現在購入できるのは「上限解放の鍵」のみです。<br>新アイテムの価格・効果は後日決定します。</div>
     </div>
-    <span class="shop-version">Ver.11.8 · TRAIN-RC09</span>
+    <span class="shop-version">Ver.11.8 · TRAIN-RC10</span>
   </div>
 </section>
 
@@ -377,7 +386,7 @@
 <section class="screen" id="questScreen" aria-label="依頼掲示板">
   <img id="questBackdrop" class="quest-backdrop" alt="" aria-hidden="true" />
   <div class="quest-scrim"></div>
-  <span class="quest-version">Ver.11.8 · TRAIN-RC09</span>
+  <span class="quest-version">Ver.11.8 · TRAIN-RC10</span>
   <div class="quest-shell">
     <header class="quest-top">
       <div class="quest-head"><button id="questBackHome" type="button" class="quest-home">⌂ ホーム</button><h1 class="quest-title">依頼掲示板</h1></div>
@@ -399,7 +408,7 @@
 </section>
 
 <div class="toast" id="toast"></div>
-<div id="devBuildLabel" aria-label="開発検証版 Ver.11.8 TRAIN-RC09">Ver.11.8 · TRAIN-RC09</div>
+<div id="devBuildLabel" aria-label="開発検証版 Ver.11.8 TRAIN-RC10">Ver.11.8 · TRAIN-RC10</div>
 </main>
 <script src="js/script-01.js"></script>
 

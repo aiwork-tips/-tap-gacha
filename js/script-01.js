@@ -1110,35 +1110,45 @@
 
   function renderSummary(results, pulls){
     const rarityCounts = {1:0,2:0,3:0};
-    const charCounts = {};
+    const characterResults = {};
     results.forEach(r => {
       rarityCounts[r.rarity]++;
-      charCounts[r.id] = (charCounts[r.id] || 0) + 1;
+      const entry = characterResults[r.id] ??= {count:0, shards:0, isNew:false};
+      entry.count++;
+      entry.shards += r.shardGain;
+      entry.isNew ||= r.isNew;
     });
 
     const rows = GACHA_CHARACTERS
-      .filter(c => charCounts[c.id])
+      .filter(c => characterResults[c.id])
       .sort((a,b) => b.rarity-a.rarity || a.id.localeCompare(b.id))
-      .map(c => `
-        <div class="summary-row ${c.rarity===3?'star3':''}">
-          <img class="summary-thumb" src="${c.image}" alt="">
-          <span class="s-name">${stars(c.rarity)} ${c.name}</span>
-          <span class="s-count">×${fmt(charCounts[c.id])}<small style="display:block;font:8px sans-serif;color:#d4f4ff">欠片 ${fmt(collection[c.id]?.shards || 0)} · 所持 ${fmt(collection[c.id]?.count || 1)}</small></span>
-        </div>`).join('');
+      .map(c => {
+        const entry = characterResults[c.id];
+        return `
+          <li class="summary-row ${c.rarity===3?'star3':''}" data-character-id="${c.id}">
+            <img class="summary-thumb" src="${c.image}" alt="">
+            <div class="summary-copy">
+              <strong class="s-name">${c.name}</strong>
+              <div class="summary-meta">
+                <span class="s-rarity">${stars(c.rarity)}</span>
+                ${entry.isNew ? '<span class="s-new">初獲得</span>' : ''}
+                ${entry.shards ? `<span class="s-shards">欠片 +${fmt(entry.shards)}</span>` : ''}
+              </div>
+            </div>
+            <div class="s-count"><b>${fmt(entry.count)}</b><small>体</small></div>
+          </li>`;
+      });
 
-    const note =
-      pulls === 1000 ? '1000連：★3最低10体保証' :
-      pulls === 100 ? '100連：★3 1体保証' :
-      `${pulls}回召喚・集計結果`;
     gachaResultEl.innerHTML = `
       <div class="gacha-summary">
+        <div class="summary-title"><h3>${fmt(pulls)}連の結果</h3><span>出現 ${rows.length} 種</span></div>
         <div class="summary-head">
           <div class="summary-rarity"><span>★1</span><b>${fmt(rarityCounts[1])}</b></div>
           <div class="summary-rarity"><span>★2</span><b>${fmt(rarityCounts[2])}</b></div>
-          <div class="summary-rarity"><span>★3</span><b>${fmt(rarityCounts[3])}</b></div>
+          <div class="summary-rarity star3"><span>★3</span><b>${fmt(rarityCounts[3])}</b></div>
         </div>
-        <div class="summary-list">${rows}</div>
-        <div class="summary-note">${note}</div>
+        <ul class="summary-list" aria-label="召喚されたキャラクター" tabindex="0">${rows.join('')}</ul>
+        <div class="summary-note">↓ 一覧をスクロール</div>
       </div>`;
     gachaResultEl.scrollTop = 0;
   }

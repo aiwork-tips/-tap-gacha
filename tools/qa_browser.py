@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Browser regression for modular RC02. Runs against the served test branch."""
+"""Browser regression for the modular game on the served test branch."""
 import os, json
 from pathlib import Path
 from playwright.sync_api import sync_playwright
@@ -44,12 +44,29 @@ with sync_playwright() as pw:
     check('RC09 title is live text',page.locator('#characterScreen h2').inner_text()=='キャラ育成')
     check('RC09 frames are visible independently of external art',page.evaluate("""() => {
       const frames = [...document.querySelectorAll('#characterScreen .char-gilt')];
-      return frames.length >= 10 && frames.every(frame => {
+      return frames.length >= 9 && frames.every(frame => {
         const style = getComputedStyle(frame);
         return style.borderImageSource === 'none' && style.borderTopStyle === 'solid' &&
           parseFloat(style.borderTopWidth) > 0 && style.borderTopColor !== 'rgba(0, 0, 0, 0)';
       });
     }"""))
+    check('training buttons have one painted rim and a visible fallback',page.evaluate("""() =>
+      [...document.querySelectorAll('#characterScreen .char-action')].every(button => {
+        const shell = getComputedStyle(button);
+        const fallback = getComputedStyle(button, '::before');
+        const art = getComputedStyle(button, '::after');
+        return shell.borderTopWidth === '0px' && shell.boxShadow === 'none' &&
+          shell.backgroundColor === 'rgba(0, 0, 0, 0)' && shell.backgroundImage === 'none' &&
+          fallback.borderTopStyle === 'solid' && parseFloat(fallback.borderTopWidth) > 0 &&
+          art.backgroundImage.includes('d881ecdbf5cfd6d41381.webp');
+      })
+    """))
+    catalog=page.locator('#characterGrid .char-tile').evaluate_all("""tiles =>
+      Object.fromEntries(tiles.map(tile => [
+        tile.dataset.characterId,
+        {name:tile.getAttribute('aria-label'), rarity:tile.querySelector('em').textContent.length}
+      ]))
+    """)
     detail=page.locator('#characterDetail').bounding_box()
     portrait=page.locator('#selectedPortrait').bounding_box()
     check('RC09 portrait fills the left third',detail is not None and portrait is not None and .29<portrait['width']/detail['width']<.38)
@@ -71,14 +88,57 @@ with sync_playwright() as pw:
     page.locator('[data-home-go="gacha"]').click(force=True)
     check('gacha navigation',page.locator('#gachaScreen.active').count()==1)
     page.screenshot(path=str(SHOTS/f'{ENGINE}-gacha-390.png'))
-    before=state()
-    page.locator('.gacha-draw[data-pulls="1000"]').click(force=True)
-    after=state()
-    check('1000 pulls costs 1000 PT',after['points']==before['points']-1000)
-    check('1000 pulls counted',after['stats']['gachaPulls']==before['stats']['gachaPulls']+1000)
-    check('1000 pulls guarantee >=10 rarest characters',after['stats']['star3Pulls']>=before['stats']['star3Pulls']+10)
-    check('only star3 summary rows use rarest highlight',page.evaluate("""() => {const rows=[...document.querySelectorAll('#gachaResult .summary-row')]; return rows.length>0&&rows.every(r=>r.classList.contains('star3')===r.querySelector('.s-name').textContent.trim().startsWith('★★★'));}"""))
+    for pulls, width, height, guaranteed in ((100,393,654,1),(1000,320,568,10)):
+        page.set_viewport_size({'width':width,'height':height})
+        before=state()
+        page.locator(f'.gacha-draw[data-pulls="{pulls}"]').click()
+        after=state()
+        check(f'{pulls} pulls cost {pulls} PT',after['points']==before['points']-pulls)
+        check(f'{pulls} pulls counted',after['stats']['gachaPulls']==before['stats']['gachaPulls']+pulls)
+        check(f'{pulls} pulls guarantee {guaranteed} rarest characters',after['stats']['star3Pulls']-before['stats']['star3Pulls']>=guaranteed)
+        check(f'{pulls} result heading',page.locator('.summary-title h3').inner_text()==f'{pulls:,}連の結果')
+        rows=page.locator('#gachaResult .summary-row').evaluate_all("""rows => rows.map(row => {
+          const name = row.querySelector('.s-name');
+          const shards = row.querySelector('.s-shards');
+          return {
+            id:row.dataset.characterId, name:name.textContent,
+            rarity:row.querySelector('.s-rarity').textContent.length,
+            count:Number(row.querySelector('.s-count b').textContent.replaceAll(',', '')),
+            shards:shards ? Number(shards.textContent.split('+')[1].replaceAll(',', '')) : 0,
+            isNew:Boolean(row.querySelector('.s-new')), rare:row.classList.contains('star3'),
+            fits:name.clientWidth > 0 && name.scrollWidth <= name.clientWidth && name.scrollHeight <= name.clientHeight
+          };
+        })""")
+        check(f'{pulls} full names and rarity are readable at {width}px',rows and all(
+            row['fits'] and row['name']==catalog[row['id']]['name'] and row['rarity']==catalog[row['id']]['rarity']
+            and row['rare']==(row['rarity']==3) for row in rows
+        ))
+        expected={}
+        for cid, record in after['characters'].items():
+            previous=before['characters'].get(cid,{})
+            count=record.get('count',int(record.get('owned',False)))-previous.get('count',int(previous.get('owned',False)))
+            if count>0:
+                expected[cid]=(count,record.get('shards',0)-previous.get('shards',0),not previous.get('owned',False))
+        check(f'{pulls} per-character counts, new pulls and shards match the save',len(rows)==len(expected) and {
+            row['id']:(row['count'],row['shards'],row['isNew']) for row in rows
+        }==expected)
+        rarity_totals=[int(value.replace(',','')) for value in page.locator('.summary-rarity b').all_text_contents()]
+        check(f'{pulls} rarity totals reconcile with the result list',sum(rarity_totals)==pulls and rarity_totals==[
+            sum(row['count'] for row in rows if row['rarity']==rarity) for rarity in (1,2,3)
+        ])
+        page.screenshot(path=str(SHOTS/f'{ENGINE}-gacha-{pulls}-{width}.png'))
+        check(f'{pulls} every result is reachable and draw buttons clear the nav',page.evaluate("""() => {
+          const list = document.querySelector('.summary-list');
+          const actions = document.querySelector('.gacha-actions').getBoundingClientRect();
+          const nav = document.querySelector('.gacha-bottom-nav').getBoundingClientRect();
+          const startsAtTop = list.scrollTop === 0;
+          list.scrollTop = list.scrollHeight;
+          return startsAtTop && list.clientHeight > 0 && list.scrollWidth <= list.clientWidth &&
+            list.lastElementChild.getBoundingClientRect().bottom <= list.getBoundingClientRect().bottom + 1 &&
+            actions.bottom <= nav.top;
+        }"""))
     check('roster shards awarded',sum(int(c.get('shards',0)) for c in after['characters'].values())>0)
+    page.set_viewport_size({'width':390,'height':844})
     page.locator('#gachaBackHome').click(force=True)
     page.locator('[data-home-go="character"]').click(force=True)
     check('character navigation',page.locator('#characterScreen.active').count()==1)

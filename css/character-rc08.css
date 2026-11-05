@@ -4,6 +4,10 @@
   --char-cream: #fff1c7;
   --char-ice: #84edff;
   --char-serif: Georgia, "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif CJK JP", serif;
+  --char-control-face: radial-gradient(ellipse at 50% 115%, #1d70aa, transparent 71%),
+    linear-gradient(165deg, #28648e, #0c3562 42%, #061b38 57%);
+  --char-control-bevel: inset 0 1px #ffedb3a6, inset 0 -2px #ac744b9e,
+    inset 0 0 8px #489be452, 0 1px 4px #051325b8;
   background: #07152c !important;
 }
 #characterScreen .character-background {
@@ -71,6 +75,25 @@
   height: 1em;
   fill: currentColor;
 }
+#characterScreen .char-home.char-gilt {
+  --char-panel: var(--char-control-face);
+  --char-glow: var(--char-control-bevel);
+  position: relative;
+}
+#characterScreen :is(.char-home, #charFavoriteButton)::before,
+#characterScreen :is(.char-home, #charFavoriteButton)::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 4px;
+  height: 4px;
+  transform: translateY(-50%) rotate(45deg);
+  border: 1px solid #ffe3a0;
+  background: linear-gradient(135deg, #e4ffff, #1e90d0 60%, #123b86);
+  pointer-events: none;
+}
+#characterScreen :is(.char-home, #charFavoriteButton)::before { left: 5px; }
+#characterScreen :is(.char-home, #charFavoriteButton)::after { right: 5px; }
 #characterScreen .char-header-title {
   display: grid !important;
   place-items: center;
@@ -200,10 +223,12 @@
   min-height: 0 !important;
   max-height: none !important;
   padding: 0 2px !important;
-  border: 1px solid #ffdfa0 !important;
+  border: 1px solid #dfba76 !important;
+  border-top-color: #ffe9ac !important;
+  border-bottom-color: #ad7c43 !important;
   border-radius: 12px !important;
-  background: linear-gradient(165deg, #125d97, #062752 70%) !important;
-  box-shadow: inset 0 0 6px #79d5ff8e, 0 0 5px #82d9ff75;
+  background: var(--char-control-face) !important;
+  box-shadow: var(--char-control-bevel) !important;
   color: var(--char-cream) !important;
 }
 #characterScreen #charFavoriteButton .char-button-ink {
@@ -324,19 +349,23 @@
   min-width: 0 !important;
   padding: 0 !important;
   border: 1px solid #ddb875 !important;
-  border-radius: 13px !important;
+  border-top-color: #ffe8a9 !important;
+  border-bottom-color: #ad7c43 !important;
+  border-radius: 10px !important;
   color: var(--char-cream) !important;
-  background: linear-gradient(#155788, #052244) !important;
+  background: var(--char-control-face) !important;
+  box-shadow: var(--char-control-bevel) !important;
   font: 800 clamp(10px, 3.6vw, 17px) / 1 var(--char-serif) !important;
 }
 #characterScreen .char-quantity-button.is-selected {
-  background: linear-gradient(#18b8fa, #075bcd 60%, #0b32a3) !important;
-  border-color: #cffbff !important;
-  box-shadow: inset 0 0 7px #aefaff, 0 0 6px #49e2ff !important;
+  background: radial-gradient(ellipse at 50% 110%, #24a7f3, transparent 73%),
+    linear-gradient(#177bb7, #073d87 64%, #0a3283) !important;
+  border-color: #ffde91 !important;
+  box-shadow: inset 0 0 8px #7eefffba, 0 0 6px #48d4ff8a !important;
 }
 #characterScreen #charQuantityMax {
-  background: linear-gradient(#916921, #3d2b19 55%, #745321) !important;
-  border-color: #ffda8a !important;
+  background: linear-gradient(165deg, #997038, #573921 45%, #3e2c1f 57%, #8a6234) !important;
+  box-shadow: inset 0 1px #ffedb3a6, inset 0 -2px #ad784a88, inset 0 0 8px #f6c77856 !important;
 }
 #characterScreen .char-actions {
   display: grid;
@@ -344,9 +373,8 @@
   gap: clamp(3px, 1vw, 6px);
 }
 #characterScreen .char-action {
-  --char-radius: 16px;
-  --char-panel: url("../assets/d881ecdbf5cfd6d41381.webp") center / 104% 151% no-repeat,
-    linear-gradient(160deg, #0c5da0, #062850 61%, #031631);
+  position: relative;
+  isolation: isolate;
   display: flex !important;
   flex-direction: column;
   justify-content: center;
@@ -359,12 +387,35 @@
   color: #fff6dc !important;
   text-shadow: 0 1px 3px #07182c;
 }
-#characterScreen #charLevelUp {
-  --char-panel: url("../assets/d881ecdbf5cfd6d41381.webp") center / 104% 151% no-repeat,
-    linear-gradient(155deg, #03aaf9, #0750b3 60%, #0a3880);
-  --char-glow: inset 0 0 8px #68e7ffb0, 0 0 7px #6bdcffe0;
+#characterScreen #charLevelUp,
+#characterScreen #charLimitBreak {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
 }
-#characterScreen #charLimitBreak { background: var(--char-panel) !important; }
+/* The fallback fits behind the painted rim so only one edge is visible. */
+#characterScreen .char-action::before,
+#characterScreen .char-action::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+}
+#characterScreen .char-action::before {
+  z-index: -2;
+  inset: 16% 12%;
+  border: 1px solid #e6bb6e;
+  border-radius: 10px;
+  background: var(--char-control-face);
+  box-shadow: var(--char-control-bevel);
+}
+#characterScreen .char-action::after {
+  z-index: -1;
+  inset: 0;
+  background: url("../assets/d881ecdbf5cfd6d41381.webp") center / 100% 125% no-repeat;
+}
+#characterScreen .char-action:enabled::after {
+  filter: brightness(1.12) drop-shadow(0 1px 2px #020d23b8);
+}
 #characterScreen .char-action .char-button-ink {
   font: 850 clamp(10px, 3.55vw, 17px) / 1.1 var(--char-serif) !important;
 }
@@ -379,9 +430,8 @@
   white-space: nowrap;
 }
 #characterScreen .char-action:disabled {
-  background: var(--char-panel) !important;
-  opacity: .79 !important;
-  filter: saturate(.78) !important;
+  opacity: .86 !important;
+  filter: saturate(.58) brightness(.88) !important;
 }
 
 #characterScreen .char-buy {
@@ -408,18 +458,21 @@
   height: 100% !important;
   min-height: 0 !important;
   max-width: 56% !important;
-  border: 1px solid #fff3bd !important;
+  border: 1px solid #eac780 !important;
+  border-top-color: #fff0b7 !important;
+  border-bottom-color: #aa7840 !important;
   border-radius: 13px !important;
   padding: 0 7px !important;
-  background: linear-gradient(165deg, #f4bf66, #805020 57%, #b7863b) !important;
+  background: linear-gradient(165deg, #bb8642, #694323 44%, #59391f 61%, #aa7533) !important;
   color: #fff7dc !important;
-  box-shadow: inset 0 0 6px #ffdf7f75, 0 0 6px #f0c66a65;
+  box-shadow: inset 0 1px #fff1b2ba, inset 0 -2px #b08045bb,
+    inset 0 0 9px #ffd77d6b, 0 1px 4px #051325b8 !important;
 }
 #characterScreen #charBuyKey .char-button-ink {
   font: 800 clamp(8px, 2.6vw, 13px) / 1.08 var(--char-serif) !important;
 }
 #characterScreen #charBuyKey:disabled { opacity: .84 !important; filter: saturate(.8) !important; }
-#characterScreen .char-buy-gem { color: #9feeff; text-shadow: 0 0 5px #3d97ff; }
+#characterScreen .char-buy-gem { width: 1.3em; height: 1em; flex: none; }
 
 #characterScreen .char-roster {
   --char-radius: 12px;
@@ -476,12 +529,15 @@
   padding: 0 clamp(3px, 1.25vw, 7px);
   height: clamp(18px, 3.05vh, 25px);
   border: 1px solid #d4b577;
-  border-radius: 12px;
-  background: linear-gradient(#114779, #051c3c);
+  border-top-color: #f4d99e;
+  border-bottom-color: #ad7c43;
+  border-radius: 9px;
+  background: var(--char-control-face);
+  box-shadow: var(--char-control-bevel);
   font: 800 clamp(7px, 2.4vw, 12px) / 1 var(--char-serif);
   white-space: nowrap;
 }
-#characterScreen .char-roster-tool svg { width: 1em; height: 1em; fill: #eaf7ff; }
+#characterScreen .char-roster-tool svg { width: 1em; height: 1em; fill: #ffe3a1; }
 #characterScreen .char-roster-tool select {
   position: absolute;
   inset: 0;
@@ -590,7 +646,7 @@
   box-shadow: none !important;
 }
 #characterScreen .character-bottom-nav .kit-nav-plate { opacity: .3 !important; }
-#app:has(#characterScreen.active) #devBuildLabel {
+#app:has(#characterScreen.active, #gachaScreen.active) #devBuildLabel {
   top: auto !important;
   bottom: 2px !important;
   right: 7px !important;

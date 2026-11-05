@@ -1089,37 +1089,129 @@ button{font:inherit;color:inherit}
 .gacha-card.star3 .rarity{color:#ffe68f;text-shadow:0 0 7px rgba(255,216,84,.9)}
 @keyframes star3Pulse{from{filter:brightness(.96)}to{filter:brightness(1.09)}}
 
+.gacha-result:has(> .gacha-summary){
+  inset:4px;
+  padding:0;
+  overflow:hidden;
+}
 .gacha-summary{
-  width:100%;height:100%;
-  display:flex;flex-direction:column;gap:6px;padding:2px;
+  width:100%;
+  height:100%;
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+  padding:7px;
+  border:1px solid #d4af68;
+  border-radius:9px;
+  background:linear-gradient(158deg,#104877,#061a36 42%,#092747);
+  box-shadow:inset 0 1px #ffe7ad55,inset 0 0 14px #4da4df38;
+  color:#e0f3ff;
 }
-.summary-head{
-  display:grid;grid-template-columns:repeat(3,1fr);gap:5px;
+.summary-title{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:6px;
+  padding:0 3px;
 }
+.summary-title h3{
+  margin:0;
+  color:#fff1c7;
+  font:800 clamp(16px,4.6vw,22px)/1.2 Georgia,"Yu Mincho",serif;
+}
+.summary-title span{font-size:11px;white-space:nowrap}
+.summary-head{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}
 .summary-rarity{
-  padding:8px 4px;border-radius:10px;text-align:center;
-  background:rgba(4,29,56,.82);border:1px solid rgba(151,214,255,.26);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  padding:3px 4px;
+  border:1px solid #81c7ff65;
+  border-radius:7px;
+  background:#051a34;
 }
+.summary-rarity.star3{border-color:#d9b46f}
+.summary-rarity span{font-size:11px;color:#d8f4ff}
+.summary-rarity.star3 span{color:#ffdc82}
 .summary-rarity b{
-  display:block;font-family:"Times New Roman",serif;font-size:22px;color:#fff0b6;
+  color:#fff0bd;
+  font:800 clamp(16px,4.5vw,22px)/1.15 Georgia,serif;
+  font-variant-numeric:tabular-nums;
 }
-.summary-rarity span{font-size:8px;color:#d8f4ff}
 .summary-list{
-  flex:1;min-height:0;overflow:auto;
-  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;
+  flex:1 1 auto;
+  min-height:0;
+  overflow:auto;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+  margin:0;
+  padding:0;
+  list-style:none;
 }
 .summary-row{
-  padding:5px 7px;border-radius:8px;
-  background:rgba(3,22,45,.76);border:1px solid rgba(139,208,255,.15);
-  display:grid;grid-template-columns:1fr auto;align-items:center;gap:4px;
-  font-size:8px;
+  display:grid;
+  grid-template-columns:38px minmax(0,1fr) auto;
+  align-items:center;
+  gap:8px;
+  padding:4px 8px 4px 5px;
+  border:1px solid #78abd357;
+  border-radius:8px;
+  background:linear-gradient(115deg,#123c63,#09233e);
 }
-.summary-row.star3{border-color:rgba(255,219,108,.58);box-shadow:inset 0 0 8px rgba(255,211,70,.09)}
-.summary-row .s-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.summary-row .s-count{color:#fff0b4;font-family:"Times New Roman",serif;font-size:13px}
-.summary-note{
-  text-align:center;font-size:8px;color:#d5f5ff;min-height:12px;
+.summary-row + .summary-row{margin-top:4px}
+.summary-row.star3{
+  border-color:#dfba72;
+  box-shadow:inset 0 1px #ffeab73d,inset 0 0 12px #dfb05c1c;
 }
+.summary-row .summary-thumb{
+  width:38px;
+  height:40px;
+  object-fit:cover;
+  object-position:center 22%;
+  border:1px solid #7cc3ed73;
+  border-radius:5px;
+  background:#06192c;
+}
+.summary-row.star3 .summary-thumb{border-color:#ebc47e}
+.summary-copy{min-width:0}
+.summary-row .s-name{
+  display:block;
+  font-size:clamp(14px,3.85vw,18px);
+  line-height:1.2;
+  color:#fff7e8;
+  white-space:normal;
+  overflow-wrap:anywhere;
+}
+.summary-meta{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  column-gap:6px;
+  margin-top:3px;
+  font-size:10px;
+  line-height:1.35;
+}
+.s-rarity{color:#e0ecff}
+.star3 .s-rarity{color:#ffda82}
+.s-new{color:#ffe095;font-weight:800}
+.s-shards{color:#c3e4ff;white-space:nowrap}
+.s-count{
+  display:flex;
+  align-items:baseline;
+  justify-content:flex-end;
+  gap:2px;
+  min-width:3.25em;
+  color:#fff0bd;
+  white-space:nowrap;
+}
+.s-count b{
+  font:800 clamp(18px,5.1vw,25px)/1 Georgia,serif;
+  font-variant-numeric:tabular-nums;
+}
+.s-count small{font-size:10px}
+.summary-note{text-align:center;font-size:10px;line-height:1.2;color:#cee8fa}
 
 .gacha-actions{
   display:grid;grid-template-columns:repeat(2,1fr);gap:7px;
@@ -1228,19 +1320,6 @@ button{font:inherit;color:inherit}
 .gacha-card-grid.single .tagline{display:block;font-size:9px;margin-top:7px}
 .gacha-card-grid.single .gain{font-size:10px;margin-top:8px}
 
-.summary-row{
-  grid-template-columns:28px minmax(0,1fr) auto;
-}
-.summary-row .summary-thumb{
-  width:28px;height:34px;object-fit:cover;object-position:center 22%;
-  border-radius:5px;border:1px solid rgba(164,220,255,.20);
-  background:rgba(1,12,28,.8);
-}
-.summary-row.star3 .summary-thumb{
-  border-color:rgba(255,222,116,.72);
-  box-shadow:0 0 5px rgba(255,216,86,.32);
-}
-
 /* Summoning flash is neutral for every pull.
    ★3 special treatment is confined to ★3 cards/portraits. */
 .gacha-flash.star3go{
@@ -1278,12 +1357,34 @@ button{font:inherit;color:inherit}
 .gacha-home{font-size:14px;padding:0 13px}
 .gacha-title{font-size:clamp(21px,5.6vw,32px)}
 .gacha-wallet small{font-size:9px}.gacha-wallet strong{font-size:clamp(18px,5vw,28px)}
-.gacha-main{left:2.6%;right:2.6%;top:8.3%;bottom:14.3%;gap:1.2%;grid-template-rows:auto minmax(0,1fr) auto}
+#gachaScreen .gacha-main{left:2.6%;right:2.6%;top:8.3%;bottom:14%!important;gap:1.2%;grid-template-rows:auto minmax(0,1fr) auto}
 .gacha-info{border:1px solid #76c9ff99;border-radius:5px 15px 5px 15px;background:linear-gradient(100deg,#062342ee,#073866da);padding:9px 11px}
 .gacha-rate,.gacha-book{font-size:clamp(9px,2.3vw,12px)}
 .gacha-stage{border:1px solid #82c7ecad;border-radius:10px;background:radial-gradient(circle at 50% 45%,#1762a12e,#041b3dd6 72%);box-shadow:inset 0 0 34px #47b9ff3d,0 5px 14px #0211257a}
 .gacha-actions{gap:8px}
-.gacha-draw,.gacha-draw.mass{height:clamp(49px,7.5vh,76px);border:2px solid #e6bd6c;border-radius:9px;background:linear-gradient(180deg,#12659adf,#06315bed 65%,#041d3be8);box-shadow:inset 0 0 18px #57caff44,0 3px 10px #04132d99}
+.gacha-draw,.gacha-draw.mass{
+  height:clamp(49px,7.5vh,76px);
+  border:1px solid #dcba75;
+  border-top-color:#ffe8ab;
+  border-bottom-color:#b48246;
+  border-radius:13px 8px;
+  background:radial-gradient(ellipse at 50% 110%,#20649e,transparent 70%),
+    linear-gradient(160deg,#22658e,#0b315b 48%,#061b3a);
+  box-shadow:inset 0 1px #ffecb680,inset 0 -2px #ad784a85,inset 0 0 12px #539ddd45,0 3px 10px #04132d99;
+}
+.gacha-draw::before,.gacha-draw::after{
+  content:"";
+  position:absolute;
+  top:50%;
+  width:5px;
+  height:5px;
+  transform:translateY(-50%) rotate(45deg);
+  border:1px solid #f5d997;
+  background:linear-gradient(135deg,#d9ffff,#249cd8 58%,#113d83);
+  pointer-events:none;
+}
+.gacha-draw::before{left:6px}
+.gacha-draw::after{right:6px}
 .gacha-draw strong{font-size:clamp(19px,5vw,27px)}.gacha-draw span{font-size:clamp(8px,2vw,11px)}
 .gacha-bottom-nav{position:absolute;z-index:21;left:0;right:0;bottom:0;height:12.5%;padding:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));border:0;box-shadow:none;background-color:transparent;background-image:var(--gacha-dedicated-nav);background-size:100% 100%;background-repeat:no-repeat;background-position:center}
 .gacha-bottom-nav button,.gacha-bottom-nav button.active{background:transparent;border:0;color:transparent;font-size:0;text-shadow:none;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
@@ -1302,7 +1403,6 @@ button{font:inherit;color:inherit}
 .gacha-card.star3{animation:star3Pulse .9s ease-in-out infinite alternate}
 .gacha-card.star3.just-drawn{animation:star3Arrival .35s ease-out,star3Pulse .9s ease-in-out .35s infinite alternate}
 @keyframes star3Arrival{from{filter:brightness(1.7);box-shadow:0 0 29px rgba(255,232,111,.96)}to{filter:brightness(1);}}
-.summary-note{font-size:9px}
 @media(prefers-reduced-motion:reduce){.gacha-card.star3.just-drawn{animation:none}}
 
 /* ===== v5 Character / Training scene ===== */
