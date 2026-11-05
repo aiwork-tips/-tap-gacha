@@ -429,9 +429,17 @@
     if(characterScreen.classList.contains('active')) charEl('charTapPower').textContent=fmt(tapPower);
     requestAnimationFrame(fitAll);
   }
+  const rosterFilter=charEl('charRosterFilter');
+  const rosterSort=charEl('charRosterSort');
+  function rosterLevel(id){
+    const record=currentRecord(id);
+    return record.owned?Number(record.level||1):0;
+  }
   function renderCharacters(){
     const owned=GACHA_CHARACTERS.filter(c=>collection[c.id]?.owned).length;
-    charEl('charOwned').textContent=`${owned} / ${GACHA_CHARACTERS.length}`;
+    const ownedCount=`${owned} / ${GACHA_CHARACTERS.length}`;
+    charEl('charOwned').textContent=ownedCount;
+    charEl('charRosterCount').textContent=ownedCount;
     charEl('charTotalLevels').textContent=fmt(totalLevels());
     charEl('charTapPower').textContent=fmt(tapPower);
     charEl('charPT').textContent=fmt(pt);
@@ -439,15 +447,24 @@
     if(!selectedCharId || !GACHA_CHARACTERS.some(c=>c.id===selectedCharId)){
       selectedCharId=GACHA_CHARACTERS.find(c=>collection[c.id]?.owned)?.id || GACHA_CHARACTERS[0].id;
     }
-    charEl('characterGrid').innerHTML=GACHA_CHARACTERS.map(c=>{
+    const visible=GACHA_CHARACTERS.filter(c=>rosterFilter.value==='all' ||
+      Boolean(collection[c.id]?.owned)===(rosterFilter.value==='owned'));
+    if(rosterSort.value==='level')visible.sort((a,b)=>rosterLevel(b.id)-rosterLevel(a.id));
+    if(rosterSort.value==='rarity')visible.sort((a,b)=>b.rarity-a.rarity);
+    charEl('charRosterEmpty').hidden=visible.length>0;
+    charEl('characterGrid').innerHTML=visible.map(c=>{
       const rec=currentRecord(c.id), owned=!!rec.owned;
-      return `<button class="char-tile ${owned?'':'locked'} ${c.rarity===3?'r3':''} ${c.id===selectedCharId?'selected':''}" data-character-id="${c.id}" aria-label="${c.name}">
+      return `<button type="button" class="char-tile char-gilt ${owned?'':'locked'} ${c.rarity===3?'r3':''} ${c.id===selectedCharId?'selected':''}" data-character-id="${c.id}" aria-label="${c.name}">
         <img loading="lazy" src="${c.image}" alt=""><em>${'★'.repeat(c.rarity)}</em>
         <small>${owned?'Lv'+(rec.level||1):'未所持'}</small>${owned && gameSave.favoriteCharacterId===c.id?'<i class="fav-pin">♥</i>':''}
       </button>`;
     }).join('');
     renderCharacterDetail();
   }
+  [rosterFilter,rosterSort].forEach(control=>control.addEventListener('change',()=>{
+    renderCharacters();
+    charEl('charRosterScroll').scrollTop=0;
+  }));
   // TRAIN-RC07: one-tap MAX is separate, while holding applies the selected 1 / 10 batch repeatedly.
   let trainingTapQuantity = 1;
   let trainingHoldActive = false;
@@ -507,17 +524,20 @@
     const shards=Math.max(0,Number(rec.shards||0));
     const need=levelCost(lv);
     charEl('selectedPortrait').src=c.image;
-    charEl('selectedRarity').textContent='★'.repeat(c.rarity);
+    const stars='★'.repeat(c.rarity);
+    charEl('selectedRarity').textContent=stars;
+    charEl('portraitStars').textContent=stars;
     charEl('selectedName').textContent=c.name;
     charEl('selectedTags').textContent=`${c.element}属性  · ${c.tagline}`;
     charEl('selectedLevel').textContent=owned?`Lv ${lv} / ${cap}`:'未所持';
+    charEl('charCapBadge').hidden=!owned||lv<cap;
     charEl('selectedShardCount').textContent=owned?`欠片 ${fmt(shards)} / ${need}`:'ガチャで獲得';
     charEl('charShardFill').style.width=owned?Math.min(100,shards/need*100)+'%':'0%';
     const levelBtn=charEl('charLevelUp'),breakBtn=charEl('charLimitBreak');
     const plan=trainingPlan(rec,trainingTapQuantity);
     levelBtn.disabled=!owned||plan.count===0||saveRecoveryBlocked;
-    levelBtn.querySelector('.char-button-ink').textContent=lv>=cap?'レベル上限':plan.count
-      ? `レベルアップ ×${plan.count}（欠片 ${fmt(plan.cost)}）` : '欠片が足りません';
+    levelBtn.querySelector('.char-action-note').textContent=lv>=cap?'レベル上限':plan.count
+      ? `×${plan.count} ・ 欠片 ${fmt(plan.cost)}` : owned?'欠片が足りません':'ガチャで獲得';
     levelBtn.setAttribute('aria-label',plan.count?`タップで${plan.count}レベル上げる。欠片${plan.cost}個。長押しで${trainingTapQuantity}レベルずつ連続育成`:'レベルアップ不可');
     const maxPlan=maxTrainingPlan(rec);
     trainingMaxButton.disabled=!owned||maxPlan.count===0||saveRecoveryBlocked;
@@ -525,7 +545,7 @@
     refreshTrainingQuantityButtons();
     const keysNeeded=limitBreakKeyCost(cap);
     breakBtn.disabled=!owned||lv<cap||keysNeeded===0||Number(gameSave.keys||0)<keysNeeded;
-    breakBtn.querySelector('.char-button-ink').textContent=keysNeeded?`上限解放（鍵 ${keysNeeded}個）`:'上限解放完了';
+    breakBtn.querySelector('.char-action-note').textContent=keysNeeded?`（鍵 ${keysNeeded}個）`:'解放完了';
     charEl('charBuyKey').disabled=pt<5000;
     const fbtn=charEl('charFavoriteButton');
     const isFav=owned && gameSave.favoriteCharacterId===c.id;
@@ -533,15 +553,6 @@
     fbtn.classList.toggle('is-favorite',isFav);
     fbtn.querySelector('.char-button-ink').textContent=isFav?'★ お気に入り中':'☆ ホームに設定';
     fbtn.setAttribute('aria-pressed',String(isFav));
-    // Fit dynamic text inside the fixed character-detail plate (same idea as Tap HUD).
-    for(const [id,maxSize,minSize] of [['selectedName',19,12],['selectedShardCount',12,9]]){
-      const node=charEl(id); node.style.fontSize=maxSize+'px';
-      let size=maxSize;
-      while(node.scrollWidth > node.clientWidth+1 && size>minSize){
-        size-=1;node.style.fontSize=size+'px';
-      }
-    }
-
   }
   function levelUpCharacter(target=trainingTapQuantity,{quiet=false}={}){
     if(saveRecoveryBlocked){if(!quiet)showToast('セーブ保護中です');return 0;}
