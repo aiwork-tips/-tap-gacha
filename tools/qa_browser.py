@@ -154,6 +154,15 @@ with sync_playwright() as pw:
     training.locator('[data-home-go="character"]').click(force=True)
     training.locator('#characterGrid [data-character-id="c001"]').click(force=True)
     check('trained character detail visible after reload',training.locator('#characterScreen.active').count()==1 and 'Lv' in training.locator('#selectedLevel').inner_text())
+    check('RC08 training quantity buttons clear the shard gauge', training.evaluate("""() => {
+      const detail = document.getElementById('characterDetail');
+      const gaugeTop = detail.querySelector('.char-shard-track').getBoundingClientRect().top;
+      const buttons = [...detail.querySelectorAll('.char-quantity-button')];
+      return buttons.length === 3 && buttons.every(button => {
+        const bounds = button.getBoundingClientRect();
+        return bounds.height > 0 && bounds.bottom < gaugeTop;
+      });
+    }"""))
     training.screenshot(path=str(SHOTS/f'{ENGINE}-character-trained-390.png'))
     check('training no runtime errors',not errors)
     training.close()
