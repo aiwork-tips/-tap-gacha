@@ -92,6 +92,9 @@
   justify-content:space-between!important;
   min-width:0!important;min-height:0!important;gap:3px!important;
   padding:4px 0!important;overflow:visible!important;
+  grid-template-rows:
+    minmax(12px,.65fr) minmax(20px,1fr) minmax(16px,.75fr) minmax(24px,1.25fr)
+    max-content 7px repeat(2,max-content)!important;
 }
 #characterScreen .char-rarity{
   font-size:clamp(13px,3.5vw,17px)!important;
@@ -119,7 +122,7 @@
   align-content:center!important;
 }
 #characterScreen .char-shards{font-size:clamp(10px,2.6vw,12px)!important;color:#edf8ff!important}
-#characterScreen .char-level-quantity{gap:2px!important}
+#characterScreen .char-level-quantity{height:auto;gap:2px!important}
 #characterScreen .char-quantity-label{font-size:9px!important}
 #characterScreen .char-quantity-button{
   min-width:30px!important;height:28px!important;
