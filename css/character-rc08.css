@@ -279,3 +279,12 @@
   border-image-width:9px!important;
   border-image-repeat:stretch!important;
 }
+
+/* Keep the clickable level-up control image-backed even against previous ID rules. */
+#characterScreen #charLevelUp{
+ background-image:url("../assets/rc08-action-plate.svg")!important;
+ background-color:transparent!important;
+ background-size:100% 100%!important;
+ background-position:center!important;
+ background-repeat:no-repeat!important;
+}
