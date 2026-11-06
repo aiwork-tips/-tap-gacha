@@ -38,6 +38,13 @@ with sync_playwright() as pw:
     page.wait_for_function("document.querySelector('#goTap .v117-plaque').naturalWidth > 0")
     check('RC11 awakening plaque and live label',page.locator('#goTap .v117-plaque').get_attribute('src').endswith('rc11-awakening.webp')
           and page.locator('#goTap .v117-copy strong').inner_text()=='覚醒核へ')
+    check('RC12 awakening plaque is narrower, taller and centered',page.locator('#goTap').evaluate("""button => {
+      const scene = button.offsetParent.getBoundingClientRect();
+      const bounds = button.getBoundingClientRect();
+      return Math.abs(bounds.width / scene.width - .56) < .003 &&
+        Math.abs(bounds.height / scene.height - .121) < .003 &&
+        Math.abs(bounds.left + bounds.width / 2 - (scene.left + scene.width / 2)) < 1;
+    }"""))
     # Verify the picture frames and live controls in the rendered layout.
     page.locator('[data-home-go="character"]').click(force=True)
     page.wait_for_function("""() => document.querySelector('#characterScreen .character-background').naturalWidth > 0""")
@@ -53,10 +60,10 @@ with sync_playwright() as pw:
           parseFloat(style.borderTopWidth) > 0 && style.borderTopColor !== 'rgba(0, 0, 0, 0)';
       });
     }"""))
-    picture_files=['rc11-compact.webp']*2+['rc11-stat.webp']*3+['rc11-quantity.webp']*2+[
+    picture_files=['rc12-compact.webp']*2+['rc12-stat.webp']*3+['rc11-quantity.webp']*2+[
         'rc11-max.webp','rc11-level-up.webp','rc11-cap-unlock.webp'
     ]
-    check('RC11 each generated frame replaces the old border and background',page.locator('#characterScreen .char-art-frame').evaluate_all("""
+    check('RC12 each generated frame replaces the old border and background',page.locator('#characterScreen .char-art-frame').evaluate_all("""
       (frames, files) => frames.length === files.length && frames.every((frame, index) => {
         const shell = getComputedStyle(frame);
         const art = getComputedStyle(frame, '::before');
@@ -217,6 +224,7 @@ with sync_playwright() as pw:
       if(sessionStorage.getItem('__qa_training_fixture_applied')) return;
       const s=JSON.parse(localStorage.getItem('tapgacha_save_v3'));
       s.characters.c001={owned:true,level:1,cap:50,shards:5000};
+      s.characters.c002={owned:true,level:30,cap:50,shards:14};
       s.keys=3;s.points=12450;
       localStorage.setItem('tapgacha_save_v3',JSON.stringify(s));
       sessionStorage.setItem('__qa_training_fixture_applied','1');
@@ -236,13 +244,24 @@ with sync_playwright() as pw:
         document.getElementById('charTotalLevels').textContent === levels.toLocaleString('ja-JP') &&
         document.getElementById('charTapPower').textContent === save.tapPower.toLocaleString('ja-JP');
     }"""))
-    training.locator('#charQuantityMax').click(force=True)
-    check('MAX stops at level cap 50',tstate()['characters']['c001']['level']==50)
+    before_max=tstate()
+    training.locator('#charQuantityMax').click()
+    check('RC12 selecting MAX does not change the save',tstate()==before_max)
+    check('RC12 MAX is the only selected quantity',training.locator('.char-quantity-button[aria-pressed="true"]').count()==1
+          and training.locator('#charQuantityMax').get_attribute('aria-pressed')=='true'
+          and training.locator('#charQuantityMax').evaluate("button => button.classList.contains('is-selected')"))
+    check('RC12 MAX previews levels and shard cost',training.locator('#charLevelUp .char-action-note').inner_text()=='×39 ・ 欠片 252')
+    training.locator('#charLevelUp').click()
+    after_max=tstate()
+    check('MAX stops at level cap 50',after_max['characters']['c001']['level']==50 and training.locator('#charLevelUp').is_disabled())
+    check('RC12 MAX charges only the previewed cost on level up',after_max['characters']['c001']['shards']==before_max['characters']['c001']['shards']-252
+          and after_max['stats']['levelUps']==before_max['stats']['levelUps']+39)
     check('MAX does not auto unlock cap or consume keys',tstate()['characters']['c001']['cap']==50 and tstate()['keys']==3)
     check('RC09 cap badge appears at the current cap',training.locator('#charCapBadge').is_visible())
     keys_before=tstate()['keys']
     training.locator('#charLimitBreak').click(force=True)
     check('cap unlock reaches 100 and consumes one key',tstate()['characters']['c001']['cap']==100 and tstate()['keys']==keys_before-1)
+    training.locator('#charQuantity10').click()
     box=training.locator('#charLevelUp').bounding_box()
     assert box is not None
     training.mouse.move(box['x']+box['width']/2,box['y']+box['height']/2)
@@ -274,6 +293,15 @@ with sync_playwright() as pw:
     training.locator('#charFavoriteButton').click()
     check('RC09 portrait button saves the home favorite',tstate()['favoriteCharacterId']=='c001')
     training.screenshot(path=str(SHOTS/f'{ENGINE}-character-trained-390.png'))
+    training.locator('#characterGrid [data-character-id="c002"]').click()
+    before_max=tstate()
+    training.locator('#charQuantityMax').click()
+    check('RC12 MAX previews the affordable levels below cap',tstate()==before_max
+          and training.locator('#charLevelUp .char-action-note').inner_text()=='×2 ・ 欠片 13')
+    training.locator('#charLevelUp').click()
+    trained=tstate()['characters']['c002']
+    check('RC12 MAX stops when the remaining shards cannot buy another level',trained['level']==32 and trained['cap']==50
+          and trained['shards']==1 and training.locator('#charLevelUp').is_disabled())
     check('training no runtime errors',not errors)
     training.close()
     # Data safety: corrupted unified saves must never be overwritten.

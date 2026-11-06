@@ -465,7 +465,6 @@
     renderCharacters();
     charEl('charRosterScroll').scrollTop=0;
   }));
-  // TRAIN-RC07: one-tap MAX is separate, while holding applies the selected 1 / 10 batch repeatedly.
   let trainingTapQuantity = 1;
   let trainingHoldActive = false;
   let trainingHoldCount = 0;
@@ -474,8 +473,12 @@
   let ignoreTrainingClick = false;
   let trainingIgnoreReset = null;
   const trainingButton = charEl('charLevelUp');
-  const trainingQuantityButtons = [charEl('charQuantity1'),charEl('charQuantity10')];
-  const trainingMaxButton = charEl('charQuantityMax');
+  // MAX uses the same plan, bounded by available shards and the current unlocked cap.
+  const trainingQuantityOptions = [
+    [charEl('charQuantity1'), 1],
+    [charEl('charQuantity10'), 10],
+    [charEl('charQuantityMax'), Infinity]
+  ];
   function trainingPlan(rec,limit){
     if(!rec || !rec.owned)return {count:0,cost:0};
     const start=Math.max(1,Math.floor(Number(rec.level||1)));
@@ -489,33 +492,18 @@
     }
     return {count,cost};
   }
-  // MAX reaches the current unlocked cap only; keys are never consumed or caps auto-unlocked.
-  // Capped at the saved cap rather than an arbitrary number of levels.
-  function maxTrainingPlan(rec){
-    if(!rec || !rec.owned)return {count:0,cost:0};
-    const start=Math.max(1,Math.floor(Number(rec.level||1)));
-    const cap=Math.max(start,Math.floor(Number(rec.cap||50)));
-    return trainingPlan(rec,cap-start);
-  }
   function refreshTrainingQuantityButtons(){
-    trainingQuantityButtons.forEach((btn,i)=>{
-      const chosen=(i===0?1:10)===trainingTapQuantity;
-      btn.classList.toggle('is-selected',chosen);
-      btn.setAttribute('aria-pressed',String(chosen));
+    trainingQuantityOptions.forEach(([button,quantity])=>{
+      const chosen=quantity===trainingTapQuantity;
+      button.classList.toggle('is-selected',chosen);
+      button.setAttribute('aria-pressed',String(chosen));
     });
   }
-  trainingQuantityButtons.forEach((btn,i)=>btn.addEventListener('click',()=>{
+  trainingQuantityOptions.forEach(([button,quantity])=>button.addEventListener('click',()=>{
     stopTrainingHold();
-    trainingTapQuantity=i===0?1:10;
-    refreshTrainingQuantityButtons();
+    trainingTapQuantity=quantity;
     renderCharacterDetail();
   }));
-  // A direct MAX action; keeps 1/10 selected for subsequent taps and holds.
-  trainingMaxButton.addEventListener('click',()=>{
-    stopTrainingHold();
-    const plan=maxTrainingPlan(currentRecord(selectedCharId));
-    if(plan.count)levelUpCharacter(plan.count);
-  });
   function renderCharacterDetail(){
     const c=GACHA_CHARACTERS.find(x=>x.id===selectedCharId) || GACHA_CHARACTERS[0];
     const rec=currentRecord(c.id),owned=!!rec.owned;
@@ -537,11 +525,9 @@
     const plan=trainingPlan(rec,trainingTapQuantity);
     levelBtn.disabled=!owned||plan.count===0||saveRecoveryBlocked;
     levelBtn.querySelector('.char-action-note').textContent=lv>=cap?'レベル上限':plan.count
-      ? `×${plan.count} ・ 欠片 ${fmt(plan.cost)}` : owned?'欠片が足りません':'ガチャで獲得';
-    levelBtn.setAttribute('aria-label',plan.count?`タップで${plan.count}レベル上げる。欠片${plan.cost}個。長押しで${trainingTapQuantity}レベルずつ連続育成`:'レベルアップ不可');
-    const maxPlan=maxTrainingPlan(rec);
-    trainingMaxButton.disabled=!owned||maxPlan.count===0||saveRecoveryBlocked;
-    trainingMaxButton.title=maxPlan.count?`上限Lv${cap}まで、最大${maxPlan.count}レベル（欠片${fmt(maxPlan.cost)}）`:'これ以上育成できません';
+      ? `×${fmt(plan.count)} ・ 欠片 ${fmt(plan.cost)}` : owned?'欠片が足りません':'ガチャで獲得';
+    const holdHint=trainingTapQuantity===Infinity?'':`。長押しで${trainingTapQuantity}レベルずつ連続育成`;
+    levelBtn.setAttribute('aria-label',plan.count?`タップで${plan.count}レベル上げる。欠片${plan.cost}個${holdHint}`:'レベルアップ不可');
     refreshTrainingQuantityButtons();
     const keysNeeded=limitBreakKeyCost(cap);
     breakBtn.disabled=!owned||lv<cap||keysNeeded===0||Number(gameSave.keys||0)<keysNeeded;
@@ -608,6 +594,7 @@
     stopTrainingHold();
     ignoreTrainingClick=false;
     clearTimeout(trainingIgnoreReset);
+    if(trainingTapQuantity===Infinity)return;
     trainingHoldTimeout=setTimeout(()=>{
       trainingHoldTimeout=null;
       if(trainingButton.disabled)return;
@@ -646,7 +633,6 @@
     showToast(`レベル上限 ${rec.cap} 解放！`);
   }
   charEl('charBackHome').addEventListener('click',()=>showScreen('home'));
-  // TRAIN-RC07: tap=selected 1/10, hold=repeats selected batch, MAX=direct affordable cap.
   charEl('charLimitBreak').addEventListener('click',limitBreakCharacter);
   // DEV-03: both the training quick-purchase button and the Exchange use one safe transaction.
   const KEY_PRICE = 5000;

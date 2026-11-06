@@ -1,8 +1,8 @@
 
-/* v11.8: modest reduction only; keep original world and controls unchanged. */
+/* Keep the taller plaque centered in its original space. */
 #homeScreen #goTap.kit-awakening {
-  left:18.5%!important;top:63.15%!important;
-  width:63%!important;height:10.6%!important;
+  left:22%!important;top:62.4%!important;
+  width:56%!important;height:12.1%!important;
 }
 #homeScreen #goTap.kit-awakening>.v117-copy {
   left:21%!important;top:30%!important;
