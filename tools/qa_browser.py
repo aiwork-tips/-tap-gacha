@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Browser regression for the modular game on the served test branch."""
 import os, json
+from datetime import datetime, timezone
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 
@@ -283,6 +284,9 @@ with sync_playwright() as pw:
     page.locator('#charBackHome').click(force=True)
     page.locator('[data-home-go="shop"]').click(force=True)
     check('shop navigation',page.locator('#shopScreen.active').count()==1)
+    check('RC20 normal game cannot award simulated ad points',
+          page.locator('#shopRewardWatch').is_disabled()
+          and page.locator('#shopRewardPreviewLabel').is_hidden())
     page.screenshot(path=str(SHOTS/f'{ENGINE}-shop-390.png'))
     before=state()
     page.locator('#shopBuyKey').click(force=True)
@@ -543,6 +547,96 @@ with sync_playwright() as pw:
     check('RC19 fallback from the mirrored collection does not double migrated caps',
           old_page.evaluate("JSON.parse(localStorage.getItem('tapgacha_save_v3')).characters")==imported['characters'])
     old.close()
+    preview = browser.new_context(viewport={'width':390,'height':844},is_mobile=True,has_touch=True)
+    preview.add_init_script("""(() => {
+      if(sessionStorage.getItem('__qa_reward_seeded'))return;
+      localStorage.setItem('tapgacha_save_v3',JSON.stringify({
+        schemaVersion:3,points:4100,tapPower:41,keys:1,
+        characters:Object.fromEntries(Array.from({length:10},(_,index)=>[
+          'c'+String(index+1).padStart(3,'0'),
+          {owned:true,level:100,cap:100,shards:12,trainingCapStep:100}
+        ])),
+        ad:{remaining:3,lastResetDate:'2026-11-07'}
+      }));
+      localStorage.setItem('tapgacha_pt','4100');
+      localStorage.setItem('tapgacha_power','41');
+      localStorage.setItem('tapgacha_collection','{}');
+      sessionStorage.setItem('__qa_reward_seeded','1');
+    })()""")
+    reward = preview.new_page()
+    reward.on('pageerror',lambda err:errors.append('reward: '+str(err)))
+    reward.clock.set_fixed_time(datetime(2026,11,7,14,59,tzinfo=timezone.utc))
+    reward.goto(URL + '?reward-preview=1',wait_until='load')
+    live_before = reward.evaluate("Object.entries(localStorage).sort()")
+    reward.locator('[data-home-go="shop"]').click()
+    button = reward.locator('#shopRewardWatch')
+    remaining = reward.locator('#shopRewardRemaining')
+    wallet = reward.locator('#shopPT')
+    check('RC20 reward preview uses current save and TapPower',button.is_enabled()
+          and remaining.inner_text()=='3' and wallet.inner_text()=='4,100'
+          and reward.locator('#shopRewardAmount').inner_text()=='+2,050')
+    for width,height in ((320,568),(393,654),(390,844),(430,932)):
+        reward.set_viewport_size({'width':width,'height':height})
+        check(f'RC20 reward artwork and readable controls fit at {width}x{height}',reward.evaluate(r"""async () => {
+          const panel = document.querySelector('.shop-reward');
+          const button = document.querySelector('#shopRewardWatch');
+          const chrome = panel.getBoundingClientRect();
+          const buttonBox = button.getBoundingClientRect();
+          const title = document.querySelector('#shopRewardTitle').getBoundingClientRect();
+          const amount = document.querySelector('.shop-reward-amount').getBoundingClientRect();
+          const filters = document.querySelector('.shop-filters').getBoundingClientRect();
+          const scroll = document.querySelector('#shopProductScroll');
+          const panelStyle = getComputedStyle(panel);
+          const buttonStyle = getComputedStyle(button,'::before');
+          const images = await Promise.all([panelStyle,buttonStyle].map(async style => {
+            const path = style.backgroundImage.match(/^url\(["']?(.+?)["']?\)$/)?.[1];
+            if(!path)return false;
+            const art = new Image();
+            art.src=path;
+            await art.decode().catch(()=>{});
+            return art.naturalWidth>0;
+          }));
+          return images.every(Boolean) && panelStyle.borderTopWidth==='0px'
+            && getComputedStyle(button).borderTopWidth==='0px'
+            && chrome.left>=0 && chrome.right<=innerWidth && chrome.bottom<=filters.top
+            && title.right<=amount.left && buttonBox.height>=44 && buttonBox.bottom<chrome.bottom
+            && scroll.clientHeight>=120 && scroll.scrollHeight>scroll.clientHeight;
+        }"""))
+        reward.screenshot(path=str(SHOTS/f'{ENGINE}-shop-reward-{width}x{height}.png'))
+    def rstate():
+        return reward.evaluate("JSON.parse(sessionStorage.getItem('tapgacha_reward_rc20_preview'))")
+    reward.evaluate("""() => {
+      const setItem=Storage.prototype.setItem;
+      Storage.prototype.setItem=function(key,value){
+        if(this===sessionStorage && key==='tapgacha_reward_rc20_preview'){
+          Storage.prototype.setItem=setItem;
+          throw new Error('Simulated preview save failure');
+        }
+        return setItem.call(this,key,value);
+      };
+    }""")
+    button.click()
+    check('RC20 failed preview write rolls back PT and the daily counter',
+          rstate()['points']==4100 and remaining.inner_text()=='3' and wallet.inner_text()=='4,100')
+    for count,pt in ((2,6150),(1,8200),(0,10250)):
+        button.click()
+        check(f'RC20 completed preview awards 2,050 PT with {count} uses left',
+              rstate()['points']==pt and rstate()['ad']['remaining']==count
+              and remaining.inner_text()==str(count) and wallet.inner_text()==f'{pt:,}')
+    check('RC20 exhausted reward button is disabled',button.is_disabled())
+    reward.reload(wait_until='load')
+    reward.locator('[data-home-go="shop"]').click()
+    check('RC20 exhausted counter persists across reload',button.is_disabled() and remaining.inner_text()=='0')
+    reward.clock.set_fixed_time(datetime(2026,11,7,15,0,tzinfo=timezone.utc))
+    reward.locator('#shopBackHome').click()
+    reward.locator('[data-home-go="shop"]').click()
+    check('RC20 daily counter recovers at JST midnight',button.is_enabled() and remaining.inner_text()=='3')
+    button.click()
+    check('RC20 next day awards once and records the reset date',rstate()['points']==12300
+          and rstate()['ad']['lastResetDate']=='2026-11-08' and remaining.inner_text()=='2')
+    check('RC20 preview leaves all live save keys byte-for-byte unchanged',
+          reward.evaluate("Object.entries(localStorage).sort()")==live_before)
+    preview.close()
     check('new save safety checks produce no runtime exceptions',not errors)
     (ROOT/f'qa-results-{ENGINE}.json').write_text(json.dumps({'browser':ENGINE,'passed':len(passed),'checks':passed,'runtime_errors':errors,'broken_images':missing,'resource_failures':resource_failures},ensure_ascii=False,indent=2),encoding='utf-8')
     print(f'ALL {len(passed)} CHECKS PASS',flush=True)
