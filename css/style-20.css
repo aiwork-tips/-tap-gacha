@@ -105,3 +105,34 @@
  #characterScreen .char-stats{height:46px!important}
 }
 
+
+/* Keep every shared menu on the same baseline, including cloned menus. */
+#app .screen > .kit-shared-nav {
+  position: absolute !important;
+  inset: auto 0 0 !important;
+  z-index: 90 !important;
+  width: 100% !important;
+  height: 13.3% !important;
+  min-height: 0 !important;
+  display: grid !important;
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  align-items: stretch !important;
+  border: 0 !important;
+  padding: 0 !important;
+  gap: 0 !important;
+}
+
+#app .screen > .kit-shared-nav > button {
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  border: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: transparent !important;
+}
+
+#app .kit-shared-nav > [aria-current="page"] > img {
+  filter: brightness(1.16) drop-shadow(0 0 4px #61c9ff) drop-shadow(0 0 5px #287cf7) !important;
+}

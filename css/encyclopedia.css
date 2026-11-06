@@ -334,30 +334,7 @@
   outline-offset: -2px;
 }
 
-#dexScreen .dex-bottom-nav {
-  position: absolute;
-  z-index: 90;
-  inset: auto 0 1.1%;
-  height: 12.8%;
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-}
-
 #dexScreen .dex-bottom-nav .kit-nav-plate { opacity: .35; }
-
-#dexScreen .dex-bottom-nav button {
-  position: relative;
-  z-index: 1;
-  min-width: 0;
-  min-height: 0;
-  padding: 0;
-  border: 0;
-  background: transparent;
-}
-
-#dexScreen .dex-bottom-nav [aria-current="page"] img {
-  filter: brightness(1.14) drop-shadow(0 0 3px #6ad8ff) !important;
-}
 
 #app:has(#dexScreen.active) #devBuildLabel {
   top: auto !important;
