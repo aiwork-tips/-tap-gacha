@@ -7,7 +7,7 @@
 <meta content="#071827" name="theme-color"/>
 <meta content="yes" name="apple-mobile-web-app-capable"/>
 <meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
-<title>Ver.11.8 DEX-RC15 · タップ育成ガチャ -覚醒-</title>
+<title>Ver.11.8 DEX-RC16 · タップ育成ガチャ -覚醒-</title>
 <!-- Unified Save Rev.3: tapgacha_save_v3 / legacy gV2 preserved read-only -->
 <link rel="stylesheet" href="css/style-01.css">
 
@@ -325,14 +325,14 @@
         <button type="button" data-dex-filter="owned" aria-pressed="false">所持</button>
         <button type="button" data-dex-filter="unowned" aria-pressed="false">未所持</button>
       </div>
-      <div class="dex-list dex-panel" id="dexList" tabindex="0" role="region" aria-label="キャラ一覧・縦スクロール">
+      <div class="dex-list" id="dexList" tabindex="0" role="region" aria-label="キャラ一覧・縦スクロール">
         <div class="dex-grid" id="dexGrid"></div>
         <p class="dex-empty" id="dexEmpty" role="status" hidden></p>
       </div>
     </div>
 
     <div class="dex-detail-view" id="dexDetailView" tabindex="0" role="region" aria-label="キャラ詳細・縦スクロール" hidden>
-      <article class="dex-profile dex-panel" aria-labelledby="dexName">
+      <article class="dex-profile" aria-labelledby="dexName">
         <div class="dex-portrait"><img id="dexPortrait" alt="" decoding="async"></div>
         <div class="dex-profile-copy">
           <div class="dex-profile-meta"><span class="dex-stars" id="dexRarity"></span><span id="dexElement" hidden></span></div>
@@ -341,7 +341,7 @@
           <p class="dex-unowned" id="dexUnowned" hidden>未所持</p>
         </div>
       </article>
-      <section class="dex-story dex-panel" aria-labelledby="dexStoryTitle">
+      <section class="dex-story" aria-labelledby="dexStoryTitle">
         <h3 id="dexStoryTitle">書庫の記録</h3>
         <p id="dexLore"></p>
       </section>
@@ -425,7 +425,7 @@
       <div class="shop-bridge"><button type="button" class="shop-to-character" id="shopGoCharacter">キャラ育成へ →</button></div>
       <div class="shop-future">現在購入できるのは「上限解放の鍵」のみです。<br>新アイテムの価格・効果は後日決定します。</div>
     </div>
-    <span class="shop-version">Ver.11.8 · DEX-RC15</span>
+    <span class="shop-version">Ver.11.8 · DEX-RC16</span>
   </div>
 </section>
 
@@ -435,7 +435,7 @@
 <section class="screen" id="questScreen" aria-label="依頼掲示板">
   <img id="questBackdrop" class="quest-backdrop" alt="" aria-hidden="true" />
   <div class="quest-scrim"></div>
-  <span class="quest-version">Ver.11.8 · DEX-RC15</span>
+  <span class="quest-version">Ver.11.8 · DEX-RC16</span>
   <div class="quest-shell">
     <header class="quest-top">
       <div class="quest-head"><button id="questBackHome" type="button" class="quest-home">⌂ ホーム</button><h1 class="quest-title">依頼掲示板</h1></div>
@@ -457,7 +457,7 @@
 </section>
 
 <div class="toast" id="toast"></div>
-<div id="devBuildLabel" aria-label="開発検証版 Ver.11.8 DEX-RC15">Ver.11.8 · DEX-RC15</div>
+<div id="devBuildLabel" aria-label="開発検証版 Ver.11.8 DEX-RC16">Ver.11.8 · DEX-RC16</div>
 </main>
 <script src="js/script-01.js"></script>
 

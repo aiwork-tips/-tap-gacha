@@ -132,8 +132,8 @@ with sync_playwright() as pw:
     page.locator('#homeScreen [data-nav="図鑑"]').click()
     check('RC14 shared book tab opens the archive',page.locator('#dexScreen.active [aria-current="page"]').get_attribute('aria-label')=='図鑑')
     page.wait_for_function("document.querySelector('#dexGrid img').naturalWidth > 0")
-    check('RC15 generated frame and archive swordsman art are in use',dex_cards.first.evaluate(
-        "card => getComputedStyle(card, '::after').borderImageSource.includes('dex-gold-frame.webp')")
+    check('RC16 the archive shows the active tab line and archive swordsman art',page.locator('[data-dex-filter="all"]').evaluate(
+        "tab => tab.getAttribute('aria-pressed') === 'true' && getComputedStyle(tab, '::after').height === '2px'")
           and page.locator('[data-dex-id="c006"] img').get_attribute('src')=='assets/dex-swordsman.webp')
     page.screenshot(path=str(SHOTS/f'{ENGINE}-archive-393.png'))
     page.locator('#dexBack').click()
@@ -221,6 +221,8 @@ with sync_playwright() as pw:
     check('RC15 acquired records show art, name and story without training stats',page.locator('#dexName').inner_text()==catalog[cid]['name']
           and page.locator('#dexRarity').inner_text()=='★'*catalog[cid]['rarity']
           and page.locator('#dexPortrait').get_attribute('src').startswith('assets/')
+          and page.locator('.dex-profile').evaluate(
+              "profile => getComputedStyle(profile, '::after').borderImageSource.includes('dex-gold-frame.webp')")
           and page.locator('#dexLevel, #dexShards').count()==0 and 'Lv' not in dex_cards.first.inner_text()
           and page.locator('#dexLore').inner_text()!='このキャラを召喚すると、記録が解放されます。' and state()==after)
     page.wait_for_function("document.querySelector('#dexPortrait').naturalWidth > 0")
