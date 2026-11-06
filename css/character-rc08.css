@@ -77,7 +77,7 @@
 }
 #characterScreen .char-home,
 #characterScreen .char-top-pt {
-  --char-frame-art: url("../assets/rc11-compact.webp");
+  --char-frame-art: url("../assets/rc12-compact.webp");
   height: clamp(34px, 6vh, 48px) !important;
   width: 100% !important;
   min-height: 0 !important;
@@ -142,7 +142,7 @@
   gap: clamp(4px, 1.15vw, 8px) !important;
 }
 #characterScreen .char-stat {
-  --char-frame-art: url("../assets/rc11-stat.webp");
+  --char-frame-art: url("../assets/rc12-stat.webp");
   display: grid !important;
   grid-template-columns: auto minmax(0, 1fr);
   grid-template-rows: 1fr;
