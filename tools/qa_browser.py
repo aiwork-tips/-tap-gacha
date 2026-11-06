@@ -140,9 +140,14 @@ with sync_playwright() as pw:
     page.locator('#goTap').click(force=True)
     check('tap navigation',page.locator('#tapScreen.active').count()==1)
     check('RC11 tap return label only shows the text',page.locator('#backHome text').text_content()=='ホームへ戻る')
-    check('RC14 TapPower label and value are separated',page.locator('#powerBox').evaluate("""value =>
-      value.getBoundingClientRect().top >= document.querySelector('.v15-top-label').getBoundingClientRect().bottom - 0.7
-    """))
+    tap_gap=page.locator('#powerBox').evaluate("""value => new Promise(resolve =>
+      requestAnimationFrame(() => {
+        const label = document.querySelector('.v15-top-label').getBoundingClientRect();
+        resolve(value.getBoundingClientRect().top - label.bottom);
+      })
+    )""")
+    page.screenshot(path=str(SHOTS/f'{ENGINE}-tap-390.png'))
+    check(f'RC14 TapPower label and value are separated ({tap_gap:.2f}px)',tap_gap>=-0.7)
     page.locator('#tapZone').click(force=True)
     after=state()
     check('tap PT saved',after['points']==before['points']+before['tapPower'])
