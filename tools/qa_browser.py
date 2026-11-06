@@ -97,9 +97,7 @@ with sync_playwright() as pw:
           parseFloat(style.borderTopWidth) > 0 && style.borderTopColor !== 'rgba(0, 0, 0, 0)';
       });
     }"""))
-    picture_files=['rc12-compact.webp']*2+['rc12-stat.webp']*3+['rc11-quantity.webp']*2+[
-        'rc11-max.webp','rc11-level-up.webp','rc11-cap-unlock.webp'
-    ]
+    picture_files=['rc12-compact.webp']*2+['rc12-stat.webp']*3+['rc11-level-up.webp']*2+['rc11-cap-unlock.webp']
     check('RC12 each generated frame replaces the old border and background',page.locator('#characterScreen .char-art-frame').evaluate_all("""
       (frames, files) => frames.length === files.length && frames.every((frame, index) => {
         const shell = getComputedStyle(frame);
@@ -110,7 +108,7 @@ with sync_playwright() as pw:
           art.backgroundImage.includes(files[index]) && art.backgroundSize === '100% 100%';
       })
     """,picture_files))
-    check('RC11 the quantity buttons have no surrounding box',page.locator('.char-level-quantity').evaluate("""group => {
+    check('RC18 direct training has no surrounding selection box',page.locator('.char-actions').evaluate("""group => {
       const css = getComputedStyle(group);
       return css.borderTopWidth === '0px' && css.backgroundImage === 'none' &&
         css.backgroundColor === 'rgba(0, 0, 0, 0)';
