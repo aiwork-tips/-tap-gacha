@@ -122,7 +122,7 @@ with sync_playwright() as pw:
     dex_cards.last.click()
     check('RC14 unowned records show name and rarity without stats or lore',page.locator('#dexName').inner_text()=='白銀の聖騎士'
           and page.locator('#dexRarity').inner_text()=='★★★' and page.locator('#dexUnowned').is_visible()
-          and not page.locator('#dexStats').is_visible()
+          and not page.locator('#dexElement').is_visible()
           and page.locator('#dexLore').inner_text()=='このキャラを召喚すると、記録が解放されます。')
     page.locator('#dexBack').click()
     check('RC14 returning from a record restores filter and scroll',dex_unowned_filter.get_attribute('aria-pressed')=='true'
@@ -132,6 +132,9 @@ with sync_playwright() as pw:
     page.locator('#homeScreen [data-nav="図鑑"]').click()
     check('RC14 shared book tab opens the archive',page.locator('#dexScreen.active [aria-current="page"]').get_attribute('aria-label')=='図鑑')
     page.wait_for_function("document.querySelector('#dexGrid img').naturalWidth > 0")
+    check('RC15 generated frame and archive swordsman art are in use',dex_cards.first.evaluate(
+        "card => getComputedStyle(card, '::after').borderImageSource.includes('dex-gold-frame.webp')")
+          and page.locator('[data-dex-id="c006"] img').get_attribute('src')=='assets/dex-swordsman.webp')
     page.screenshot(path=str(SHOTS/f'{ENGINE}-archive-393.png'))
     page.locator('#dexBack').click()
     check('RC14 browsing the archive preserves the save',state()==dex_before)
@@ -213,13 +216,12 @@ with sync_playwright() as pw:
     check('RC14 new summons appear in the archive at 320px',page.locator('#dexScreen.active').count()==1
           and page.locator('#dexOwnedCount').inner_text()==f'{len(acquired)} / 15' and dex_cards.count()==len(acquired)
           and dex_scroll.evaluate('list => list.scrollWidth <= list.clientWidth'))
-    cid,record=next(iter(acquired.items()))
+    cid=next(iter(acquired))
     page.locator(f'#dexGrid [data-dex-id="{cid}"]').click()
-    check('RC14 acquired records show art, name and live stats',page.locator('#dexName').inner_text()==catalog[cid]['name']
+    check('RC15 acquired records show art, name and story without training stats',page.locator('#dexName').inner_text()==catalog[cid]['name']
           and page.locator('#dexRarity').inner_text()=='★'*catalog[cid]['rarity']
           and page.locator('#dexPortrait').get_attribute('src').startswith('assets/')
-          and page.locator('#dexLevel').inner_text()==f"Lv {record.get('level',1):,} / {record.get('cap',50):,}"
-          and page.locator('#dexShards').inner_text()==f"{record.get('shards',0):,}"
+          and page.locator('#dexLevel, #dexShards').count()==0 and 'Lv' not in dex_cards.first.inner_text()
           and page.locator('#dexLore').inner_text()!='このキャラを召喚すると、記録が解放されます。' and state()==after)
     page.wait_for_function("document.querySelector('#dexPortrait').naturalWidth > 0")
     page.screenshot(path=str(SHOTS/f'{ENGINE}-archive-record-320.png'))
@@ -314,9 +316,8 @@ with sync_playwright() as pw:
     trained_save=tstate()
     training.locator('[data-character-nav="図鑑"]').click()
     training.locator('#dexGrid [data-dex-id="c001"]').click()
-    check('RC14 records reflect training and preserve the saved character',training.locator('#dexLevel').inner_text()=='Lv 11 / 50'
-          and training.locator('#dexShards').inner_text()==f"{trained_save['characters']['c001']['shards']:,}"
-          and tstate()==trained_save)
+    check('RC15 archive uses the illustrated lore and preserves the trained character',training.locator('#dexLore').text_content().startswith('金の輪と白い翼を持つ天使見習い。')
+          and training.locator('#dexStoryTitle').inner_text()=='書庫の記録' and tstate()==trained_save)
     training.locator('#dexScreen [data-nav="キャラ"]').click()
     check('RC11 the image-framed stats remain live after training',training.evaluate("""() => {
       const save = JSON.parse(localStorage.getItem('tapgacha_save_v3'));
