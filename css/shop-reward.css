@@ -1,0 +1,85 @@
+#shopScreen .shop-reward {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  column-gap: 7px;
+  box-sizing: border-box;
+  margin-top: 8px;
+  padding: 15px clamp(13px, 4vw, 21px) 7px;
+  background: url('../assets/rc20-reward-panel.webp') center / 100% 100% no-repeat;
+  color: #fff0c6;
+  font-family: 'Yu Mincho', 'Hiragino Mincho ProN', serif;
+  text-shadow: 0 1px 2px #071124;
+}
+
+#shopScreen .shop-reward h2,
+#shopScreen .shop-reward p {
+  margin: 0;
+  line-height: 1.18;
+}
+
+#shopScreen .shop-reward h2 {
+  font-size: clamp(13px, 3.8vw, 17px);
+  font-weight: 700;
+}
+
+#shopScreen .shop-reward-amount {
+  font-size: 11px;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+#shopScreen .shop-reward-amount strong {
+  font: 700 clamp(18px, 5.6vw, 24px)/1 Georgia, serif;
+  font-variant-numeric: tabular-nums;
+}
+
+#shopScreen .shop-reward-remaining {
+  font: 600 clamp(11px, 3.2vw, 13px)/1.25 system-ui, sans-serif;
+  color: #e3edf8;
+}
+
+#shopScreen .shop-reward-remaining strong {
+  font-size: 1.18em;
+  color: #fff0c6;
+}
+
+#shopScreen .shop-reward-remaining small {
+  margin-inline-start: 4px;
+  font-size: 10px;
+  font-weight: 500;
+  color: #b9d4ee;
+  white-space: nowrap;
+}
+
+#shopScreen #shopRewardWatch {
+  position: relative;
+  isolation: isolate;
+  justify-self: end;
+  width: min(100%, 144px);
+  min-height: 44px;
+  padding: 0 9px;
+  border: 0;
+  box-shadow: none;
+  background: none;
+  color: #fff3d7;
+  font: 700 clamp(11px, 3.4vw, 13px)/1.15 'Yu Mincho', 'Hiragino Mincho ProN', serif;
+  text-shadow: 0 1px 2px #061026;
+}
+
+#shopScreen #shopRewardWatch::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 3px 0;
+  background: url('../assets/rc20-reward-button.webp') center / 100% 100% no-repeat;
+  pointer-events: none;
+}
+
+#shopScreen #shopRewardWatch:active:not(:disabled)::before {
+  filter: brightness(1.17);
+}
+
+#shopScreen #shopRewardWatch:disabled::before {
+  filter: saturate(.55) brightness(.8);
+}

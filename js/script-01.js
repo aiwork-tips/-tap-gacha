@@ -28,10 +28,17 @@
   // legacyWeight は記録として保持するが、現在の70/25/5抽選には使用しない。
   const GACHA_CHARACTERS = [{"id":"c001","rarity":1,"name":"白翼のアルム","emoji":"🕊️","element":"聖","tagline":"聖なる光をまとう天使見習い","lore":"金の輪と白い翼を持つ天使見習い。神殿の最下層で、記憶をなくしたまま目を覚ました。\n\nときおり街の守護石に宿り、訪れた人を小さな光で迎える。人々は親しみをこめて、アルムを「迷い天使」と呼ぶ。","legacyWeight":13,"image":"assets/19304675598037d22846.webp"},{"id":"c002","rarity":1,"name":"鉄骸兵","emoji":"⚙️","element":"雷","tagline":"廃工場に蘇った機械の亡骸","lore":"廃工場に落雷が続いた夜、解体待ちの機械群に電撃が宿り誕生した。無所属で廃工場跡を根城にし、目的も持たずにさまよい続ける。走るたびに錆びた鉄粉が散ることから「錆走り」「廃鉄」と呼ばれる。錆びるほどに内部の意識が鮮明になるという奇妙な性質を持つ。","legacyWeight":13,"image":"assets/339d1986421cc10d88c7.webp"},{"id":"c003","rarity":1,"name":"冥牙クロウル","emoji":"🐺","element":"闇","tagline":"地を這う怨念の獣","lore":"処刑場の地下に染み込んだ無数の怨念が、長い年月をかけて獣の形をとった存在。冥界の番犬として非公式に認識されているが、誰にも使役されていない。常に地面すれすれを這うように移動するため「地這い」「怨の犬」と呼ばれ、怨念が濃い土地にのみ発生する。","legacyWeight":13,"image":"assets/2ef1b8c6da01c8c39b83.webp"},{"id":"c004","rarity":1,"name":"夜叉","emoji":"👺","element":"炎","tagline":"血に飢えた和風の鬼","lore":"戦場で血に濡れながら絶命した武将の怨念が、炎とともに鬼の形に変じた存在。鬼道衆の末端に属し、激戦地の跡地でたびたび目撃される。全身が返り血のような赤みを帯びていることから「赤鬼」「血塗れ」と呼ばれ、血を浴びるたびに凶暴さを増していく。","legacyWeight":13,"image":"assets/deed14cad6bd683d64ea.webp"},{"id":"c005","rarity":1,"name":"黒耀ヴァルグ","emoji":"🐺","element":"雷","tagline":"漆黒の狼に宿る雷","lore":"嵐の夜、黒狼の群れを雷が襲った。生き残った一頭は、体に宿った紫電によって獣人の姿へと変わった。\n\n以来、ヴァルグは荒野を独りで駆ける。漆黒の毛並みを走る稲妻から「黒雷狼」と呼ばれるが、本人は「一匹狼」と呼ばれるのを嫌う。","legacyWeight":14,"image":"assets/a888dd42bddf1a78481f.webp"},{"id":"c006","rarity":1,"name":"骸の剣士","emoji":"💀","element":"闇","tagline":"誓いのために戦い続ける騎士の骸","lore":"誓いを果たせぬまま戦場で朽ちた騎士。誓いへの執念だけが骸を動かし続けており、その誓いの内容を本人は覚えていない。骸騎士団の残存兵として古戦場に眠り、稀に蘇る。何度倒されても立ち上がることから「不死の剣」「誓いの骸」と畏れられる。","legacyWeight":13,"image":"assets/b120306ef7acfe40c1bb.webp","dexImage":"assets/dex-swordsman.webp"},{"id":"c007","rarity":2,"name":"堕天使カイン","emoji":"🖤","element":"闇","tagline":"神に背いた最初の堕天使","lore":"神が最初に作り、最初に裏切られた天使。全ての堕落の原点とされ、堕天使軍を率いる首領として君臨する。堕落の気配が極めて濃い地にしか現れず、その存在だけで周囲の意志を腐食させる。「原初の罪」「最初の裏切り者」という呼び名を、本人は誇りとして受け入れている。","legacyWeight":4,"image":"assets/4715d51ddceba9dab7e8.webp"},{"id":"c008","rarity":2,"name":"煉獄シグラス","emoji":"🔥","element":"炎","tagline":"炎を愛した煉獄の番人","lore":"煉獄の番人として生まれたが、その炎の美しさに魅了され自らも燃え続けることを選んだ異端者。煉獄守護者の離反派に属し、煉獄の亀裂が地上に現れた時にのみ出現する。自分自身を燃やしながら戦う戦法をとることから「炎喰い」「煉獄の異端者」と呼ばれる。","legacyWeight":3,"image":"assets/4b7c3e81eac4b21c3344.webp"},{"id":"c009","rarity":2,"name":"紫電アルカディオ","emoji":"⚡","element":"雷","tagline":"封印を破った雷の精霊","lore":"古代の雷神殿で封印されていた雷の精霊。封印が緩んだ隙に実体を得て逃亡した唯一の存在。雷神殿の逃亡者として指名手配されているが、捕まえられる者はいない。放つ雷が常に紫色を帯びることから「紫雷」と呼ばれ、「封印破り」という異名を嵐の季節に語り継がれる。","legacyWeight":3,"image":"assets/55466b3cd275d73074f9.webp"},{"id":"c010","rarity":2,"name":"蒼月レイヴン","emoji":"🌙","element":"水","tagline":"月光と水から生まれた女性の霊体","lore":"月光が湖面に反射し続けた千年目の夜、水と月の狭間に生まれた女性の霊体。月詠みの巫女として無所属で存在し、満月の夜に静水の上にのみ姿を現す。その姿が水面に映る月のように揺らいで見えることから「月鏡」「水面の幻」と呼ばれ、触れようとすると消える。","legacyWeight":3,"image":"assets/8cdeb84e361846857c5b.webp"},{"id":"c011","rarity":2,"name":"紅蓮の舞姫","emoji":"💃","element":"炎","tagline":"炎祭りで炎に還った踊り子の化身","lore":"炎祭りの最中、踊り子が炎に巻かれて絶命した瞬間、炎そのものが彼女の意志を宿した。炎舞一座の化身として炎祭りの地に語り継がれる。戦う姿が舞を踊るように美しいことから「炎の化身」と呼ばれるが、触れれば全てを燃やす。「踊る業火」という呼び名を彼女は好む。","legacyWeight":3,"image":"assets/fa9be2f319ee0ca55c0f.webp"},{"id":"c012","rarity":3,"name":"呪詛の魔女","emoji":"🧙","element":"闇","tagline":"千の呪いを受け呪いの化身となった女","lore":"千の呪いを受け続けた末に呪いの化身となった女性。本来の名前は自らの呪いによって消滅しており、誰も知らない。呪縛教団の頂点に立つが、教団員でさえ彼女を恐れる。千の呪いを受けてなお生き続けた伝説から「千呪」と呼ばれ、「名無しの魔女」という呼び名が最も広く知られている。","legacyWeight":2,"image":"assets/3cf3761242e4e6737b84.webp"},{"id":"c013","rarity":3,"name":"終焉の天帝","emoji":"👑","element":"聖","tagline":"宇宙の終わりを司る神格","lore":"宇宙が誕生した瞬間に「終わり」として生まれた存在。始まりと同時に終わりが生まれた証とされ、神格・終末の座に君臨する。世界の終わりが近づく時にのみ姿を現すとされ、その存在を目撃した者は全員が終焉を語り始めると言われる。「終わりの王」「エンドオブオール」と全神話に記される。","legacyWeight":2,"image":"assets/f25bec3e7f3a03b4622d.webp"},{"id":"c014","rarity":3,"name":"虚空神・無限","emoji":"🌀","element":"水","tagline":"存在と無の狭間に生きる超越神格","lore":"存在と無の境にいる、始まりも終わりも持たない神。静かな水面に渦が生まれると、その奥に星々と無限の印をまとった姿が映るという。\n\nその像は、水が澄んでいても水底には見えない。水面に映る先がどこへ通じているのか、書庫にも記録はない。","legacyWeight":1,"image":"assets/41884eba380b57711e4c.webp"},{"id":"c015","rarity":3,"name":"白銀の聖騎士","emoji":"⚔️","element":"水","tagline":"神を捨てた最後の聖騎士","lore":"かつて神に選ばれた聖騎士団の団長。絶対的な信仰を誇ったが、ある瞬間に神への信仰を失い、その瞬間から白銀の鎧が氷と水に覆われた。堕ちた聖騎士団の最後の生き残りとして、信仰が完全に失われた地にのみ現れる。「白き背徳者」「氷の聖女」と語り継がれ、その美しさと悲しさが伝説となっている。","legacyWeight":1,"image":"assets/24dd594f1e189a24c8c8.webp"}];
 
-  const SAVE_KEY = 'tapgacha_save_v3';
+  const LIVE_SAVE_KEY = 'tapgacha_save_v3';
+  const rewardPreview = new URLSearchParams(location.search).get('reward-preview') === '1' ||
+    document.documentElement.dataset.rewardPreview === '1';
+  // The review build forks the current save into this tab before any simulated reward.
+  const saveStorage = rewardPreview ? sessionStorage : localStorage;
+  const SAVE_KEY = rewardPreview ? 'tapgacha_reward_rc20_preview' : LIVE_SAVE_KEY;
   const SAVE_SCHEMA_VERSION = 3;
   const TRAINING_CAP_STEP = 100;
   const LEGACY_TRAINING_CAP_STEP = 50;
+  const AD_REWARD_DAILY_LIMIT = 3;
+  const AD_REWARD_TAP_EQUIVALENT = 50;
 
   function safeJsonParse(raw, fallback=null){
     try{
@@ -74,7 +81,7 @@
       tapPower:25,
       keys:3,
       characters:{},
-      ad:{remaining:3,lastResetDate:''},
+      ad:{remaining:AD_REWARD_DAILY_LIMIT,lastResetDate:''},
       stats:{taps:0,gachaPulls:0,star3Pulls:0},
       migration:{
         createdAt:new Date().toISOString(),
@@ -93,7 +100,8 @@
     return typeof v === 'number' && Number.isFinite(v) && v >= min;
   }
   function buildUnifiedSave(){
-    const rawUnified = localStorage.getItem(SAVE_KEY);
+    const rawUnified = saveStorage.getItem(SAVE_KEY) ??
+      (rewardPreview ? localStorage.getItem(LIVE_SAVE_KEY) : null);
     const existing = safeJsonParse(rawUnified);
     if(rawUnified !== null && (!existing || Array.isArray(existing) || typeof existing !== 'object')){
       saveRecoveryBlocked = true; // 破損した原本を絶対に上書きしない
@@ -176,7 +184,7 @@
       });
 
       if(Number.isFinite(Number(legacy.adR))){
-        save.ad.remaining = Math.max(0,Math.min(3,Number(legacy.adR)));
+        save.ad.remaining = Math.max(0,Math.min(AD_REWARD_DAILY_LIMIT,Number(legacy.adR)));
       }
       if(typeof legacy.adD === 'string'){
         save.ad.lastResetDate = legacy.adD;
@@ -314,19 +322,21 @@
     }
     try{
       // 正本を先に確定。ミラー書き込み失敗は正本を壊さない。
-      localStorage.setItem(SAVE_KEY, JSON.stringify(gameSave));
+      saveStorage.setItem(SAVE_KEY, JSON.stringify(gameSave));
     }catch(e){
       saveWriteError = e;
       console.error('統合セーブの保存に失敗しました。',e);
       return false;
     }
-    try{
-      // 移行期間中は現行個別キーにもミラー。旧 gV2 は上書きしない。
-      localStorage.setItem('tapgacha_pt', String(gameSave.points));
-      localStorage.setItem('tapgacha_power', String(gameSave.tapPower));
-      localStorage.setItem('tapgacha_collection', JSON.stringify(gameSave.characters));
-    }catch(e){
-      console.warn('統合セーブは成功しましたが、互換ミラーの保存に失敗しました。',e);
+    if(!rewardPreview){
+      try{
+        // 移行期間中は現行個別キーにもミラー。旧 gV2 は上書きしない。
+        localStorage.setItem('tapgacha_pt', String(gameSave.points));
+        localStorage.setItem('tapgacha_power', String(gameSave.tapPower));
+        localStorage.setItem('tapgacha_collection', JSON.stringify(gameSave.characters));
+      }catch(e){
+        console.warn('統合セーブは成功しましたが、互換ミラーの保存に失敗しました。',e);
+      }
     }
     saveWriteError = null;
     return true;
@@ -773,6 +783,52 @@
   charEl('charLimitBreak').addEventListener('click',limitBreakCharacter);
   // DEV-03: both the training quick-purchase button and the Exchange use one safe transaction.
   const KEY_PRICE = 5000;
+  const shopRewardAmount = document.getElementById('shopRewardAmount');
+  const shopRewardRemaining = document.getElementById('shopRewardRemaining');
+  const shopRewardWatch = document.getElementById('shopRewardWatch');
+  document.getElementById('shopRewardPreviewLabel').hidden = !rewardPreview;
+
+  function shopRewardState(){
+    const day = questPeriodKeys().daily;
+    const {remaining,lastResetDate} = gameSave.ad;
+    return {
+      day,
+      remaining:lastResetDate===day && Number.isInteger(remaining)
+        ? Math.max(0,Math.min(AD_REWARD_DAILY_LIMIT,remaining))
+        : AD_REWARD_DAILY_LIMIT,
+      amount:tapPower*AD_REWARD_TAP_EQUIVALENT
+    };
+  }
+  function renderShopReward(){
+    const {remaining,amount} = shopRewardState();
+    shopRewardAmount.textContent = '+' + fmt(amount);
+    shopRewardRemaining.textContent = String(remaining);
+    shopRewardWatch.disabled = !rewardPreview || saveRecoveryBlocked || remaining===0;
+    if(!rewardPreview) shopRewardWatch.textContent = '広告準備中';
+    else if(saveRecoveryBlocked) shopRewardWatch.textContent = 'セーブ保護中';
+    else shopRewardWatch.textContent = remaining===0 ? '本日分受取済み' : '視聴完了を試す';
+  }
+  shopRewardWatch.addEventListener('click',()=>{
+    if(!rewardPreview || saveRecoveryBlocked)return;
+    const {day,remaining,amount} = shopRewardState();
+    if(remaining===0){renderShopReward();return;}
+    const previousPt = pt;
+    const previousAd = gameSave.ad;
+    pt += amount;
+    gameSave.ad = {...previousAd,remaining:remaining-1,lastResetDate:day};
+    if(!saveUnified()){
+      pt = previousPt;
+      gameSave.points = previousPt;
+      gameSave.ad = previousAd;
+      showToast('確認用のPTを保存できませんでした');
+    }else{
+      showToast(`確認用 +${fmt(amount)} PT`);
+    }
+    renderShop();
+  });
+  document.addEventListener('visibilitychange',()=>{
+    if(!document.hidden && shopScreen.classList.contains('active'))renderShopReward();
+  });
   function renderShop(){
     document.getElementById('shopPT').textContent=fmt(pt);
     document.getElementById('shopKeys').textContent=fmt(gameSave.keys||0);
@@ -783,6 +839,7 @@
     if(saveRecoveryBlocked) notice.textContent='セーブ保護中のため購入できません';
     else if(pt<KEY_PRICE) notice.textContent=`購入まであと ${fmt(KEY_PRICE-pt)} PT 必要`;
     else notice.textContent='購入するとPTが減り、鍵が1個増えます';
+    renderShopReward();
   }
   function buyLimitKey(){
     if(saveRecoveryBlocked){showToast('セーブ保護中のため購入できません');renderShop();return false;}
