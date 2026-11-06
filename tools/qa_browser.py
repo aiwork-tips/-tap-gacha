@@ -234,6 +234,9 @@ with sync_playwright() as pw:
             actions.bottom <= nav.top;
         }"""))
     check('roster shards awarded',sum(int(c.get('shards',0)) for c in after['characters'].values())>0)
+    check('RC19 newly summoned characters start with a level 100 cap',after['characters'] and all(
+        r.get('cap')==100 and r.get('trainingCapStep')==100 for r in after['characters'].values() if r['owned']
+    ))
     page.locator('[data-gacha-nav="図鑑"]').click()
     acquired={cid:record for cid,record in after['characters'].items() if record.get('owned')}
     page.locator('[data-dex-filter="owned"]').click()
@@ -333,9 +336,9 @@ with sync_playwright() as pw:
       const s=JSON.parse(localStorage.getItem('tapgacha_save_v3'));
       s.characters.c001={owned:true,level:1,cap:50,shards:5000};
       s.characters.c002={owned:true,level:30,cap:50,shards:14};
-      s.characters.c003={owned:true,level:100,cap:100,shards:1351};
+      s.characters.c003={owned:true,level:100,cap:100,shards:1351,keysUsed:1};
       s.characters.c004={owned:true,level:151,cap:151,shards:0};
-      s.characters.c005={owned:true,level:150,cap:150,shards:700};
+      s.characters.c005={owned:true,level:150,cap:150,shards:1536,keysUsed:3};
       s.characters.c006={owned:true,level:1,cap:50,shards:2};
       s.characters.c007={owned:false,shards:0};
       s.keys=2;s.points=12450;
@@ -347,14 +350,19 @@ with sync_playwright() as pw:
     training.locator('#characterGrid [data-character-id="c001"]').click(force=True)
     tstate=lambda:training.evaluate("JSON.parse(localStorage.getItem('tapgacha_save_v3'))")
     tile_status=lambda cid:training.locator(f'#characterGrid [data-character-id="{cid}"] small')
-    check('RC18 cards show the right training states and visible marks',
+    migrated=tstate()
+    check('RC19 migration preserves prior unlock stages, levels, shards and keys',
+          migrated['characters']['c001']['cap']==100
+          and migrated['characters']['c003']==dict(owned=True,level=100,cap=200,shards=1351,keysUsed=1,trainingCapStep=100)
+          and migrated['characters']['c005']==dict(owned=True,level=150,cap=300,shards=1536,keysUsed=3,trainingCapStep=100)
+          and migrated['points']==12450 and migrated['keys']==2)
+    check('RC19 cards show migrated training states and visible marks',
           tile_status('c001').get_attribute('data-training-state')=='ready'
           and '↑' in tile_status('c001').inner_text()
-          and tile_status('c003').get_attribute('data-training-state')=='capped'
-          and tile_status('c003').locator('svg').count()==1
+          and tile_status('c003').get_attribute('data-training-state')=='ready'
           and tile_status('c004').get_attribute('data-training-state')=='max'
           and tile_status('c004').inner_text()=='MAX'
-          and tile_status('c005').get_attribute('data-training-state')=='capped'
+          and tile_status('c005').get_attribute('data-training-state')=='ready'
           and tile_status('c006').get_attribute('data-training-state')=='short'
           and tile_status('c007').inner_text()=='未所持')
     one=training.locator('#charLevelUp')
@@ -381,21 +389,24 @@ with sync_playwright() as pw:
     }"""))
     before_max=tstate()
     check('RC18 bulk button shows levels and exact shard cost before tapping',
-          bulk.locator('.char-button-ink').inner_text()=='まとめて＋48'
-          and bulk.locator('.char-action-note').inner_text()=='欠片 279')
+          bulk.locator('.char-button-ink').inner_text()=='まとめて＋98'
+          and bulk.locator('.char-action-note').inner_text()=='欠片 815')
     bulk.click()
     after_max=tstate()
     check('RC18 one tap of bulk stops at the current cap and updates the card',
-          after_max['characters']['c001']['level']==50 and one.is_disabled() and bulk.is_disabled()
-          and tile_status('c001').get_attribute('data-training-state')=='capped')
+          after_max['characters']['c001']['level']==100 and one.is_disabled() and bulk.is_disabled()
+          and tile_status('c001').get_attribute('data-training-state')=='capped'
+          and tile_status('c001').locator('svg').count()==1)
     check('RC18 bulk charges the previewed cost and counts the earned levels',
-          after_max['characters']['c001']['shards']==before_max['characters']['c001']['shards']-279
-          and after_max['stats']['levelUps']==before_max['stats']['levelUps']+48)
-    check('MAX does not auto unlock cap or consume keys',after_max['characters']['c001']['cap']==50 and after_max['keys']==before_max['keys'])
+          after_max['characters']['c001']['shards']==before_max['characters']['c001']['shards']-815
+          and after_max['stats']['levelUps']==before_max['stats']['levelUps']+98)
+    check('RC19 training reaches level 100 without using keys',after_max['characters']['c001']['cap']==100 and after_max['keys']==before_max['keys'])
     check('RC09 cap badge appears at the current cap',training.locator('#charCapBadge').is_visible())
     keys_before=tstate()['keys']
     training.locator('#charLimitBreak').click(force=True)
-    check('cap unlock reaches 100 and consumes one key',tstate()['characters']['c001']['cap']==100 and tstate()['keys']==keys_before-1)
+    check('RC19 cap unlock reaches 200 and consumes one key',
+          tstate()['characters']['c001']['cap']==200 and tstate()['keys']==keys_before-1
+          and tstate()['characters']['c001']['keysUsed']==1)
     check('RC18 unlocking makes the card immediately trainable',tile_status('c001').get_attribute('data-training-state')=='ready')
     box=one.bounding_box()
     assert box is not None
@@ -403,15 +414,17 @@ with sync_playwright() as pw:
     training.mouse.down()
     try:
         training.wait_for_function("""() =>
-          JSON.parse(localStorage.getItem('tapgacha_save_v3')).characters.c001.level >= 53
+          JSON.parse(localStorage.getItem('tapgacha_save_v3')).characters.c001.level >= 103
         """, polling=100, timeout=3500)
     finally:
         training.mouse.up()
-    check('RC18 holding the +1 button repeatedly trains',tstate()['characters']['c001']['level']>=53)
+    check('RC18 holding the +1 button repeatedly trains',tstate()['characters']['c001']['level']>=103)
     check('training updates saved tap power',tstate()['tapPower']>=2)
     levels_before=tstate()['characters']['c001']['level']
     training.reload(wait_until='load')
-    check('trained level survives reload',tstate()['characters']['c001']['level']==levels_before)
+    check('RC19 trained level survives reload without migrating the caps again',
+          tstate()['characters']['c001']['level']==levels_before and tstate()['characters']['c001']['cap']==200
+          and tstate()['characters']['c005']['cap']==300)
     training.locator('[data-home-go="character"]').click(force=True)
     training.locator('#characterGrid [data-character-id="c001"]').click(force=True)
     check('trained character detail visible after reload',training.locator('#characterScreen.active').count()==1 and 'Lv' in training.locator('#selectedLevel').inner_text())
@@ -436,18 +449,44 @@ with sync_playwright() as pw:
           and bulk.locator('.char-action-note').inner_text()=='欠片 13')
     bulk.click()
     trained=tstate()['characters']['c002']
-    check('RC18 bulk stops at shard shortage and updates the card',trained['level']==32 and trained['cap']==50
+    check('RC18 bulk stops at shard shortage and updates the card',trained['level']==32 and trained['cap']==100
           and trained['shards']==1 and one.is_disabled() and bulk.is_disabled()
           and tile_status('c002').get_attribute('data-training-state')=='short')
+    training.locator('#characterGrid [data-character-id="c005"]').click()
+    check('RC19 the migrated level 150 character previews 128 levels for 1536 shards',
+          training.locator('#selectedLevel').inner_text()=='Lv 150 / 300'
+          and bulk.locator('.char-button-ink').inner_text()=='まとめて＋128'
+          and bulk.locator('.char-action-note').inner_text()=='欠片 1,536')
     training.locator('#characterGrid [data-character-id="c003"]').click()
+    bulk.click()
+    check('RC19 a previously unlocked character can train to its migrated cap',
+          tstate()['characters']['c003']['level']==200 and tstate()['characters']['c003']['shards']==151)
     unlock_note=training.locator('#charLimitBreak .char-action-note')
     check('RC13 cap notice shows the exact key shortage',tstate()['keys']==1 and training.locator('#charLimitBreak').is_disabled()
           and unlock_note.inner_text()=='鍵 1 / 2（あと1個）')
     training.locator('#charBuyKey').click()
     check('RC13 buying the missing key refreshes the unlock action',tstate()['keys']==2 and training.locator('#charLimitBreak').is_enabled()
           and unlock_note.inner_text()=='（鍵 2個）')
+    before_unlock=tstate()
+    training.evaluate("""() => {
+      const setItem=Storage.prototype.setItem;
+      Storage.prototype.setItem=function(key,value){
+        if(this===localStorage && key==='tapgacha_save_v3'){
+          Storage.prototype.setItem=setItem;
+          throw new Error('Simulated storage write failure');
+        }
+        return setItem.call(this,key,value);
+      };
+    }""")
     training.locator('#charLimitBreak').click()
-    check('RC13 the newly enabled unlock action saves cap and key use',tstate()['characters']['c003']['cap']==150 and tstate()['keys']==0)
+    check('RC19 a failed unlock rolls back the key debit and cap',tstate()==before_unlock
+          and training.locator('#charKeys').inner_text()=='2'
+          and training.locator('#selectedLevel').inner_text()=='Lv 200 / 200'
+          and training.locator('#charLimitBreak').is_enabled())
+    training.locator('#charLimitBreak').click()
+    check('RC19 the second unlock reaches 300 and consumes exactly two keys',
+          tstate()['characters']['c003']['cap']==300 and tstate()['characters']['c003']['keysUsed']==3
+          and tstate()['keys']==0)
     check('training no runtime errors',not errors)
     training.close()
     # Data safety: corrupted unified saves must never be overwritten.
@@ -472,7 +511,10 @@ with sync_playwright() as pw:
     old.add_init_script("""(() => {
       if(sessionStorage.getItem('__qa_legacy_seeded')) return;
       localStorage.setItem('tapgacha_pt','777');
-      localStorage.setItem('tapgacha_collection',JSON.stringify({c01:{owned:true,level:2,shards:15}}));
+      localStorage.setItem('tapgacha_collection',JSON.stringify({
+        c01:{owned:true,level:2,shards:15},
+        c02:{owned:true,level:150,cap:150,shards:100,keysUsed:3}
+      }));
       localStorage.setItem('gV2',JSON.stringify({pts:9999}));
       sessionStorage.setItem('__qa_legacy_seeded','1');
     })()""")
@@ -482,8 +524,18 @@ with sync_playwright() as pw:
     imported=old_page.evaluate("JSON.parse(localStorage.getItem('tapgacha_save_v3'))")
     check('legacy points preserve current-key priority',imported['points']==777)
     check('legacy character ID normalizes without losing levels',imported['characters']['c001']['level']==2 and imported['characters']['c001']['shards']==15)
+    check('RC19 imported legacy caps use the new scale including missing cap fields',
+          imported['characters']['c001']['cap']==100 and imported['characters']['c002']['cap']==300)
     old_page.reload(wait_until='load')
     check('legacy migration remains stable after reload',old_page.evaluate("JSON.parse(localStorage.getItem('tapgacha_save_v3')).points")==777)
+    old_page.add_init_script("""(() => {
+      if(sessionStorage.getItem('__qa_recover_mirror')) return;
+      sessionStorage.setItem('__qa_recover_mirror','1');
+      localStorage.removeItem('tapgacha_save_v3');
+    })()""")
+    old_page.reload(wait_until='load')
+    check('RC19 fallback from the mirrored collection does not double migrated caps',
+          old_page.evaluate("JSON.parse(localStorage.getItem('tapgacha_save_v3')).characters")==imported['characters'])
     old.close()
     check('new save safety checks produce no runtime exceptions',not errors)
     (ROOT/f'qa-results-{ENGINE}.json').write_text(json.dumps({'browser':ENGINE,'passed':len(passed),'checks':passed,'runtime_errors':errors,'broken_images':missing,'resource_failures':resource_failures},ensure_ascii=False,indent=2),encoding='utf-8')
