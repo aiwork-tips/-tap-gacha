@@ -504,7 +504,7 @@
   function showDexList(){
     dexDetailView.hidden = true;
     dexListView.hidden = false;
-    dexBack.textContent = '⌂ ホーム';
+    dexBack.textContent = 'ホーム';
   }
 
   function showDexDetail(character){
@@ -787,6 +787,7 @@
     shopNav.setAttribute('aria-label','ショップ下部メニュー');
     shopNav.querySelectorAll('[data-nav]').forEach(button=>{
       button.classList.remove('kit-selected');
+      button.removeAttribute('aria-current');
       button.addEventListener('click',()=>openSharedMenu(button.dataset.nav,' は準備中です'));
     });
     shopScreen.appendChild(shopNav);
@@ -872,6 +873,7 @@
     questNav.setAttribute('aria-label','依頼掲示板の下部メニュー');
     questNav.querySelectorAll('[data-nav]').forEach(button=>{
       button.classList.remove('kit-selected');
+      button.removeAttribute('aria-current');
       button.addEventListener('click',()=>openSharedMenu(button.dataset.nav,' は準備中です'));
     });
     questScreen.appendChild(questNav);

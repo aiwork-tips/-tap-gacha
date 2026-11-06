@@ -35,6 +35,32 @@ with sync_playwright() as pw:
         return page.evaluate("JSON.parse(localStorage.getItem('tapgacha_save_v3'))")
     check('home initializes',page.locator('#homeScreen.active').count()==1 and state()['schemaVersion']==3)
     check('seven screens',page.locator('section.screen').count()==7)
+    def nav_geometry():
+        return page.locator('.screen.active > .kit-shared-nav').evaluate('''nav => {
+          const rect = el => {
+            const {x, y, width, height} = el.getBoundingClientRect();
+            return [x, y, width, height];
+          };
+          return [rect(nav), ...Array.from(nav.querySelectorAll('button'), button => {
+            const image = button.querySelector('img');
+            return [rect(button), rect(image), image.getAttribute('src')];
+          })];
+        }''')
+    for width,height in ((320,568),(393,654),(430,844)):
+        page.set_viewport_size({'width':width,'height':height})
+        baseline=nav_geometry()
+        aligned=True
+        for name,screen in (('キャラ','character'),('ガチャ','gacha'),('図鑑','dex')):
+            page.locator(f'.screen.active > .kit-shared-nav [aria-label="{name}"]').click()
+            aligned=aligned and page.locator(f'#{screen}Screen.active').count()==1 and nav_geometry()==baseline
+        aligned=aligned and page.locator('#dexBack').inner_text()=='ホーム'
+        page.locator('#dexBack').click()
+        for screen in ('shop','quest'):
+            page.locator(f'[data-home-go="{screen}"]').click()
+            aligned=aligned and page.locator(f'#{screen}Screen.active').count()==1 and nav_geometry()==baseline
+            page.locator(f'#{screen}BackHome').click()
+        check(f'RC17 shared menus align on all six screens at {width}px',aligned)
+    page.set_viewport_size({'width':390,'height':844})
     page.wait_for_function("document.querySelector('#goTap .v117-plaque').naturalWidth > 0")
     check('RC11 awakening plaque and live label',page.locator('#goTap .v117-plaque').get_attribute('src').endswith('rc11-awakening.webp')
           and page.locator('#goTap .v117-copy strong').inner_text()=='覚醒核へ')

@@ -640,8 +640,6 @@
 #characterScreen.roster-expanded .char-scroll { padding-top: 5px !important; }
 
 #characterScreen .kit-shared-nav.character-bottom-nav {
-  height: 12.8% !important;
-  bottom: 1.1% !important;
   background: transparent !important;
   border: 0 !important;
   box-shadow: none !important;
