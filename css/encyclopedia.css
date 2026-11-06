@@ -3,6 +3,7 @@
   --dex-cream: #fff2ce;
   --dex-serif: Georgia, "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif CJK JP", serif;
   --dex-panel: linear-gradient(158deg, #133b65f5, #071b34f7 48%, #0b2543f7);
+  --dex-frame: url("../assets/dex-gold-frame.webp");
   overflow: hidden;
   background: #07172e;
   color: var(--dex-cream);
@@ -134,21 +135,39 @@
   gap: clamp(4px, 1.4vw, 8px);
 }
 
+.dex-card::after,
+.dex-profile::after,
+.dex-story::after {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  border: var(--dex-frame-width, 17px) solid transparent;
+  border-image: var(--dex-frame) 118 stretch;
+  pointer-events: none;
+}
+
 .dex-card {
   position: relative;
   display: grid;
   grid-template-rows: minmax(0, 1fr) auto;
   min-width: 0;
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 1 / 1.14;
   overflow: hidden;
   padding: 0;
-  border: 1px solid #d2ad69;
-  border-radius: 9px;
-  background: radial-gradient(ellipse at 50% 35%, #285384, #081b35 75%);
+  border: 0;
+  border-radius: 5px;
+  background: radial-gradient(ellipse at 50% 35%, #2d5683, #061528 77%);
   color: var(--dex-cream);
   text-align: center;
   font-family: inherit;
 }
+
+.dex-card.is-rare {
+  background: radial-gradient(ellipse at 50% 38%, #615186, #14233f 75%);
+}
+
+.dex-card.is-rare::after { filter: brightness(1.17) saturate(1.18); }
 
 .dex-card img,
 .dex-portrait img {
@@ -168,7 +187,7 @@
 
 .dex-card .dex-stars {
   position: absolute;
-  inset: 3px auto auto 4px;
+  inset: 8px auto auto 9px;
   z-index: 1;
   padding: 2px 4px;
   border-radius: 4px;
@@ -180,18 +199,16 @@
   display: grid;
   align-content: center;
   gap: 3px;
-  min-height: 2.9em;
-  padding: 4px 2px 5px;
-  border-top: 1px solid #d6b7784f;
-  background: linear-gradient(#122b4a, #071b33);
+  min-height: 2.25em;
+  padding: 4px 8px 6px;
+  background: linear-gradient(#18395d, #07172b);
   font-size: clamp(10px, 2.9vw, 15px);
   line-height: 1.12;
 }
 
 .dex-card-name { overflow-wrap: anywhere; }
-.dex-card-status { color: #f7deb0; font-variant-numeric: tabular-nums; }
-.dex-card.is-unowned { border-color: #8d805f; }
-.dex-card.is-unowned .dex-card-status { color: #bbcad9; }
+.dex-card-status { color: #bbcad9; font-size: .83em; }
+.dex-card.is-unowned::after { filter: saturate(.5) brightness(.78); }
 
 .dex-card.is-unowned img,
 .dex-profile.is-unowned .dex-portrait img {
@@ -209,45 +226,55 @@
 .dex-detail-view { padding: 1px 1px 5px; }
 
 .dex-profile {
-  display: grid;
-  grid-template-columns: minmax(0, .96fr) minmax(0, 1.04fr);
-  align-items: center;
-  gap: clamp(5px, 1.5vw, 9px);
-  min-height: clamp(164px, 34vh, 244px);
-  padding: clamp(5px, 1.6vw, 9px);
+  --dex-frame-width: 28px;
+  position: relative;
+  overflow: hidden;
+  border: 0;
+  border-radius: 6px;
+  background: radial-gradient(ellipse at 50% 40%, #26577de6, #081a31f5 76%);
+  box-shadow: 0 4px 12px #0008;
 }
 
 .dex-portrait {
-  align-self: stretch;
-  min-width: 0;
-  overflow: hidden;
-  border: 1px solid #dfbd77aa;
-  border-radius: 9px;
-  background: radial-gradient(ellipse at 48% 40%, #2e5e8e, #081b35 78%);
+  position: relative;
+  height: clamp(157px, 34vh, 248px);
+  padding: 8px 16px 0;
+  background: radial-gradient(ellipse at 50% 52%, #7fc1ed42, transparent 65%);
 }
 
-.dex-portrait img { object-fit: contain; }
+.dex-portrait img { object-fit: contain; object-position: center bottom; }
 
 .dex-profile-copy {
   display: grid;
-  gap: clamp(4px, 1vh, 9px);
+  justify-items: center;
+  gap: 4px;
   min-width: 0;
-  padding: 3px 2px;
+  padding: 8px 17px 14px;
+  text-align: center;
+  background: linear-gradient(#0c244700, #06172ff5 48%);
 }
 
 .dex-profile-meta {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 5px;
+  justify-content: center;
+  gap: 8px;
   color: #c7eaff;
   font-size: clamp(10px, 3vw, 14px);
+}
+
+#dexElement {
+  padding: 2px 9px;
+  border: 1px solid #d2ad695f;
+  border-radius: 20px;
+  background: #091d36c9;
 }
 
 .dex-profile h2 {
   margin: 0;
   color: var(--dex-cream);
-  font: 900 clamp(16px, 5vw, 24px) / 1.19 var(--dex-serif);
+  font: 900 clamp(20px, 6vw, 31px) / 1.18 var(--dex-serif);
   overflow-wrap: anywhere;
 }
 
@@ -259,43 +286,21 @@
   line-height: 1.45;
 }
 
-.dex-stats {
-  display: grid;
-  gap: 5px;
-  margin: 0;
-  border-top: 1px solid #d9b56d6e;
-  padding-top: 6px;
-}
-
-.dex-stats div {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 3px 5px;
-}
-
-.dex-stats dt {
-  color: #e6d9bd;
-  font-size: clamp(10px, 2.9vw, 14px);
-}
-
-.dex-stats dd {
-  margin: 0;
-  font: 800 clamp(12px, 3.7vw, 18px) / 1.2 var(--dex-serif);
-  font-variant-numeric: tabular-nums;
-  overflow-wrap: anywhere;
-}
-
 .dex-story {
-  margin-top: 6px;
-  padding: clamp(10px, 3vw, 17px);
+  --dex-frame-width: 22px;
+  position: relative;
+  margin-top: 8px;
+  padding: 14px clamp(14px, 4.2vw, 22px) 16px;
+  border: 0;
+  border-radius: 6px;
+  box-shadow: 0 3px 10px #0008;
 }
 
 .dex-story h3 {
   margin: 0 0 8px;
   padding-bottom: 5px;
   border-bottom: 1px solid #d9b56d6e;
+  text-align: center;
   color: var(--dex-cream);
   font: 850 clamp(15px, 4.5vw, 20px) / 1.2 var(--dex-serif);
 }
@@ -304,7 +309,8 @@
   margin: 0;
   color: #f8edda;
   font-size: clamp(13px, 3.8vw, 17px);
-  line-height: 1.75;
+  line-height: 1.7;
+  white-space: pre-line;
   overflow-wrap: anywhere;
 }
 
