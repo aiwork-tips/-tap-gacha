@@ -421,6 +421,9 @@
 #characterScreen .char-action:disabled .char-action-note {
   color: inherit;
 }
+#characterScreen #charLimitBreak .char-key-shortfall {
+  color: #ffe2a4;
+}
 
 #characterScreen .char-buy {
   --char-radius: 15px;
@@ -501,10 +504,20 @@
   color: inherit;
   font: 850 clamp(10px, 3.4vw, 17px) / 1.05 var(--char-serif);
 }
-#characterScreen .char-roster-toggle span:first-child {
+#characterScreen .char-roster-title {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
+}
+#characterScreen .char-roster-action {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 2px;
+  margin-inline-start: 2px;
+  color: #c6efff;
+  font-size: clamp(9px, 2.45vw, 12px);
   white-space: nowrap;
 }
 #characterScreen .char-roster-chevron { color: var(--char-ice); }

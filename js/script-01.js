@@ -530,8 +530,17 @@
     levelBtn.setAttribute('aria-label',plan.count?`タップで${plan.count}レベル上げる。欠片${plan.cost}個${holdHint}`:'レベルアップ不可');
     refreshTrainingQuantityButtons();
     const keysNeeded=limitBreakKeyCost(cap);
-    breakBtn.disabled=!owned||lv<cap||keysNeeded===0||Number(gameSave.keys||0)<keysNeeded;
-    breakBtn.querySelector('.char-action-note').textContent=keysNeeded?`（鍵 ${keysNeeded}個）`:'解放完了';
+    const heldKeys=Number(gameSave.keys||0);
+    const atCap=owned&&lv>=cap;
+    const keysShort=atCap&&heldKeys<keysNeeded;
+    breakBtn.disabled=!atCap||keysNeeded===0||keysShort;
+    const keyNote=breakBtn.querySelector('.char-action-note');
+    keyNote.classList.toggle('char-key-shortfall',keysShort);
+    if(keysShort){
+      keyNote.textContent=`鍵 ${fmt(heldKeys)} / ${fmt(keysNeeded)}（あと${fmt(keysNeeded-heldKeys)}個）`;
+    }else{
+      keyNote.textContent=keysNeeded?`（鍵 ${fmt(keysNeeded)}個）`:'解放完了';
+    }
     charEl('charBuyKey').disabled=pt<5000;
     const fbtn=charEl('charFavoriteButton');
     const isFav=owned && gameSave.favoriteCharacterId===c.id;

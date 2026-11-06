@@ -2750,11 +2750,22 @@ button{font:inherit;color:inherit}
   line-height:1!important;font-weight:400!important;
   text-shadow:0 1px 2px #00172c!important;
 }
+#homeScreen .kit-rank{
+  container-type:size;
+}
+/* Match the centered 492 × 303 artwork's contain fit and cover only the divider. */
 #homeScreen .kit-rank::after{
-  content:"";position:absolute;pointer-events:none;z-index:1;
-  left:55%;right:9%;top:59.5%;height:22%;border-radius:4px;
-  background:linear-gradient(180deg,#052747,#062443 70%,#062342 100%);
-  box-shadow:0 0 4px 2px rgba(5,30,57,.48);
+  --rank-art-width:min(100cqw, calc(100cqh * 492 / 303));
+  --rank-art-height:calc(var(--rank-art-width) * 303 / 492);
+  content:"";
+  position:absolute;
+  pointer-events:none;
+  z-index:1;
+  left:calc(50% + var(--rank-art-width) * .033);
+  top:calc(50% + var(--rank-art-height) * .057);
+  width:calc(var(--rank-art-width) * .38);
+  height:calc(var(--rank-art-height) * .125);
+  background:radial-gradient(ellipse closest-side, #04254d 87%, #04254d00);
 }
 #homeScreen .kit-rank-number{
   z-index:3!important;left:55%!important;right:9%!important;
@@ -2832,10 +2843,6 @@ button{font:inherit;color:inherit}
    Visual-only changes; RANK logic and existing save remain unmodified. */
 /* Make the future rank number area clearer without inventing a player rank.
    Current save has no established playerRank progression, so the honest dash remains. */
-#homeScreen .kit-rank::after{
-  left:52.5%!important;right:8.5%!important;
-  top:58%!important;height:27%!important;
-}
 #homeScreen .kit-rank-number{
   left:53%!important;right:8.5%!important;
   top:55.5%!important;height:29%!important;
