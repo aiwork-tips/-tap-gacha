@@ -307,18 +307,24 @@ with sync_playwright() as pw:
     page.set_viewport_size({'width':430,'height':932})
     page.screenshot(path=str(SHOTS/f'{ENGINE}-character-430.png'))
     check('430px no horizontal overflow',page.evaluate('document.documentElement.scrollWidth<=window.innerWidth+2'))
-    page.set_viewport_size({'width':393,'height':654})
-    check('RC09 two full roster rows fit above the iPhone navigation',page.evaluate("""() => {
-      const scroll = document.getElementById('charRosterScroll').getBoundingClientRect();
-      const tile = document.querySelectorAll('#characterGrid .char-tile')[9].getBoundingClientRect();
-      const nav = document.querySelector('#characterScreen .character-bottom-nav').getBoundingClientRect();
-      return tile.bottom <= scroll.bottom && scroll.bottom <= nav.top;
-    }"""))
+    for width,height in ((320,568),(390,636),(430,735),(393,654)):
+        page.set_viewport_size({'width':width,'height':height})
+        check(f'RC18 ten full roster cards fit in {width}x{height} without expanding',page.evaluate("""() => {
+          const roster = document.getElementById('charRosterScroll');
+          roster.scrollTop = 0;
+          const scroll = roster.getBoundingClientRect();
+          const tiles = Array.from(roster.querySelectorAll('.char-tile')).slice(0,10);
+          const nav = document.querySelector('#characterScreen .character-bottom-nav').getBoundingClientRect();
+          return tiles.length === 10 && tiles.every(tile => {
+            const rect = tile.getBoundingClientRect();
+            return rect.top >= scroll.top && rect.bottom <= scroll.bottom;
+          }) && scroll.bottom <= nav.top && document.getElementById('charRosterToggle').getAttribute('aria-pressed') === 'false';
+        }"""))
     page.screenshot(path=str(SHOTS/f'{ENGINE}-character-393x654.png'))
     check('all game asset responses are successful',not resource_failures)
     check('no JavaScript runtime errors',not errors)
 
-    # Isolated deterministic fixture: validate cap, MAX, repeated 10-level hold and save reload.
+    # Isolated deterministic fixture: validate direct training, status, caps and reload.
     training=context.new_page()
     training.on('pageerror',lambda err:errors.append('training: '+str(err)))
     training.goto(URL,wait_until='load',timeout=60000)
@@ -330,6 +336,10 @@ with sync_playwright() as pw:
       s.characters.c001={owned:true,level:1,cap:50,shards:5000};
       s.characters.c002={owned:true,level:30,cap:50,shards:14};
       s.characters.c003={owned:true,level:100,cap:100,shards:1351};
+      s.characters.c004={owned:true,level:151,cap:151,shards:0};
+      s.characters.c005={owned:true,level:150,cap:150,shards:700};
+      s.characters.c006={owned:true,level:1,cap:50,shards:2};
+      s.characters.c007={owned:false,shards:0};
       s.keys=2;s.points=12450;
       localStorage.setItem('tapgacha_save_v3',JSON.stringify(s));
       sessionStorage.setItem('__qa_training_fixture_applied','1');
@@ -337,10 +347,26 @@ with sync_playwright() as pw:
     training.reload(wait_until='load')
     training.locator('[data-home-go="character"]').click(force=True)
     training.locator('#characterGrid [data-character-id="c001"]').click(force=True)
-    training.locator('#charQuantity10').click(force=True)
-    training.locator('#charLevelUp').click(force=True)
     tstate=lambda:training.evaluate("JSON.parse(localStorage.getItem('tapgacha_save_v3'))")
-    check('10-level training batch',tstate()['characters']['c001']['level']==11)
+    tile_status=lambda cid:training.locator(f'#characterGrid [data-character-id="{cid}"] small')
+    check('RC18 cards show the right training states and visible marks',
+          tile_status('c001').get_attribute('data-training-state')=='ready'
+          and '↑' in tile_status('c001').inner_text()
+          and tile_status('c003').get_attribute('data-training-state')=='capped'
+          and tile_status('c003').locator('svg').count()==1
+          and tile_status('c004').get_attribute('data-training-state')=='max'
+          and tile_status('c004').inner_text()=='MAX'
+          and tile_status('c005').get_attribute('data-training-state')=='capped'
+          and tile_status('c006').get_attribute('data-training-state')=='short'
+          and tile_status('c007').inner_text()=='未所持')
+    one=training.locator('#charLevelUp')
+    bulk=training.locator('#charLevelUpMax')
+    start=tstate()
+    check('RC18 the direct single action shows its price before tapping',one.locator('.char-button-ink').inner_text()=='＋1'
+          and one.locator('.char-action-note').inner_text()=='欠片 3')
+    one.click()
+    check('RC18 one tap trains one level and saves the exact price',tstate()['characters']['c001']['level']==2
+          and tstate()['characters']['c001']['shards']==4997 and tstate()['stats']['levelUps']==start['stats'].get('levelUps',0)+1)
     trained_save=tstate()
     training.locator('[data-character-nav="図鑑"]').click()
     training.locator('#dexGrid [data-dex-id="c001"]').click()
@@ -356,34 +382,34 @@ with sync_playwright() as pw:
         document.getElementById('charTapPower').textContent === save.tapPower.toLocaleString('ja-JP');
     }"""))
     before_max=tstate()
-    training.locator('#charQuantityMax').click()
-    check('RC12 selecting MAX does not change the save',tstate()==before_max)
-    check('RC12 MAX is the only selected quantity',training.locator('.char-quantity-button[aria-pressed="true"]').count()==1
-          and training.locator('#charQuantityMax').get_attribute('aria-pressed')=='true'
-          and training.locator('#charQuantityMax').evaluate("button => button.classList.contains('is-selected')"))
-    check('RC12 MAX previews levels and shard cost',training.locator('#charLevelUp .char-action-note').inner_text()=='×39 ・ 欠片 252')
-    training.locator('#charLevelUp').click()
+    check('RC18 bulk button shows levels and exact shard cost before tapping',
+          bulk.locator('.char-button-ink').inner_text()=='まとめて＋48'
+          and bulk.locator('.char-action-note').inner_text()=='欠片 279')
+    bulk.click()
     after_max=tstate()
-    check('MAX stops at level cap 50',after_max['characters']['c001']['level']==50 and training.locator('#charLevelUp').is_disabled())
-    check('RC12 MAX charges only the previewed cost on level up',after_max['characters']['c001']['shards']==before_max['characters']['c001']['shards']-252
-          and after_max['stats']['levelUps']==before_max['stats']['levelUps']+39)
+    check('RC18 one tap of bulk stops at the current cap and updates the card',
+          after_max['characters']['c001']['level']==50 and one.is_disabled() and bulk.is_disabled()
+          and tile_status('c001').get_attribute('data-training-state')=='capped')
+    check('RC18 bulk charges the previewed cost and counts the earned levels',
+          after_max['characters']['c001']['shards']==before_max['characters']['c001']['shards']-279
+          and after_max['stats']['levelUps']==before_max['stats']['levelUps']+48)
     check('MAX does not auto unlock cap or consume keys',after_max['characters']['c001']['cap']==50 and after_max['keys']==before_max['keys'])
     check('RC09 cap badge appears at the current cap',training.locator('#charCapBadge').is_visible())
     keys_before=tstate()['keys']
     training.locator('#charLimitBreak').click(force=True)
     check('cap unlock reaches 100 and consumes one key',tstate()['characters']['c001']['cap']==100 and tstate()['keys']==keys_before-1)
-    training.locator('#charQuantity10').click()
-    box=training.locator('#charLevelUp').bounding_box()
+    check('RC18 unlocking makes the card immediately trainable',tile_status('c001').get_attribute('data-training-state')=='ready')
+    box=one.bounding_box()
     assert box is not None
     training.mouse.move(box['x']+box['width']/2,box['y']+box['height']/2)
     training.mouse.down()
     try:
         training.wait_for_function("""() =>
-          JSON.parse(localStorage.getItem('tapgacha_save_v3')).characters.c001.level > 60
+          JSON.parse(localStorage.getItem('tapgacha_save_v3')).characters.c001.level >= 53
         """, polling=100, timeout=3500)
     finally:
         training.mouse.up()
-    check('holding 10-level mode repeatedly trains',tstate()['characters']['c001']['level']>60)
+    check('RC18 holding the +1 button repeatedly trains',tstate()['characters']['c001']['level']>=53)
     check('training updates saved tap power',tstate()['tapPower']>=2)
     levels_before=tstate()['characters']['c001']['level']
     training.reload(wait_until='load')
@@ -391,14 +417,15 @@ with sync_playwright() as pw:
     training.locator('[data-home-go="character"]').click(force=True)
     training.locator('#characterGrid [data-character-id="c001"]').click(force=True)
     check('trained character detail visible after reload',training.locator('#characterScreen.active').count()==1 and 'Lv' in training.locator('#selectedLevel').inner_text())
-    check('RC09 gauge, quantity buttons and actions occupy separate rows', training.evaluate("""() => {
+    check('RC18 training buttons fit below the gauge and unlock sits with the keys', training.evaluate("""() => {
       const detail = document.getElementById('characterDetail');
       const gaugeBottom = detail.querySelector('.char-shard-track').getBoundingClientRect().bottom;
-      const actionsTop = detail.querySelector('.char-actions').getBoundingClientRect().top;
-      const buttons = [...detail.querySelectorAll('.char-quantity-button')];
-      return buttons.length === 3 && buttons.every(button => {
+      const detailBottom = detail.getBoundingClientRect().bottom;
+      const buttons = [...detail.querySelectorAll('.char-actions button')];
+      const keys = document.getElementById('charLimitBreak').closest('.char-buy');
+      return keys && buttons.length === 2 && buttons.every(button => {
         const bounds = button.getBoundingClientRect();
-        return bounds.height > 0 && bounds.top > gaugeBottom && bounds.bottom < actionsTop;
+        return bounds.height >= 36 && bounds.top > gaugeBottom && bounds.bottom <= detailBottom;
       });
     }"""))
     training.locator('#charFavoriteButton').click()
@@ -406,13 +433,14 @@ with sync_playwright() as pw:
     training.screenshot(path=str(SHOTS/f'{ENGINE}-character-trained-390.png'))
     training.locator('#characterGrid [data-character-id="c002"]').click()
     before_max=tstate()
-    training.locator('#charQuantityMax').click()
-    check('RC12 MAX previews the affordable levels below cap',tstate()==before_max
-          and training.locator('#charLevelUp .char-action-note').inner_text()=='×2 ・ 欠片 13')
-    training.locator('#charLevelUp').click()
+    check('RC18 bulk previews the affordable levels across a cost tier',tstate()==before_max
+          and bulk.locator('.char-button-ink').inner_text()=='まとめて＋2'
+          and bulk.locator('.char-action-note').inner_text()=='欠片 13')
+    bulk.click()
     trained=tstate()['characters']['c002']
-    check('RC12 MAX stops when the remaining shards cannot buy another level',trained['level']==32 and trained['cap']==50
-          and trained['shards']==1 and training.locator('#charLevelUp').is_disabled())
+    check('RC18 bulk stops at shard shortage and updates the card',trained['level']==32 and trained['cap']==50
+          and trained['shards']==1 and one.is_disabled() and bulk.is_disabled()
+          and tile_status('c002').get_attribute('data-training-state')=='short')
     training.locator('#characterGrid [data-character-id="c003"]').click()
     unlock_note=training.locator('#charLimitBreak .char-action-note')
     check('RC13 cap notice shows the exact key shortage',tstate()['keys']==1 and training.locator('#charLimitBreak').is_disabled()
