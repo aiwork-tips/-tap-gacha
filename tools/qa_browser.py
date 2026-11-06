@@ -34,7 +34,7 @@ with sync_playwright() as pw:
     def state():
         return page.evaluate("JSON.parse(localStorage.getItem('tapgacha_save_v3'))")
     check('home initializes',page.locator('#homeScreen.active').count()==1 and state()['schemaVersion']==3)
-    check('six screens',page.locator('section.screen').count()==6)
+    check('seven screens',page.locator('section.screen').count()==7)
     page.wait_for_function("document.querySelector('#goTap .v117-plaque').naturalWidth > 0")
     check('RC11 awakening plaque and live label',page.locator('#goTap .v117-plaque').get_attribute('src').endswith('rc11-awakening.webp')
           and page.locator('#goTap .v117-copy strong').inner_text()=='覚醒核へ')
@@ -104,10 +104,45 @@ with sync_playwright() as pw:
     page.locator('#charRosterFilter').select_option('all')
     page.locator('#charBackHome').click(force=True)
     page.screenshot(path=str(SHOTS/f'{ENGINE}-home-390.png'))
+    page.set_viewport_size({'width':393,'height':654})
+    dex_before=state()
+    page.locator('.kit-archive').click()
+    dex_cards=page.locator('#dexGrid .dex-card')
+    check('RC14 home archive opens all 15 entries',page.locator('#dexScreen.active').count()==1
+          and dex_cards.count()==15 and page.locator('#dexOwnedCount').inner_text()=='0 / 15')
+    page.locator('[data-dex-filter="owned"]').click()
+    check('RC14 owned filter has a clear empty state',dex_cards.count()==0 and page.locator('#dexEmpty').is_visible())
+    dex_unowned_filter=page.locator('[data-dex-filter="unowned"]')
+    dex_unowned_filter.click()
+    dex_scroll=page.locator('#dexList')
+    scroll_pos=dex_scroll.evaluate("""list => {
+      list.scrollTop=list.scrollHeight;
+      return list.scrollTop;
+    }""")
+    dex_cards.last.click()
+    check('RC14 unowned records show name and rarity without stats or lore',page.locator('#dexName').inner_text()=='白銀の聖騎士'
+          and page.locator('#dexRarity').inner_text()=='★★★' and page.locator('#dexUnowned').is_visible()
+          and not page.locator('#dexStats').is_visible()
+          and page.locator('#dexLore').inner_text()=='このキャラを召喚すると、記録が解放されます。')
+    page.locator('#dexBack').click()
+    check('RC14 returning from a record restores filter and scroll',dex_unowned_filter.get_attribute('aria-pressed')=='true'
+          and dex_cards.count()==15 and scroll_pos>0 and abs(dex_scroll.evaluate('list => list.scrollTop')-scroll_pos)<=1)
+    page.locator('[data-dex-filter="all"]').click()
+    page.locator('#dexBack').click()
+    page.locator('#homeScreen [data-nav="図鑑"]').click()
+    check('RC14 shared book tab opens the archive',page.locator('#dexScreen.active [aria-current="page"]').get_attribute('aria-label')=='図鑑')
+    page.wait_for_function("document.querySelector('#dexGrid img').naturalWidth > 0")
+    page.screenshot(path=str(SHOTS/f'{ENGINE}-archive-393.png'))
+    page.locator('#dexBack').click()
+    check('RC14 browsing the archive preserves the save',state()==dex_before)
+    page.set_viewport_size({'width':390,'height':844})
     before=state()
     page.locator('#goTap').click(force=True)
     check('tap navigation',page.locator('#tapScreen.active').count()==1)
     check('RC11 tap return label only shows the text',page.locator('#backHome text').text_content()=='ホームへ戻る')
+    check('RC14 TapPower label and value are separated',page.locator('#powerBox').evaluate("""value =>
+      value.getBoundingClientRect().top >= document.querySelector('.v15-top-label').getBoundingClientRect().bottom - 0.7
+    """))
     page.locator('#tapZone').click(force=True)
     after=state()
     check('tap PT saved',after['points']==before['points']+before['tapPower'])
@@ -167,6 +202,23 @@ with sync_playwright() as pw:
             actions.bottom <= nav.top;
         }"""))
     check('roster shards awarded',sum(int(c.get('shards',0)) for c in after['characters'].values())>0)
+    page.locator('[data-gacha-nav="図鑑"]').click()
+    acquired={cid:record for cid,record in after['characters'].items() if record.get('owned')}
+    page.locator('[data-dex-filter="owned"]').click()
+    check('RC14 new summons appear in the archive at 320px',page.locator('#dexScreen.active').count()==1
+          and page.locator('#dexOwnedCount').inner_text()==f'{len(acquired)} / 15' and dex_cards.count()==len(acquired)
+          and dex_scroll.evaluate('list => list.scrollWidth <= list.clientWidth'))
+    cid,record=next(iter(acquired.items()))
+    page.locator(f'#dexGrid [data-dex-id="{cid}"]').click()
+    check('RC14 acquired records show art, name and live stats',page.locator('#dexName').inner_text()==catalog[cid]['name']
+          and page.locator('#dexRarity').inner_text()=='★'*catalog[cid]['rarity']
+          and page.locator('#dexPortrait').get_attribute('src').startswith('assets/')
+          and page.locator('#dexLevel').inner_text()==f"Lv {record.get('level',1):,} / {record.get('cap',50):,}"
+          and page.locator('#dexShards').inner_text()==f"{record.get('shards',0):,}"
+          and page.locator('#dexLore').inner_text()!='このキャラを召喚すると、記録が解放されます。' and state()==after)
+    page.wait_for_function("document.querySelector('#dexPortrait').naturalWidth > 0")
+    page.screenshot(path=str(SHOTS/f'{ENGINE}-archive-record-320.png'))
+    page.locator('#dexScreen [data-nav="ガチャ"]').click()
     page.set_viewport_size({'width':390,'height':844})
     page.locator('#gachaBackHome').click(force=True)
     page.locator('[data-home-go="character"]').click(force=True)
@@ -254,6 +306,13 @@ with sync_playwright() as pw:
     training.locator('#charLevelUp').click(force=True)
     tstate=lambda:training.evaluate("JSON.parse(localStorage.getItem('tapgacha_save_v3'))")
     check('10-level training batch',tstate()['characters']['c001']['level']==11)
+    trained_save=tstate()
+    training.locator('[data-character-nav="図鑑"]').click()
+    training.locator('#dexGrid [data-dex-id="c001"]').click()
+    check('RC14 records reflect training and preserve the saved character',training.locator('#dexLevel').inner_text()=='Lv 11 / 50'
+          and training.locator('#dexShards').inner_text()==f"{trained_save['characters']['c001']['shards']:,}"
+          and tstate()==trained_save)
+    training.locator('#dexScreen [data-nav="キャラ"]').click()
     check('RC11 the image-framed stats remain live after training',training.evaluate("""() => {
       const save = JSON.parse(localStorage.getItem('tapgacha_save_v3'));
       const owned = Object.values(save.characters).filter(character => character.owned);

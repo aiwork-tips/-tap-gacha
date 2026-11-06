@@ -4,6 +4,7 @@
   const tap = document.getElementById('tapScreen');
   const gacha = document.getElementById('gachaScreen');
   const characterScreen = document.getElementById('characterScreen');
+  const dexScreen = document.getElementById('dexScreen');
   const shopScreen = document.getElementById('shopScreen');
   const toast = document.getElementById('toast');
   const tapZone = document.getElementById('tapZone');
@@ -465,6 +466,96 @@
     renderCharacters();
     charEl('charRosterScroll').scrollTop=0;
   }));
+
+  const dexEl = id => document.getElementById(id);
+  const dexListView = dexEl('dexListView');
+  const dexList = dexEl('dexList');
+  const dexGrid = dexEl('dexGrid');
+  const dexDetailView = dexEl('dexDetailView');
+  const dexBack = dexEl('dexBack');
+  const dexFilterButtons = [...dexScreen.querySelectorAll('[data-dex-filter]')];
+  let dexFilter = 'all';
+  let dexListScroll = 0;
+  let openedDexCard = null;
+
+  function renderDexList(){
+    const ownedCount = GACHA_CHARACTERS.filter(character => collection[character.id]?.owned).length;
+    dexEl('dexOwnedCount').textContent = `${ownedCount} / ${GACHA_CHARACTERS.length}`;
+    const visible = GACHA_CHARACTERS.filter(character => dexFilter === 'all' ||
+      Boolean(collection[character.id]?.owned) === (dexFilter === 'owned'));
+    dexGrid.innerHTML = visible.map(character => {
+      const record = collection[character.id];
+      const owned = Boolean(record?.owned);
+      const status = owned ? `Lv ${fmt(record.level || 1)}` : '未所持';
+      return `<button type="button" class="dex-card${owned ? '' : ' is-unowned'}" data-dex-id="${character.id}"
+          aria-label="${character.name}、レア度${character.rarity}、${status}">
+        <img loading="lazy" decoding="async" src="${character.image}" alt="">
+        <span class="dex-stars">${'★'.repeat(character.rarity)}</span>
+        <span class="dex-card-copy">
+          <strong class="dex-card-name">${character.name}</strong>
+          <span class="dex-card-status">${status}</span>
+        </span>
+      </button>`;
+    }).join('');
+    const empty = dexEl('dexEmpty');
+    empty.hidden = visible.length > 0;
+    empty.textContent = dexFilter === 'owned' ? '所持しているキャラはまだいません。' : 'すべてのキャラを所持しています。';
+  }
+
+  function showDexList(){
+    dexDetailView.hidden = true;
+    dexListView.hidden = false;
+    dexBack.textContent = '⌂ ホーム';
+  }
+
+  function showDexDetail(character){
+    const record = collection[character.id];
+    const owned = Boolean(record?.owned);
+    dexDetailView.querySelector('.dex-profile').classList.toggle('is-unowned', !owned);
+    dexEl('dexPortrait').src = character.image;
+    dexEl('dexRarity').textContent = '★'.repeat(character.rarity);
+    dexEl('dexName').textContent = character.name;
+    dexEl('dexElement').hidden = !owned;
+    dexEl('dexElement').textContent = owned ? character.element + '属性' : '';
+    dexEl('dexTagline').hidden = !owned;
+    dexEl('dexTagline').textContent = owned ? character.tagline : '';
+    dexEl('dexStats').hidden = !owned;
+    dexEl('dexLevel').textContent = owned ? `Lv ${fmt(record.level || 1)} / ${fmt(record.cap || 50)}` : '';
+    dexEl('dexShards').textContent = owned ? fmt(record.shards || 0) : '';
+    dexEl('dexUnowned').hidden = owned;
+    dexEl('dexLore').textContent = owned ? character.lore : 'このキャラを召喚すると、記録が解放されます。';
+    dexListView.hidden = true;
+    dexDetailView.hidden = false;
+    dexBack.textContent = '← 一覧へ';
+    dexDetailView.scrollTop = 0;
+    dexEl('dexName').focus({preventScroll:true});
+  }
+
+  dexFilterButtons.forEach(button => button.addEventListener('click', () => {
+    dexFilter = button.dataset.dexFilter;
+    dexFilterButtons.forEach(filter => filter.setAttribute('aria-pressed', String(filter === button)));
+    renderDexList();
+    dexList.scrollTop = 0;
+  }));
+  dexGrid.addEventListener('click', event => {
+    const card = event.target.closest('[data-dex-id]');
+    if(!card) return;
+    const character = GACHA_CHARACTERS.find(item => item.id === card.dataset.dexId);
+    if(!character) return;
+    openedDexCard = card;
+    dexListScroll = dexList.scrollTop;
+    showDexDetail(character);
+  });
+  dexBack.addEventListener('click', () => {
+    if(dexDetailView.hidden){
+      showScreen('home');
+      return;
+    }
+    showDexList();
+    dexList.scrollTop = dexListScroll;
+    openedDexCard?.focus({preventScroll:true});
+  });
+
   let trainingTapQuantity = 1;
   let trainingHoldActive = false;
   let trainingHoldCount = 0;
@@ -700,13 +791,7 @@
     shopNav.setAttribute('aria-label','ショップ下部メニュー');
     shopNav.querySelectorAll('[data-nav]').forEach(button=>{
       button.classList.remove('kit-selected');
-      button.addEventListener('click',()=>{
-        const name=button.dataset.nav;
-        if(name==='ホーム')showScreen('home');
-        else if(name==='キャラ')showScreen('character');
-        else if(name==='ガチャ')showScreen('gacha');
-        else showToast(name+' は準備中です');
-      });
+      button.addEventListener('click',()=>openSharedMenu(button.dataset.nav,' は準備中です'));
     });
     shopScreen.appendChild(shopNav);
   }
@@ -717,13 +802,9 @@
     const b=e.target.closest('[data-character-id]');if(!b)return;
     selectedCharId=b.dataset.characterId;renderCharacters();
   });
-  document.querySelectorAll('[data-character-nav]').forEach(btn=>btn.addEventListener('click',()=>{
-    const dest=btn.dataset.characterNav;
-    if(dest==='ホーム')showScreen('home');
-    else if(dest==='ガチャ')showScreen('gacha');
-    else if(dest==='キャラ')showScreen('character');
-    else showToast(`${dest} は次工程で接続`);
-  }));
+  document.querySelectorAll('[data-character-nav]').forEach(btn=>{
+    btn.addEventListener('click',()=>openSharedMenu(btn.dataset.characterNav));
+  });
 
 
   // --- Home favorite + dynamic HUD. Only owned characters can be favorites. ---
@@ -795,13 +876,7 @@
     questNav.setAttribute('aria-label','依頼掲示板の下部メニュー');
     questNav.querySelectorAll('[data-nav]').forEach(button=>{
       button.classList.remove('kit-selected');
-      button.addEventListener('click',()=>{
-        const target=button.dataset.nav;
-        if(target==='ホーム')showScreen('home');
-        else if(target==='キャラ')showScreen('character');
-        else if(target==='ガチャ')showScreen('gacha');
-        else showToast(target+' は準備中です');
-      });
+      button.addEventListener('click',()=>openSharedMenu(button.dataset.nav,' は準備中です'));
     });
     questScreen.appendChild(questNav);
   }
@@ -900,11 +975,19 @@
     questTab=button.dataset.questTab;document.getElementById('questList').scrollTop=0;renderQuest();
   }));
 
+  const sharedMenuRoutes = {'ホーム':'home', 'キャラ':'character', 'ガチャ':'gacha', '図鑑':'dex'};
+  function openSharedMenu(name, pendingSuffix = ' は次工程で接続'){
+    const target = sharedMenuRoutes[name];
+    if(target) showScreen(target);
+    else showToast(name + pendingSuffix);
+  }
+
   function showScreen(which){
     const toHome = which === 'home';
     const toTap = which === 'tap';
     const toGacha = which === 'gacha';
     const toCharacter = which === 'character';
+    const toDex = which === 'dex';
     const toShop = which === 'shop';
     const toQuest = which === 'quest';
 
@@ -912,6 +995,7 @@
     tap.classList.toggle('active',toTap);
     gacha.classList.toggle('active',toGacha);
     characterScreen.classList.toggle('active',toCharacter);
+    dexScreen.classList.toggle('active',toDex);
     shopScreen.classList.toggle('active',toShop);
     questScreen.classList.toggle('active',toQuest);
     if(!toQuest)closeQuestReward();
@@ -919,6 +1003,12 @@
     if(toQuest)renderQuest();
     if(toShop) renderShop();
     if(toCharacter) renderCharacters();
+    if(toDex){
+      showDexList();
+      renderDexList();
+      dexList.scrollTop = 0;
+      openedDexCard = null;
+    }
     if(toHome) refreshHome();
 
     if(toTap){
@@ -1224,26 +1314,14 @@
   const summonHit = document.querySelector('.home-hit.summon');
   if(summonHit) summonHit.addEventListener('click',()=>showScreen('gacha'));
 
-  document.querySelectorAll('.home-nav [data-nav]').forEach(btn=>{
-    btn.addEventListener('click',()=>{
-      const dest = btn.dataset.nav;
-      if(dest === 'ホーム') showScreen('home');
-      else if(dest === 'ガチャ') showScreen('gacha');
-      else if(dest === 'キャラ') showScreen('character');
-      else showToast(dest + ' は次工程で接続');
-    });
+  document.querySelectorAll('.home-nav [data-nav], .dex-bottom-nav [data-nav]').forEach(btn=>{
+    btn.addEventListener('click',()=>openSharedMenu(btn.dataset.nav));
   });
 
   document.getElementById('gachaBackHome').addEventListener('click',()=>showScreen('home'));
 
   document.querySelectorAll('[data-gacha-nav]').forEach(btn=>{
-    btn.addEventListener('click',()=>{
-      const dest = btn.dataset.gachaNav;
-      if(dest === 'ホーム') showScreen('home');
-      else if(dest === 'ガチャ') showScreen('gacha');
-      else if(dest === 'キャラ') showScreen('character');
-      else showToast(dest + ' は次工程で接続');
-    });
+    btn.addEventListener('click',()=>openSharedMenu(btn.dataset.gachaNav));
   });
 
   gachaDrawButtons.forEach(btn=>{

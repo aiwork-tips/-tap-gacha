@@ -7,7 +7,7 @@
 <meta content="#071827" name="theme-color"/>
 <meta content="yes" name="apple-mobile-web-app-capable"/>
 <meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
-<title>Ver.11.8 TRAIN-RC13 · タップ育成ガチャ -覚醒-</title>
+<title>Ver.11.8 DEX-RC14 · タップ育成ガチャ -覚醒-</title>
 <!-- Unified Save Rev.3: tapgacha_save_v3 / legacy gV2 preserved read-only -->
 <link rel="stylesheet" href="css/style-01.css">
 
@@ -56,7 +56,7 @@
   <button type="button" id="homeChangeFavorite" class="kit-favorite-switch" aria-label="キャラ画面でお気に入りを変更"><img alt="" src="assets/4605aef87d4a48450ca4.webp"></button>
   <button type="button" aria-label="召喚門・ガチャ" class="kit-facility kit-summon" data-home-go="gacha"><img alt="" draggable="false" src="assets/939543436d8829b3b8b9.webp"></button>
   <button type="button" aria-label="育成祭壇・キャラ育成" class="kit-facility kit-training" data-home-go="character"><img alt="" draggable="false" src="assets/080c7d241104b2224ba2.webp"></button>
-  <button type="button" aria-label="記録書庫・図鑑" class="kit-facility kit-archive" data-home-planned="図鑑"><img alt="" draggable="false" src="assets/8491a7369a1a2f8e5fc8.webp"></button>
+  <button type="button" aria-label="記録書庫・図鑑" class="kit-facility kit-archive" data-home-go="dex"><img alt="" draggable="false" src="assets/8491a7369a1a2f8e5fc8.webp"></button>
   <button type="button" aria-label="晶貨交換所・ショップ" class="kit-facility kit-exchange" data-home-go="shop"><img alt="" draggable="false" src="assets/29b931e459b063cbfd2e.webp"></button>
   <button type="button" aria-label="依頼掲示板・ミッション" class="kit-facility kit-mission" data-home-go="quest"><img alt="" draggable="false" src="assets/479c6919cdaed61b7f96.webp"></button>
   <button type="button" aria-label="贈物の宝箱・プレゼント" class="kit-facility kit-gift" data-home-planned="贈物の宝箱"><img alt="" draggable="false" src="assets/fc29c8c5fe7ce26964b6.webp"></button>
@@ -77,7 +77,7 @@
 <text class="v15-label v15-home-label" x="190" y="108">ホームへ戻る</text>
 </g>
 <text class="v15-label v15-top-label" x="500" y="85">TapPower · 1 TAP</text>
-<text class="v15-number v15-power-number" id="powerBox" x="500" y="124"><tspan id="tapPower">25</tspan><tspan> PT</tspan></text>
+<text class="v15-number v15-power-number" id="powerBox" x="500" y="133"><tspan id="tapPower">25</tspan><tspan> PT</tspan></text>
 <text class="v15-label v15-wallet-label" x="856" y="73">所持PT</text>
 <text class="v15-number v15-wallet-number" id="livePT" x="856" y="104">12,450</text>
 <text class="v15-label v15-key-label" x="820" y="147">🔑</text>
@@ -310,6 +310,58 @@
 
 
 
+<section class="screen" id="dexScreen" aria-labelledby="dexTitle">
+  <img class="dex-backdrop" src="assets/dex-archive.webp" alt="" decoding="async">
+  <div class="dex-content">
+    <header class="dex-header">
+      <button type="button" class="dex-back" id="dexBack">⌂ ホーム</button>
+      <h1 id="dexTitle">記録書庫</h1>
+      <div class="dex-count"><span>収集</span><strong id="dexOwnedCount">0 / 15</strong></div>
+    </header>
+
+    <div class="dex-list-view" id="dexListView">
+      <div class="dex-filters" role="group" aria-label="所持状況で絞り込む">
+        <button type="button" data-dex-filter="all" aria-pressed="true">すべて</button>
+        <button type="button" data-dex-filter="owned" aria-pressed="false">所持</button>
+        <button type="button" data-dex-filter="unowned" aria-pressed="false">未所持</button>
+      </div>
+      <div class="dex-list dex-panel" id="dexList" tabindex="0" role="region" aria-label="キャラ一覧・縦スクロール">
+        <div class="dex-grid" id="dexGrid"></div>
+        <p class="dex-empty" id="dexEmpty" role="status" hidden></p>
+      </div>
+    </div>
+
+    <div class="dex-detail-view" id="dexDetailView" tabindex="0" role="region" aria-label="キャラ詳細・縦スクロール" hidden>
+      <article class="dex-profile dex-panel" aria-labelledby="dexName">
+        <div class="dex-portrait"><img id="dexPortrait" alt="" decoding="async"></div>
+        <div class="dex-profile-copy">
+          <div class="dex-profile-meta"><span class="dex-stars" id="dexRarity"></span><span id="dexElement" hidden></span></div>
+          <h2 id="dexName" tabindex="-1"></h2>
+          <p class="dex-tagline" id="dexTagline"></p>
+          <dl class="dex-stats" id="dexStats" hidden>
+            <div><dt>レベル</dt><dd id="dexLevel"></dd></div>
+            <div><dt>欠片</dt><dd id="dexShards"></dd></div>
+          </dl>
+          <p class="dex-unowned" id="dexUnowned" hidden>未所持</p>
+        </div>
+      </article>
+      <section class="dex-story dex-panel" aria-labelledby="dexStoryTitle">
+        <h3 id="dexStoryTitle">キャラ設定</h3>
+        <p id="dexLore"></p>
+      </section>
+    </div>
+  </div>
+
+  <nav class="dex-bottom-nav kit-shared-nav" aria-label="共通メニュー">
+    <img class="kit-nav-plate" draggable="false" alt="" src="assets/ed176f03ac36291e8af3.webp">
+    <button type="button" aria-label="ホーム" data-nav="ホーム" class="kit-nav-item"><img alt="" draggable="false" src="assets/ef9974387a6a32635375.webp"></button>
+    <button type="button" aria-label="キャラ" data-nav="キャラ" class="kit-nav-item"><img alt="" draggable="false" src="assets/1c1be698e50cc29d3ace.webp"></button>
+    <button type="button" aria-label="ガチャ" data-nav="ガチャ" class="kit-nav-item"><img alt="" draggable="false" src="assets/cb710db0ad7af546ba02.webp"></button>
+    <button type="button" aria-label="図鑑" data-nav="図鑑" class="kit-nav-item kit-selected" aria-current="page"><img alt="" draggable="false" src="assets/7440a0b3f308e7565643.webp"></button>
+    <button type="button" aria-label="その他" data-nav="その他" class="kit-nav-item"><img alt="" draggable="false" src="assets/d6ef01f5d4e112c2a3c7.webp"></button>
+  </nav>
+</section>
+
 <!-- SHOP-RC01: image-derived shop assets + reusable scrollable product cards. Gameplay state unchanged. -->
 <link rel="stylesheet" href="css/style-15.css">
 <link rel="stylesheet" href="css/style-16.css">
@@ -377,7 +429,7 @@
       <div class="shop-bridge"><button type="button" class="shop-to-character" id="shopGoCharacter">キャラ育成へ →</button></div>
       <div class="shop-future">現在購入できるのは「上限解放の鍵」のみです。<br>新アイテムの価格・効果は後日決定します。</div>
     </div>
-    <span class="shop-version">Ver.11.8 · TRAIN-RC13</span>
+    <span class="shop-version">Ver.11.8 · DEX-RC14</span>
   </div>
 </section>
 
@@ -387,7 +439,7 @@
 <section class="screen" id="questScreen" aria-label="依頼掲示板">
   <img id="questBackdrop" class="quest-backdrop" alt="" aria-hidden="true" />
   <div class="quest-scrim"></div>
-  <span class="quest-version">Ver.11.8 · TRAIN-RC13</span>
+  <span class="quest-version">Ver.11.8 · DEX-RC14</span>
   <div class="quest-shell">
     <header class="quest-top">
       <div class="quest-head"><button id="questBackHome" type="button" class="quest-home">⌂ ホーム</button><h1 class="quest-title">依頼掲示板</h1></div>
@@ -409,7 +461,7 @@
 </section>
 
 <div class="toast" id="toast"></div>
-<div id="devBuildLabel" aria-label="開発検証版 Ver.11.8 TRAIN-RC13">Ver.11.8 · TRAIN-RC13</div>
+<div id="devBuildLabel" aria-label="開発検証版 Ver.11.8 DEX-RC14">Ver.11.8 · DEX-RC14</div>
 </main>
 <script src="js/script-01.js"></script>
 
@@ -424,6 +476,7 @@
 <link rel="stylesheet" href="css/style-19.css">
 <link rel="stylesheet" href="css/style-20.css">
 <link rel="stylesheet" href="css/character-rc08.css">
+<link rel="stylesheet" href="css/encyclopedia.css">
 <script src="js/script-03.js"></script>
 
 <script src="js/script-04.js"></script>
