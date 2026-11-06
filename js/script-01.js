@@ -30,6 +30,8 @@
 
   const SAVE_KEY = 'tapgacha_save_v3';
   const SAVE_SCHEMA_VERSION = 3;
+  const TRAINING_CAP_STEP = 100;
+  const LEGACY_TRAINING_CAP_STEP = 50;
 
   function safeJsonParse(raw, fallback=null){
     try{
@@ -215,8 +217,23 @@
     return save;
   }
 
+  function migrateTrainingCaps(records){
+    for(const record of Object.values(records)){
+      if(record.trainingCapStep===TRAINING_CAP_STEP || (!record.owned && record.cap==null))continue;
+      const oldCap=Number(record.cap||LEGACY_TRAINING_CAP_STEP);
+      const newCap=(oldCap/LEGACY_TRAINING_CAP_STEP)*TRAINING_CAP_STEP;
+      if(Number.isSafeInteger(oldCap) && oldCap>=LEGACY_TRAINING_CAP_STEP &&
+         oldCap%LEGACY_TRAINING_CAP_STEP===0 && Number.isSafeInteger(newCap)){
+        record.cap=newCap;
+      }
+      // Persist the cap's units alongside it in both the main save and the legacy mirror.
+      record.trainingCapStep=TRAINING_CAP_STEP;
+    }
+  }
+
   let gameSave = buildUnifiedSave();
   let collection = normalizeRosterIds(gameSave.characters || {});
+  migrateTrainingCaps(collection);
   let tapPower = Math.max(1,Number(gameSave.tapPower || 25));
   let pt = Math.max(0,Number(gameSave.points ?? 12450));
 
@@ -400,7 +417,9 @@
 
 
   // ---------- Character training ----------
-  const limitBreakKeyCost = cap => Number.isSafeInteger(cap) && cap >= 50 && cap % 50 === 0 ? cap / 50 : 0;
+  const trainingCap = record => Number(record.cap||TRAINING_CAP_STEP);
+  const limitBreakKeyCost = cap => Number.isSafeInteger(cap) && cap>=TRAINING_CAP_STEP &&
+    cap%TRAINING_CAP_STEP===0 && Number.isSafeInteger(cap+TRAINING_CAP_STEP) ? cap/TRAINING_CAP_STEP : 0;
   const trainingStateLabels = {
     max:'育成完了', capped:'上限解放待ち', ready:'レベルアップ可',
     short:'欠片不足', protected:'セーブ保護中', locked:'未所持'
@@ -417,7 +436,7 @@
   function currentRecord(id){
     const rec = collection[id] || {owned:false,shards:0};
     if(rec.owned && !Number.isFinite(Number(rec.level))) rec.level=1;
-    if(rec.owned && !Number.isFinite(Number(rec.cap))) rec.cap=50;
+    if(rec.owned && !Number.isFinite(Number(rec.cap))) rec.cap=TRAINING_CAP_STEP;
     return rec;
   }
   function totalLevels(){
@@ -441,7 +460,7 @@
   }
   function trainingState(rec){
     if(!rec.owned)return 'locked';
-    const cap=Number(rec.cap||50);
+    const cap=trainingCap(rec);
     if(Number(rec.level||1)>=cap)return limitBreakKeyCost(cap)?'capped':'max';
     if(saveRecoveryBlocked)return 'protected';
     return trainingPlan(rec,1).count?'ready':'short';
@@ -577,7 +596,7 @@
   function trainingPlan(rec,limit){
     if(!rec || !rec.owned)return {count:0,cost:0};
     const start=Math.max(1,Math.floor(Number(rec.level||1)));
-    const cap=Math.max(start,Math.floor(Number(rec.cap||50)));
+    const cap=Math.max(start,Math.floor(trainingCap(rec)));
     let available=Math.max(0,Math.floor(Number(rec.shards||0)));
     let cost=0,count=0;
     while(count<limit && start+count<cap){
@@ -604,7 +623,7 @@
     const c=GACHA_CHARACTERS.find(x=>x.id===selectedCharId) || GACHA_CHARACTERS[0];
     const rec=currentRecord(c.id),owned=!!rec.owned;
     const lv=owned?Math.max(1,Number(rec.level||1)):0;
-    const cap=Number(rec.cap||50);
+    const cap=trainingCap(rec);
     const shards=Math.max(0,Number(rec.shards||0));
     const need=levelCost(lv);
     charEl('selectedPortrait').src=c.image;
@@ -650,7 +669,7 @@
     const lv=Math.floor(Number(rec.level||1));
     const plan=trainingPlan(rec,target);
     if(!plan.count){
-      if(!quiet)showToast(lv>=Number(rec.cap||50)?'先に上限解放が必要':'欠片が足りません');
+      if(!quiet)showToast(lv>=trainingCap(rec)?'先に上限解放が必要':'欠片が足りません');
       return 0;
     }
     ensureQuestState();
@@ -730,15 +749,25 @@
     if(saveRecoveryBlocked){showToast('セーブ保護中です');return;}
     const rec=currentRecord(selectedCharId);
     if(!rec.owned)return;
-    const cap=Number(rec.cap||50);
+    const cap=trainingCap(rec);
     const needed=limitBreakKeyCost(cap);
     if(!needed||Number(rec.level||1)<cap){showToast('上限に到達していません');return;}
-    if(Number(gameSave.keys||0)<needed){showToast('鍵が足りません');return;}
-    gameSave.keys-=needed;rec.cap=cap+50;
-    rec.keysUsed=Number(rec.keysUsed||0)+needed;
-    collection[selectedCharId]=rec;
-    keysEl.textContent=fmt(gameSave.keys);saveUnified();renderCharacters();
-    showToast(`レベル上限 ${rec.cap} 解放！`);
+    const previousKeys=Number(gameSave.keys||0);
+    if(previousKeys<needed){showToast('鍵が足りません');return;}
+    const nextCap=cap+TRAINING_CAP_STEP;
+    gameSave.keys=previousKeys-needed;
+    collection[selectedCharId]={...rec,cap:nextCap,keysUsed:Number(rec.keysUsed||0)+needed};
+    if(!saveUnified()){
+      collection[selectedCharId]=rec;
+      gameSave.characters=normalizeRosterIds(collection);
+      gameSave.keys=previousKeys;
+      renderCharacters();
+      showToast('保存できないため上限解放を中止しました');
+      return;
+    }
+    keysEl.textContent=fmt(gameSave.keys);
+    renderCharacters();
+    showToast(`レベル上限 ${nextCap} 解放！`);
   }
   charEl('charBackHome').addEventListener('click',()=>showScreen('home'));
   charEl('charLimitBreak').addEventListener('click',limitBreakCharacter);
@@ -1173,7 +1202,10 @@
       const priorCount = Math.max(0, Number(prev.count || (prev.owned ? 1 : 0)));
       const nextCount = priorCount + 1;
       const nextShards = Math.max(0, Number(prev.shards || 0)) + (isNew ? 0 : 1);
-      collection[c.id] = {...prev, owned:true, count:nextCount, shards:nextShards};
+      collection[c.id] = {
+        cap:TRAINING_CAP_STEP, ...prev, owned:true, count:nextCount, shards:nextShards,
+        trainingCapStep:TRAINING_CAP_STEP
+      };
       results.push({...c, isNew, shardGain:isNew ? 0 : 1,
         ownedCount:nextCount, shardTotal:nextShards});
     });
