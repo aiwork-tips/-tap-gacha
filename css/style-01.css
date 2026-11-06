@@ -866,8 +866,8 @@ button{font:inherit;color:inherit}
   paint-order:stroke fill;stroke:rgba(0,0,0,.52);stroke-width:2px;stroke-linejoin:round;
 }
 .v15-home-label{font-size:25px}
-.v15-top-label{font-size:25px}
-.v15-power-number{font-size:46px}
+.v15-top-label{font-size:25px;dominant-baseline:alphabetic}
+.v15-power-number{font-size:46px;dominant-baseline:alphabetic}
 .v15-wallet-label{font-size:24px}
 .v15-wallet-number{font-size:38px}
 .v15-key-label{font-size:26px}
