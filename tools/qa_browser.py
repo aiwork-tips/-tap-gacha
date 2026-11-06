@@ -341,6 +341,7 @@ with sync_playwright() as pw:
       s.characters.c005={owned:true,level:150,cap:150,shards:1536,keysUsed:3};
       s.characters.c006={owned:true,level:1,cap:50,shards:2};
       s.characters.c007={owned:false,shards:0};
+      s.characters.c008={owned:true,level:300,cap:300,shards:0,keysUsed:3,trainingCapStep:100};
       s.keys=2;s.points=12450;
       localStorage.setItem('tapgacha_save_v3',JSON.stringify(s));
       sessionStorage.setItem('__qa_training_fixture_applied','1');
@@ -487,6 +488,11 @@ with sync_playwright() as pw:
     check('RC19 the second unlock reaches 300 and consumes exactly two keys',
           tstate()['characters']['c003']['cap']==300 and tstate()['characters']['c003']['keysUsed']==3
           and tstate()['keys']==0)
+    training.locator('#characterGrid [data-character-id="c008"]').click()
+    check('RC19 the level 300 cap still offers another unlock for three keys',
+          training.locator('#selectedLevel').inner_text()=='Lv 300 / 300'
+          and tile_status('c008').get_attribute('data-training-state')=='capped'
+          and unlock_note.inner_text()=='鍵 0 / 3（あと3個）')
     check('training no runtime errors',not errors)
     training.close()
     # Data safety: corrupted unified saves must never be overwritten.
