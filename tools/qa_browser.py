@@ -45,6 +45,17 @@ with sync_playwright() as pw:
         Math.abs(bounds.height / scene.height - .121) < .003 &&
         Math.abs(bounds.left + bounds.width / 2 - (scene.left + scene.width / 2)) < 1;
     }"""))
+    check('RC13 RANK divider cover stays clear of the gold rim',page.locator('.kit-rank').evaluate("""rank => {
+      const art = rank.querySelector('.kit-hud-art');
+      const scale = Math.min(art.clientWidth / art.naturalWidth, art.clientHeight / art.naturalHeight);
+      const artTop = (art.clientHeight - art.naturalHeight * scale) / 2;
+      const cover = getComputedStyle(rank, '::after');
+      const top = parseFloat(cover.top);
+      const bottom = top + parseFloat(cover.height);
+      return cover.backgroundImage.includes('radial-gradient') && cover.boxShadow === 'none' &&
+        top < artTop + 187 * scale && bottom > artTop + 187 * scale &&
+        bottom < artTop + 240 * scale;
+    }"""))
     # Verify the picture frames and live controls in the rendered layout.
     page.locator('[data-home-go="character"]').click(force=True)
     page.wait_for_function("""() => document.querySelector('#characterScreen .character-background').naturalWidth > 0""")
@@ -162,9 +173,15 @@ with sync_playwright() as pw:
     check('character navigation',page.locator('#characterScreen.active').count()==1)
     page.screenshot(path=str(SHOTS/f'{ENGINE}-character-390.png'))
     page.locator('#charRosterToggle').click(force=True)
-    check('roster expanded',page.locator('#charRosterToggle').get_attribute('aria-pressed')=='true')
+    check('roster expanded with visible collapse label',page.locator('#charRosterToggle').get_attribute('aria-pressed')=='true'
+          and page.locator('.char-roster-action-text').inner_text()=='縮める')
     page.locator('#charRosterToggle').click(force=True)
-    check('roster collapsed',page.locator('#charRosterToggle').get_attribute('aria-pressed')=='false')
+    check('roster collapsed with visible expand label',page.locator('#charRosterToggle').get_attribute('aria-pressed')=='false'
+          and page.locator('.char-roster-action-text').inner_text()=='広げる')
+    page.locator('#charRosterToggle').click()
+    page.locator('#characterGrid [data-character-id="c001"]').click()
+    check('RC13 choosing a card restores the expand label',page.locator('#charRosterToggle').get_attribute('aria-pressed')=='false'
+          and page.locator('.char-roster-action-text').inner_text()=='広げる')
     check('15 character tiles',page.locator('#characterGrid [data-character-id]').count()==15)
     before=state()
     page.locator('#charRosterSort').select_option('rarity')
@@ -225,7 +242,8 @@ with sync_playwright() as pw:
       const s=JSON.parse(localStorage.getItem('tapgacha_save_v3'));
       s.characters.c001={owned:true,level:1,cap:50,shards:5000};
       s.characters.c002={owned:true,level:30,cap:50,shards:14};
-      s.keys=3;s.points=12450;
+      s.characters.c003={owned:true,level:100,cap:100,shards:1351};
+      s.keys=2;s.points=12450;
       localStorage.setItem('tapgacha_save_v3',JSON.stringify(s));
       sessionStorage.setItem('__qa_training_fixture_applied','1');
     })()""")
@@ -256,7 +274,7 @@ with sync_playwright() as pw:
     check('MAX stops at level cap 50',after_max['characters']['c001']['level']==50 and training.locator('#charLevelUp').is_disabled())
     check('RC12 MAX charges only the previewed cost on level up',after_max['characters']['c001']['shards']==before_max['characters']['c001']['shards']-252
           and after_max['stats']['levelUps']==before_max['stats']['levelUps']+39)
-    check('MAX does not auto unlock cap or consume keys',tstate()['characters']['c001']['cap']==50 and tstate()['keys']==3)
+    check('MAX does not auto unlock cap or consume keys',after_max['characters']['c001']['cap']==50 and after_max['keys']==before_max['keys'])
     check('RC09 cap badge appears at the current cap',training.locator('#charCapBadge').is_visible())
     keys_before=tstate()['keys']
     training.locator('#charLimitBreak').click(force=True)
@@ -302,6 +320,15 @@ with sync_playwright() as pw:
     trained=tstate()['characters']['c002']
     check('RC12 MAX stops when the remaining shards cannot buy another level',trained['level']==32 and trained['cap']==50
           and trained['shards']==1 and training.locator('#charLevelUp').is_disabled())
+    training.locator('#characterGrid [data-character-id="c003"]').click()
+    unlock_note=training.locator('#charLimitBreak .char-action-note')
+    check('RC13 cap notice shows the exact key shortage',tstate()['keys']==1 and training.locator('#charLimitBreak').is_disabled()
+          and unlock_note.inner_text()=='鍵 1 / 2（あと1個）')
+    training.locator('#charBuyKey').click()
+    check('RC13 buying the missing key refreshes the unlock action',tstate()['keys']==2 and training.locator('#charLimitBreak').is_enabled()
+          and unlock_note.inner_text()=='（鍵 2個）')
+    training.locator('#charLimitBreak').click()
+    check('RC13 the newly enabled unlock action saves cap and key use',tstate()['characters']['c003']['cap']==150 and tstate()['keys']==0)
     check('training no runtime errors',not errors)
     training.close()
     # Data safety: corrupted unified saves must never be overwritten.
