@@ -786,6 +786,7 @@
   const shopRewardAmount = document.getElementById('shopRewardAmount');
   const shopRewardRemaining = document.getElementById('shopRewardRemaining');
   const shopRewardWatch = document.getElementById('shopRewardWatch');
+  let shopRewardResetTimer;
   document.getElementById('shopRewardPreviewLabel').hidden = !rewardPreview;
 
   function shopRewardState(){
@@ -800,13 +801,19 @@
     };
   }
   function renderShopReward(){
-    const {remaining,amount} = shopRewardState();
+    const {day,remaining,amount} = shopRewardState();
     shopRewardAmount.textContent = '+' + fmt(amount);
     shopRewardRemaining.textContent = String(remaining);
     shopRewardWatch.disabled = !rewardPreview || saveRecoveryBlocked || remaining===0;
     if(!rewardPreview) shopRewardWatch.textContent = '広告準備中';
     else if(saveRecoveryBlocked) shopRewardWatch.textContent = 'セーブ保護中';
     else shopRewardWatch.textContent = remaining===0 ? '本日分受取済み' : '視聴完了を試す';
+
+    clearTimeout(shopRewardResetTimer);
+    if(remaining < AD_REWARD_DAILY_LIMIT && !document.hidden && shopScreen.classList.contains('active')){
+      const nextReset = Date.parse(`${day}T00:00:00+09:00`) + 24*60*60*1000;
+      shopRewardResetTimer = setTimeout(renderShopReward,Math.max(1,nextReset-Date.now()));
+    }
   }
   shopRewardWatch.addEventListener('click',()=>{
     if(!rewardPreview || saveRecoveryBlocked)return;
@@ -827,7 +834,8 @@
     renderShop();
   });
   document.addEventListener('visibilitychange',()=>{
-    if(!document.hidden && shopScreen.classList.contains('active'))renderShopReward();
+    if(document.hidden)clearTimeout(shopRewardResetTimer);
+    else if(shopScreen.classList.contains('active'))renderShopReward();
   });
   function renderShop(){
     document.getElementById('shopPT').textContent=fmt(pt);
@@ -1100,6 +1108,7 @@
     document.getElementById('devBuildLabel').style.display=toQuest?'none':'';
     if(toQuest)renderQuest();
     if(toShop) renderShop();
+    else clearTimeout(shopRewardResetTimer);
     if(toCharacter) renderCharacters();
     if(toDex){
       showDexList();
