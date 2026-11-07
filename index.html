@@ -7,7 +7,7 @@
 <meta content="#071827" name="theme-color"/>
 <meta content="yes" name="apple-mobile-web-app-capable"/>
 <meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
-<title>Ver.11.8 REWARD-RC21 · タップ育成ガチャ -覚醒-</title>
+<title>Ver.11.8 GIFT-RC22 · タップ育成ガチャ -覚醒-</title>
 <!-- Unified Save Rev.3: tapgacha_save_v3 / legacy gV2 preserved read-only -->
 <link rel="stylesheet" href="css/style-01.css">
 
@@ -59,7 +59,7 @@
   <button type="button" aria-label="記録書庫・図鑑" class="kit-facility kit-archive" data-home-go="dex"><img alt="" draggable="false" src="assets/8491a7369a1a2f8e5fc8.webp"></button>
   <button type="button" aria-label="晶貨交換所・ショップ" class="kit-facility kit-exchange" data-home-go="shop"><img alt="" draggable="false" src="assets/29b931e459b063cbfd2e.webp"></button>
   <button type="button" aria-label="依頼掲示板・ミッション" class="kit-facility kit-mission" data-home-go="quest"><img alt="" draggable="false" src="assets/479c6919cdaed61b7f96.webp"></button>
-  <button type="button" aria-label="贈物の宝箱・プレゼント" class="kit-facility kit-gift" data-home-planned="贈物の宝箱"><img alt="" draggable="false" src="assets/fc29c8c5fe7ce26964b6.webp"></button>
+  <button type="button" id="loginGiftEntry" aria-label="贈物の宝箱・プレゼント" class="kit-facility kit-gift"><img alt="" draggable="false" src="assets/fc29c8c5fe7ce26964b6.webp"><span id="loginGiftBadge" hidden>受取可</span></button>
   <button id="goTap" type="button" class="kit-awakening" aria-label="覚醒核へ タップでPTを獲得"><img class="v117-plaque" alt="" src="assets/rc11-awakening.webp"><span class="v117-copy"><strong>覚醒核へ</strong><small>タップでPTを獲得</small></span></button>
   <nav class="home-nav kit-shared-nav" aria-label="共通メニュー"><img class="kit-nav-plate" draggable="false" alt="" src="assets/ed176f03ac36291e8af3.webp"><button type="button" aria-label="ホーム" data-nav="ホーム" class="kit-nav-item kit-selected" aria-current="page"><img alt="" draggable="false" src="assets/ef9974387a6a32635375.webp"></button><button type="button" aria-label="キャラ" data-nav="キャラ" class="kit-nav-item "><img alt="" draggable="false" src="assets/1c1be698e50cc29d3ace.webp"></button><button type="button" aria-label="ガチャ" data-nav="ガチャ" class="kit-nav-item "><img alt="" draggable="false" src="assets/cb710db0ad7af546ba02.webp"></button><button type="button" aria-label="図鑑" data-nav="図鑑" class="kit-nav-item "><img alt="" draggable="false" src="assets/7440a0b3f308e7565643.webp"></button><button type="button" aria-label="その他" data-nav="その他" class="kit-nav-item "><img alt="" draggable="false" src="assets/d6ef01f5d4e112c2a3c7.webp"></button></nav>
 </section>
@@ -429,7 +429,7 @@
       <div class="shop-bridge"><button type="button" class="shop-to-character" id="shopGoCharacter">キャラ育成へ →</button></div>
       <div class="shop-future">現在購入できるのは「上限解放の鍵」のみです。<br>新アイテムの価格・効果は後日決定します。</div>
     </div>
-    <span class="shop-version">Ver.11.8 · REWARD-RC21</span>
+    <span class="shop-version">Ver.11.8 · GIFT-RC22</span>
   </div>
 </section>
 
@@ -439,7 +439,7 @@
 <section class="screen" id="questScreen" aria-label="依頼掲示板">
   <img id="questBackdrop" class="quest-backdrop" alt="" aria-hidden="true" />
   <div class="quest-scrim"></div>
-  <span class="quest-version">Ver.11.8 · REWARD-RC21</span>
+  <span class="quest-version">Ver.11.8 · GIFT-RC22</span>
   <div class="quest-shell">
     <header class="quest-top">
       <div class="quest-head"><button id="questBackHome" type="button" class="quest-home">⌂ ホーム</button><h1 class="quest-title">依頼掲示板</h1></div>
@@ -460,8 +460,37 @@
   </div>
 </section>
 
+<dialog id="loginGiftDialog" aria-labelledby="loginGiftTitle" aria-describedby="loginGiftRenewal">
+  <button class="login-gift-close" type="button" id="loginGiftClose" aria-label="贈物の宝箱を閉じる" autofocus>×</button>
+  <header class="login-gift-heading">
+    <h2 id="loginGiftTitle">贈物の宝箱</h2>
+    <p>ログインボーナス</p>
+  </header>
+  <div class="login-gift-stage" id="loginGiftStage">
+    <div class="login-gift-chest">
+      <img id="loginGiftChestClosed" src="assets/97a7ece2caef59c4ed39.webp" alt="" draggable="false">
+      <img id="loginGiftChestOpen" src="assets/d67b34888dc054fbafc0.webp" alt="" draggable="false" hidden>
+    </div>
+    <div class="login-gift-today" aria-live="polite">
+      <span id="loginGiftMessage">今日の贈り物</span>
+      <strong id="loginGiftAmount"></strong>
+    </div>
+  </div>
+  <p class="login-gift-progress"><span>受取済み</span><strong><span id="loginGiftCount">0</span> <small>/ 7回</small></strong></p>
+  <ol class="login-gift-calendar" id="loginGiftCalendar" aria-label="7回分のログイン報酬">
+    <li class="login-gift-milestone">
+      <span>7回目</span>
+      <img src="assets/97ef2de12f25b2d73f7b.webp" alt="" draggable="false">
+      <strong>上限解放の鍵 <span id="loginGiftKeyAmount"></span></strong>
+      <span class="login-gift-day-state"></span>
+    </li>
+  </ol>
+  <button type="button" id="loginGiftClaim" disabled>宝箱を開ける</button>
+  <p id="loginGiftRenewal">毎日0時（日本時間）に更新</p>
+</dialog>
+
 <div class="toast" id="toast"></div>
-<div id="devBuildLabel" aria-label="開発検証版 Ver.11.8 REWARD-RC21">Ver.11.8 · REWARD-RC21</div>
+<div id="devBuildLabel" aria-label="開発検証版 Ver.11.8 GIFT-RC22">Ver.11.8 · GIFT-RC22</div>
 </main>
 <script src="js/script-01.js"></script>
 
@@ -478,6 +507,7 @@
 <link rel="stylesheet" href="css/character-rc08.css">
 <link rel="stylesheet" href="css/encyclopedia.css">
 <link rel="stylesheet" href="css/shop-reward.css">
+<link rel="stylesheet" href="css/login-gift.css">
 <script src="js/script-03.js"></script>
 
 <script src="js/script-04.js"></script>
