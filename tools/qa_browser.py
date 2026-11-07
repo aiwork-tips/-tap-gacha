@@ -565,7 +565,7 @@ with sync_playwright() as pw:
     })()""")
     reward = preview.new_page()
     reward.on('pageerror',lambda err:errors.append('reward: '+str(err)))
-    reward.clock.set_fixed_time(datetime(2026,11,7,14,59,tzinfo=timezone.utc))
+    reward.clock.install(time=datetime(2026,11,7,13,0,tzinfo=timezone.utc))
     reward.goto(URL + '?reward-preview=1',wait_until='load')
     live_before = reward.evaluate("Object.entries(localStorage).sort()")
     reward.locator('[data-home-go="shop"]').click()
@@ -575,6 +575,8 @@ with sync_playwright() as pw:
     check('RC20 reward preview uses current save and TapPower',button.is_enabled()
           and remaining.inner_text()=='3' and wallet.inner_text()=='4,100'
           and reward.locator('#shopRewardAmount').inner_text()=='+2,050')
+    check('RC21 displayed reward is identified as a per-view amount',
+          reward.locator('.shop-reward-amount').inner_text()=='1回 +2,050 PT')
     for width,height in ((320,568),(393,654),(390,844),(430,932)):
         reward.set_viewport_size({'width':width,'height':height})
         check(f'RC20 reward artwork and readable controls fit at {width}x{height}',reward.evaluate(r"""async () => {
@@ -627,10 +629,15 @@ with sync_playwright() as pw:
     reward.reload(wait_until='load')
     reward.locator('[data-home-go="shop"]').click()
     check('RC20 exhausted counter persists across reload',button.is_disabled() and remaining.inner_text()=='0')
-    reward.clock.set_fixed_time(datetime(2026,11,7,15,0,tzinfo=timezone.utc))
-    reward.locator('#shopBackHome').click()
-    reward.locator('[data-home-go="shop"]').click()
-    check('RC20 daily counter recovers at JST midnight',button.is_enabled() and remaining.inner_text()=='3')
+    exhausted = rstate()
+    reward.clock.pause_at(datetime(2026,11,7,14,59,59,999000,tzinfo=timezone.utc))
+    check('RC21 exhausted counter stays disabled until JST midnight',
+          button.is_disabled() and remaining.inner_text()=='0')
+    reward.clock.run_for(1)
+    check('RC21 open shop recovers automatically at JST midnight',
+          reward.locator('#shopScreen.active').count()==1 and button.is_enabled()
+          and remaining.inner_text()=='3' and rstate()==exhausted)
+    reward.clock.resume()
     button.click()
     check('RC20 next day awards once and records the reset date',rstate()['points']==12300
           and rstate()['ad']['lastResetDate']=='2026-11-08' and remaining.inner_text()=='2')
