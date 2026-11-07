@@ -35,6 +35,10 @@ with sync_playwright() as pw:
     def state():
         return page.evaluate("JSON.parse(localStorage.getItem('tapgacha_save_v3'))")
     check('home initializes',page.locator('#homeScreen.active').count()==1 and state()['schemaVersion']==3)
+    page.locator('#loginGiftEntry').click()
+    check('RC22 login gift test is isolated from the normal game',
+          page.locator('#loginGiftDialog').is_hidden() and page.locator('#loginGiftBadge').is_hidden()
+          and 'loginGift' not in state())
     check('seven screens',page.locator('section.screen').count()==7)
     def nav_geometry():
         return page.locator('.screen.active > .kit-shared-nav').evaluate('''nav => {
@@ -641,7 +645,120 @@ with sync_playwright() as pw:
     button.click()
     check('RC20 next day awards once and records the reset date',rstate()['points']==12300
           and rstate()['ad']['lastResetDate']=='2026-11-08' and remaining.inner_text()=='2')
-    check('RC20 preview leaves all live save keys byte-for-byte unchanged',
+    reward.locator('#shopBackHome').click()
+    entry = reward.locator('#loginGiftEntry')
+    gift = reward.locator('#loginGiftDialog')
+    claim = reward.locator('#loginGiftClaim')
+    close = reward.locator('#loginGiftClose')
+    gift_count = reward.locator('#loginGiftCount')
+    gift_amount = reward.locator('#loginGiftAmount')
+    check('RC22 home shows a claim badge on an unclaimed day',reward.locator('#loginGiftBadge').is_visible())
+    entry.click()
+    check('RC22 gift entry opens a modal with the first reward and the seven-step calendar',
+          gift.is_visible() and claim.is_enabled() and gift_amount.inner_text()=='100 PT'
+          and gift.locator('#loginGiftCalendar li').count()==7 and gift_count.inner_text()=='0')
+    for width,height in ((320,568),(390,844),(393,654),(430,932)):
+        reward.set_viewport_size({'width':width,'height':height})
+        check(f'RC22 gift art and interactive controls fit at {width}x{height}',reward.evaluate(r"""async () => {
+          const gift = document.querySelector('#loginGiftDialog');
+          const titleRange = document.createRange();
+          titleRange.selectNodeContents(document.querySelector('#loginGiftTitle'));
+          const title = titleRange.getBoundingClientRect();
+          const close = document.querySelector('#loginGiftClose').getBoundingClientRect();
+          const claim = document.querySelector('#loginGiftClaim').getBoundingClientRect();
+          const foot = document.querySelector('#loginGiftRenewal').getBoundingClientRect();
+          const milestone = document.querySelector('.login-gift-milestone');
+          const bounds = gift.getBoundingClientRect();
+          const artworks = await Promise.all([gift, milestone, document.querySelector('#loginGiftClaim')].map(async el => {
+            const src = getComputedStyle(el).backgroundImage.match(/^url\(["']?(.+?)["']?\)$/)?.[1];
+            if(!src)return false;
+            const art = new Image();
+            art.src=src;
+            await art.decode().catch(()=>{});
+            return art.naturalWidth>0;
+          }));
+          return gift.matches(':modal') && artworks.every(Boolean)
+            && bounds.left>=0 && bounds.right<=innerWidth && bounds.top>=0 && bounds.bottom<=innerHeight
+            && gift.scrollHeight<=gift.clientHeight+1 && gift.scrollWidth<=gift.clientWidth+1
+            && title.right<=close.left && title.top-bounds.top>=bounds.height*.15
+            && claim.height>=44 && foot.bottom<bounds.bottom && close.height>=44;
+        }"""))
+        if width in (320,390):
+            reward.screenshot(path=str(SHOTS/f'{ENGINE}-login-gift-{width}x{height}.png'))
+    before_gift = rstate()
+    reward.evaluate("""() => {
+      const setItem=Storage.prototype.setItem;
+      Storage.prototype.setItem=function(key,value){
+        if(this===sessionStorage && key==='tapgacha_reward_rc20_preview'){
+          Storage.prototype.setItem=setItem;
+          throw new Error('Simulated gift save failure');
+        }
+        return setItem.call(this,key,value);
+      };
+    }""")
+    claim.click()
+    check('RC22 failed gift write rolls back PT, key balance and receipt',
+          rstate()==before_gift and gift_count.inner_text()=='0' and claim.is_enabled()
+          and reward.locator('#loginGiftChestClosed').is_visible()
+          and reward.locator('#loginGiftMessage').inner_text()=='保存できませんでした')
+    claim.click()
+    check('RC22 first claim opens the chest and updates the home PT by exactly 100',
+          rstate()['points']==before_gift['points']+100 and rstate()['keys']==before_gift['keys']
+          and rstate()['loginGift']=={'claims':1,'lastClaimDate':'2026-11-08'}
+          and claim.is_disabled() and gift_count.inner_text()=='1'
+          and reward.locator('#loginGiftChestOpen').is_visible()
+          and reward.locator('#homePT').inner_text()==f"{before_gift['points']+100:,}")
+    reward.locator('#loginGiftClaim').dispatch_event('click')
+    check('RC22 repeated claim on the same day cannot change the saved balance',
+          rstate()['points']==before_gift['points']+100 and rstate()['loginGift']['claims']==1)
+    close.click()
+    check('RC22 close returns to the home screen and removes the claim badge',
+          gift.is_hidden() and reward.locator('#homeScreen.active').count()==1
+          and reward.locator('#loginGiftBadge').is_hidden())
+    reward.reload(wait_until='load')
+    entry.click()
+    check('RC22 claimed state survives reload and reopening the gift modal',
+          claim.is_disabled() and gift_count.inner_text()=='1'
+          and reward.locator('#loginGiftChestOpen').is_visible())
+    reward.clock.pause_at(datetime(2026,11,8,14,59,59,999000,tzinfo=timezone.utc))
+    check('RC22 open gift stays claimed until JST midnight',claim.is_disabled())
+    reward.clock.run_for(1)
+    check('RC22 open gift advances automatically to the next reward at JST midnight',
+          gift.is_visible() and claim.is_enabled() and gift_amount.inner_text()=='150 PT'
+          and gift_count.inner_text()=='1' and rstate()['loginGift']['claims']==1)
+    reward.clock.resume()
+    reward.clock.fast_forward(3*86_400_000)
+    claim.click()
+    check('RC22 skipped days preserve gift progress',
+          rstate()['loginGift']=={'claims':2,'lastClaimDate':'2026-11-12'}
+          and rstate()['points']==before_gift['points']+250)
+    for amount,step in ((200,3),(250,4),(300,5),(500,6)):
+        reward.clock.fast_forward(86_400_000)
+        previous = rstate()
+        assert gift_amount.inner_text()==f'{amount} PT'
+        claim.click()
+        check(f'RC22 gift {step} adds exactly {amount} PT',
+              rstate()['points']==previous['points']+amount and rstate()['loginGift']['claims']==step)
+    reward.clock.fast_forward(86_400_000)
+    reward.set_viewport_size({'width':320,'height':568})
+    check('RC22 seventh gift displays a highlighted key milestone and stays fully visible',
+          gift_amount.inner_text()=='上限解放の鍵 ×1'
+          and gift.locator('.login-gift-milestone').get_attribute('aria-current')=='step'
+          and gift.evaluate('el => el.scrollHeight <= el.clientHeight+1'))
+    reward.screenshot(path=str(SHOTS/f'{ENGINE}-login-gift-key-320.png'))
+    claim.click()
+    check('RC22 seventh gift adds exactly one key and completes the cycle',
+          rstate()['keys']==before_gift['keys']+1 and rstate()['points']==before_gift['points']+1500
+          and rstate()['loginGift']['claims']==7 and gift_count.inner_text()=='7' and claim.is_disabled()
+          and reward.locator('#homeKeys').inner_text()==str(before_gift['keys']+1))
+    reward.clock.fast_forward(86_400_000)
+    check('RC22 next cycle starts from the first gift after the seventh day',
+          claim.is_enabled() and gift_count.inner_text()=='0' and gift_amount.inner_text()=='100 PT')
+    claim.click()
+    check('RC22 next cycle saves the first receipt without duplicating the key',
+          rstate()['loginGift']['claims']==1 and rstate()['keys']==before_gift['keys']+1
+          and rstate()['points']==before_gift['points']+1600)
+    check('RC22 preview gifts leave all live save keys byte-for-byte unchanged',
           reward.evaluate("Object.entries(localStorage).sort()")==live_before)
     preview.close()
     check('new save safety checks produce no runtime exceptions',not errors)

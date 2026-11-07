@@ -1,0 +1,257 @@
+#loginGiftBadge {
+  position: absolute;
+  z-index: 2;
+  top: 1%;
+  right: 3%;
+  border: 1px solid #ffe3a3;
+  border-radius: 10px;
+  padding: 2px 7px;
+  background: linear-gradient(#53360f, #231805);
+  color: #fff4cb;
+  box-shadow: 0 0 8px #ffc7619c;
+  font: 750 10px/1.3 system-ui, sans-serif;
+  pointer-events: none;
+}
+#loginGiftBadge[hidden], #loginGiftDialog [hidden] { display: none !important; }
+
+#loginGiftDialog {
+  --gift-top: 93px;
+  --gift-foot: 44px;
+  --gift-chest-size: clamp(112px, 32vw, 133px);
+  --gift-day-size: 53px;
+  box-sizing: border-box;
+  width: min(390px, calc(100% - 18px));
+  max-width: none;
+  max-height: calc(100dvh - 18px);
+  margin: auto;
+  border: 0;
+  padding: var(--gift-top) clamp(16px, 5.2vw, 22px) var(--gift-foot);
+  overflow: auto;
+  overscroll-behavior: contain;
+  background: url('../assets/rc22-gift-frame.webp') center / 100% 100% no-repeat;
+  color: #ffedc4;
+  font-family: 'Yu Mincho', 'Hiragino Mincho ProN', serif;
+  line-height: 1.2;
+  text-align: center;
+  text-shadow: 0 2px 2px #060c25;
+  filter: drop-shadow(0 9px 26px #02091acc);
+}
+#loginGiftDialog::backdrop { background: #040b1dc2; }
+#loginGiftDialog h2, #loginGiftDialog p, #loginGiftDialog ol { margin: 0; }
+
+#loginGiftClose {
+  position: absolute;
+  top: calc(var(--gift-top) - 10px);
+  right: clamp(11px, 4vw, 16px);
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #ffe3a4;
+  font: 400 27px/1 system-ui, sans-serif;
+  text-shadow: 0 1px 4px #060b20;
+}
+#loginGiftDialog button:focus-visible {
+  outline: 2px solid #cde9ff;
+  outline-offset: -2px;
+  border-radius: 8px;
+}
+#loginGiftDialog .login-gift-heading {
+  margin: 0 26px;
+}
+#loginGiftDialog .login-gift-heading h2 {
+  font-size: clamp(21px, 6.6vw, 29px);
+  line-height: 1.12;
+  letter-spacing: .09em;
+  color: #fff0c9;
+  text-shadow: 0 2px #080b29, 0 0 11px #438ee782;
+}
+#loginGiftDialog .login-gift-heading p {
+  margin-top: 4px;
+  color: #c8defa;
+  font: 650 12px/1.2 system-ui, sans-serif;
+  letter-spacing: .075em;
+}
+
+#loginGiftDialog .login-gift-stage {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: clamp(5px, 3vw, 13px);
+  min-height: var(--gift-chest-size);
+  margin-top: 3px;
+  background:
+    radial-gradient(ellipse at 28% 77%, #ffd07053, transparent 47%),
+    radial-gradient(ellipse at 34% 49%, #647cd35e, transparent 65%);
+}
+#loginGiftDialog .login-gift-stage::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 12% 24%, #fff4c3 0 1px, transparent 3px),
+    radial-gradient(circle at 39% 15%, #fff8e0 0 1px, transparent 3px),
+    radial-gradient(circle at 51% 52%, #fff8dd 0 1px, transparent 3px),
+    radial-gradient(ellipse at 30% 55%, #fff9cfdd, #ffd46078 29%, transparent 66%);
+}
+#loginGiftDialog .login-gift-stage.is-opening::before {
+  animation: loginGiftLight .82s ease-out;
+}
+@keyframes loginGiftLight {
+  0% { opacity: .15; transform: scale(.7); }
+  32% { opacity: .95; transform: scale(1.02); }
+  100% { opacity: 0; transform: scale(1.1); }
+}
+#loginGiftDialog .login-gift-chest {
+  flex: 0 0 var(--gift-chest-size);
+  width: var(--gift-chest-size);
+  aspect-ratio: 1;
+}
+#loginGiftDialog .login-gift-chest img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 5px #03051bbc) drop-shadow(0 0 6px #ffc66072);
+}
+#loginGiftDialog .login-gift-today {
+  min-width: 0;
+  text-align: left;
+}
+#loginGiftMessage {
+  display: block;
+  color: #dfecfc;
+  font: 650 12px/1.25 system-ui, sans-serif;
+}
+#loginGiftAmount {
+  display: block;
+  margin-top: 2px;
+  font-size: clamp(26px, 8.4vw, 35px);
+  color: #fff0ba;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 2px 2px #050b28, 0 0 9px #fac65e53;
+}
+#loginGiftDialog .is-key #loginGiftAmount {
+  font-size: clamp(14px, 4.75vw, 20px);
+}
+
+#loginGiftDialog .login-gift-progress {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 5px;
+  padding: 0 2px 4px;
+  color: #d0e5fc;
+  font: 650 12px/1.2 system-ui, sans-serif;
+}
+#loginGiftDialog .login-gift-progress strong {
+  color: #ffe8ad;
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+}
+#loginGiftDialog .login-gift-progress small { font-size: 12px; }
+#loginGiftDialog .login-gift-calendar {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px;
+  list-style: none;
+  padding: 0;
+}
+#loginGiftDialog .login-gift-calendar li {
+  box-sizing: border-box;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 1px;
+  min-height: var(--gift-day-size);
+  padding: 2px 4px;
+  border: 1px solid #768cb47d;
+  border-radius: 6px;
+  background: linear-gradient(165deg, #273f68, #0d1f44 58%);
+  color: #dce8f8;
+  font-size: 11px;
+}
+#loginGiftDialog .login-gift-calendar strong {
+  font-size: 15px;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+#loginGiftDialog .login-gift-day-state {
+  font: 650 10px/1.1 system-ui, sans-serif;
+  color: #f7dfae;
+}
+#loginGiftDialog .login-gift-calendar li[data-gift-state="received"] {
+  border-color: #86a8b67d;
+  background: linear-gradient(155deg, #234e5d, #142a42);
+}
+#loginGiftDialog .login-gift-calendar li[data-gift-state="today"] {
+  border-color: #f8d78f;
+  background: linear-gradient(140deg, #466fa9, #10285c 73%);
+  box-shadow: inset 0 0 6px #d4e4ff91, 0 0 5px #efc06e73;
+  color: #fff3cc;
+}
+#loginGiftDialog .login-gift-calendar li.login-gift-milestone {
+  grid-column: 1 / -1;
+  grid-template-columns: auto 35px auto auto;
+  align-items: center;
+  gap: clamp(4px, 1.9vw, 9px);
+  min-height: 54px;
+  padding: 4px 11px;
+  border: 0;
+  background: url('../assets/rc22-gift-milestone.webp') center / 100% 100% no-repeat;
+  color: #fff1c8;
+  font-size: 12px;
+}
+#loginGiftDialog .login-gift-milestone[data-gift-state="today"] {
+  filter: drop-shadow(0 0 5px #ffc7689e);
+  box-shadow: none;
+}
+#loginGiftDialog .login-gift-milestone img {
+  display: block;
+  width: 35px;
+  height: 36px;
+  object-fit: contain;
+}
+#loginGiftDialog .login-gift-calendar .login-gift-milestone strong {
+  font-size: clamp(13px, 4.1vw, 16px);
+}
+
+#loginGiftClaim {
+  box-sizing: border-box;
+  display: block;
+  width: min(100%, 256px);
+  min-height: 49px;
+  margin: 7px auto 0;
+  padding: 4px 12px;
+  border: 0;
+  color: #fff3d0;
+  background: url('../assets/rc20-reward-button.webp') center / 100% 100% no-repeat;
+  font: 800 clamp(15px, 4.5vw, 18px)/1.15 'Yu Mincho', 'Hiragino Mincho ProN', serif;
+  text-shadow: 0 1px 2px #061535;
+}
+#loginGiftClaim:active:not(:disabled) { filter: brightness(1.17); }
+#loginGiftClaim:disabled { filter: saturate(.42) brightness(.88); }
+#loginGiftDialog #loginGiftRenewal {
+  margin-top: 4px;
+  color: #c6d9f1;
+  font: 550 11px/1.25 system-ui, sans-serif;
+}
+@media (max-height: 675px) {
+  #loginGiftDialog {
+    --gift-top: 81px;
+    --gift-foot: 38px;
+    --gift-chest-size: clamp(86px, 26vw, 100px);
+    --gift-day-size: 46px;
+  }
+  #loginGiftDialog .login-gift-calendar li.login-gift-milestone { min-height: 46px; }
+  #loginGiftClaim { min-height: 44px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #loginGiftDialog .login-gift-stage.is-opening::before { animation: none; }
+}

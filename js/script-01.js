@@ -280,6 +280,10 @@
     dateUTC.setUTCDate(dateUTC.getUTCDate()-wd);
     return {daily:day,weekly:dateUTC.toISOString().slice(0,10)};
   }
+  function msUntilNextJstDay(day){
+    const nextReset = Date.parse(`${day}T00:00:00+09:00`) + 24*60*60*1000;
+    return Math.max(1,nextReset-Date.now());
+  }
   function ensureQuestState(){
     if(!gameSave.stats||typeof gameSave.stats!=='object'||Array.isArray(gameSave.stats))gameSave.stats={};
     if(!Number.isSafeInteger(gameSave.stats.levelUps)||gameSave.stats.levelUps<0)gameSave.stats.levelUps=0;
@@ -811,8 +815,7 @@
 
     clearTimeout(shopRewardResetTimer);
     if(remaining < AD_REWARD_DAILY_LIMIT && !document.hidden && shopScreen.classList.contains('active')){
-      const nextReset = Date.parse(`${day}T00:00:00+09:00`) + 24*60*60*1000;
-      shopRewardResetTimer = setTimeout(renderShopReward,Math.max(1,nextReset-Date.now()));
+      shopRewardResetTimer = setTimeout(renderShopReward,msUntilNextJstDay(day));
     }
   }
   shopRewardWatch.addEventListener('click',()=>{
@@ -944,6 +947,7 @@
       homeEl('homeFavoriteStars').textContent='☆';
       homeEl('homeFavoriteLevel').textContent='';
     }
+    renderLoginGift();
   }
   function chooseFavorite(id){
     if(!ownedCharacterById(id)){showToast('所持しているキャラだけ設定できます');return;}
@@ -959,6 +963,117 @@
   document.querySelectorAll('[data-home-go]').forEach(btn=>btn.addEventListener('click',()=>showScreen(btn.dataset.homeGo)));
   document.querySelectorAll('[data-home-planned]').forEach(btn=>btn.addEventListener('click',()=>showToast(btn.dataset.homePlanned+' は次工程で接続')));
   charEl('charFavoriteButton').addEventListener('click',()=>chooseFavorite(selectedCharId));
+
+  // Keep login claims inside the same isolated save as the reward preview.
+  const LOGIN_GIFTS = [{pt:100},{pt:150},{pt:200},{pt:250},{pt:300},{pt:500},{keys:1}];
+  const giftEntry = homeEl('loginGiftEntry');
+  const giftBadge = homeEl('loginGiftBadge');
+  const giftDialog = homeEl('loginGiftDialog');
+  const giftCalendar = homeEl('loginGiftCalendar');
+  const giftClaim = homeEl('loginGiftClaim');
+  const giftStage = homeEl('loginGiftStage');
+  const giftMessage = homeEl('loginGiftMessage');
+  const giftMilestone = giftCalendar.firstElementChild;
+  let giftResetTimer;
+
+  if(rewardPreview){
+    giftEntry.setAttribute('aria-haspopup','dialog');
+    homeEl('loginGiftKeyAmount').textContent = '×' + LOGIN_GIFTS.at(-1).keys;
+    LOGIN_GIFTS.slice(0,-1).forEach(({pt:points},index)=>{
+      const card = document.createElement('li');
+      const step = document.createElement('span');
+      step.textContent = (index+1)+'回目';
+      const amount = document.createElement('strong');
+      amount.textContent = fmt(points)+' PT';
+      const status = document.createElement('span');
+      status.className = 'login-gift-day-state';
+      card.append(step,amount,status);
+      giftCalendar.insertBefore(card,giftMilestone);
+    });
+  }
+
+  function loginGiftState(){
+    const day = questPeriodKeys().daily;
+    const receipt = gameSave.loginGift;
+    const validReceipt = Number.isInteger(receipt?.claims) && receipt.claims>0 &&
+      receipt.claims<=LOGIN_GIFTS.length && typeof receipt.lastClaimDate==='string' &&
+      /^\d{4}-\d{2}-\d{2}$/.test(receipt.lastClaimDate);
+    const lastDay = validReceipt ? receipt.lastClaimDate : '';
+    const total = validReceipt ? receipt.claims : 0;
+    const claims = lastDay<day && total===LOGIN_GIFTS.length ? 0 : total;
+    const receivedToday = lastDay===day;
+    const canClaim = !saveRecoveryBlocked && lastDay<day;
+    return {day,claims,receivedToday,canClaim,clockAhead:lastDay>day};
+  }
+  function renderLoginGift(){
+    if(!rewardPreview)return;
+    const {day,claims,receivedToday,canClaim,clockAhead} = loginGiftState();
+    giftBadge.hidden = !canClaim;
+    giftEntry.setAttribute('aria-label',canClaim ? '贈物の宝箱・受取可能' : '贈物の宝箱・プレゼント');
+    clearTimeout(giftResetTimer);
+    if((receivedToday || clockAhead) && !document.hidden && home.classList.contains('active')){
+      giftResetTimer = setTimeout(renderLoginGift,msUntilNextJstDay(day));
+    }
+    if(!giftDialog.open)return;
+
+    const index = receivedToday ? claims-1 : Math.min(claims,LOGIN_GIFTS.length-1);
+    const reward = LOGIN_GIFTS[index];
+    homeEl('loginGiftCount').textContent = claims;
+    homeEl('loginGiftAmount').textContent = reward.keys ? '上限解放の鍵 ×'+reward.keys : fmt(reward.pt)+' PT';
+    homeEl('loginGiftChestClosed').hidden = receivedToday;
+    homeEl('loginGiftChestOpen').hidden = !receivedToday;
+    giftStage.classList.toggle('is-key',Boolean(reward.keys));
+    giftMessage.textContent = receivedToday ? '本日の贈り物を受取済み' : '今日の贈り物';
+    giftClaim.disabled = !canClaim;
+    if(saveRecoveryBlocked)giftClaim.textContent = 'セーブ保護中';
+    else if(clockAhead)giftClaim.textContent = '端末の日付を確認';
+    else giftClaim.textContent = receivedToday ? '本日分受取済み' : '宝箱を開ける';
+
+    Array.from(giftCalendar.children).forEach((card,i)=>{
+      const state = i<claims ? 'received' : canClaim && i===index ? 'today' : 'waiting';
+      card.dataset.giftState = state;
+      card.querySelector('.login-gift-day-state').textContent = {received:'✓ 済',today:'本日',waiting:''}[state];
+      if(state==='today')card.setAttribute('aria-current','step');
+      else card.removeAttribute('aria-current');
+    });
+  }
+
+  giftEntry.addEventListener('click',()=>{
+    if(!rewardPreview){showToast('贈物の宝箱 は次工程で接続');return;}
+    if(!giftDialog.open)giftDialog.showModal();
+    renderLoginGift();
+  });
+  homeEl('loginGiftClose').addEventListener('click',()=>giftDialog.close());
+  giftDialog.addEventListener('close',()=>giftStage.classList.remove('is-opening'));
+  giftStage.addEventListener('animationend',event=>{
+    if(event.animationName==='loginGiftLight')giftStage.classList.remove('is-opening');
+  });
+  giftClaim.addEventListener('click',()=>{
+    if(!rewardPreview || !giftDialog.open)return;
+    const {day,claims,canClaim} = loginGiftState();
+    if(!canClaim){renderLoginGift();return;}
+    const reward = LOGIN_GIFTS[claims];
+    const previous = {pt,keys:gameSave.keys,receipt:gameSave.loginGift};
+    pt += reward.pt || 0;
+    gameSave.keys += reward.keys || 0;
+    gameSave.loginGift = {claims:claims+1,lastClaimDate:day};
+    if(!saveUnified()){
+      pt = previous.pt;
+      gameSave.points = previous.pt;
+      gameSave.keys = previous.keys;
+      gameSave.loginGift = previous.receipt;
+      renderLoginGift();
+      giftMessage.textContent = '保存できませんでした';
+      return;
+    }
+    refreshHome();
+    giftStage.classList.add('is-opening');
+    homeEl('loginGiftClose').focus();
+  });
+  document.addEventListener('visibilitychange',()=>{
+    if(document.hidden)clearTimeout(giftResetTimer);
+    else if(home.classList.contains('active'))renderLoginGift();
+  });
 
 
   // Mission board UI is deliberately separate from the shop and the approved home design.
@@ -1117,6 +1232,10 @@
       openedDexCard = null;
     }
     if(toHome) refreshHome();
+    else{
+      clearTimeout(giftResetTimer);
+      if(giftDialog.open)giftDialog.close();
+    }
 
     if(toTap){
       // Do not erase the next-chest progress when revisiting the tap screen.
