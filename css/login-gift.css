@@ -84,8 +84,8 @@
   min-height: var(--gift-chest-size);
   margin-top: 3px;
   background:
-    radial-gradient(ellipse at 28% 77%, #ffd07053, transparent 47%),
-    radial-gradient(ellipse at 34% 49%, #647cd35e, transparent 65%);
+    radial-gradient(ellipse 45% 36% at 29% 63%, #ffd0705d, transparent),
+    radial-gradient(ellipse 49% 50% at 36% 50%, #647cd35b, transparent);
 }
 #loginGiftDialog .login-gift-stage::before {
   content: '';
