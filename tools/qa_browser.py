@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Browser regression for the modular game on the served test branch."""
-import os, json
+import os, json, sys, subprocess
 from datetime import datetime, timezone
 from pathlib import Path
 from playwright.sync_api import sync_playwright
@@ -16,8 +16,9 @@ errors=[]
 
 def check(label, ok):
     if not ok:
-        if label.startswith(('RC23','RC24')) and 'reward' in globals():
-            reward.screenshot(path=str(SHOTS/f'{ENGINE}-party-failure.png'))
+        failed_page=globals().get('battle') if label.startswith('RC25') else globals().get('reward')
+        if failed_page and not failed_page.is_closed():
+            failed_page.screenshot(path=str(SHOTS/f'{ENGINE}-failure.png'))
         raise AssertionError(f'{label} FAILED; JS errors: {errors}')
     passed.append(label)
     print('PASS:',label,flush=True)
@@ -929,7 +930,200 @@ with sync_playwright() as pw:
     reward.reload(wait_until='load')
     check('RC23 formation changes leave every live localStorage key unchanged',reward.evaluate("Object.entries(localStorage).sort()")==live_before)
     preview.close()
+    # Independent motion preview: deliberately seeded with opaque save sentinels.
+    battle_context=browser.new_context(viewport={'width':393,'height':654},is_mobile=True,has_touch=True)
+    battle_context.add_init_script("""(() => {
+      if(sessionStorage.getItem('__qa_battle_seeded'))return;
+      localStorage.setItem('tapgacha_save_v3','{live-save-do-not-touch');
+      localStorage.setItem('tapgacha_pt','12345');
+      sessionStorage.setItem('tapgacha_reward_rc20_preview','{review-save-do-not-touch');
+      sessionStorage.setItem('__qa_battle_seeded','1');
+    })()""")
+    battle=battle_context.new_page()
+    battle.on('pageerror',lambda err:errors.append('battle: '+str(err)))
+    battle.on('response',lambda response:resource_failures.append(f'{response.status} {response.url}') if response.status>=400 and ('/assets/' in response.url or '/css/' in response.url or '/js/' in response.url) else None)
+    battle_url=URL.rsplit('/',1)[0]+'/battle-preview.html'
+    battle.clock.install(time=datetime(2026,11,8,2,0,tzinfo=timezone.utc))
+    battle.goto(battle_url,wait_until='load')
+    battle.wait_for_function('window.battlePreview?.snapshot().ready')
+    battle.clock.pause_at(datetime(2026,11,8,2,0,10,tzinfo=timezone.utc))
+    bstate=lambda:battle.evaluate('battlePreview.snapshot()')
+    storage_before=battle.evaluate('({local:Object.entries(localStorage).sort(),session:Object.entries(sessionStorage).sort()})')
+    check('RC25 all four separate sprites initialize with three live portrait controls',
+          battle.locator('.actor').count()==4 and battle.locator('.hero-card').count()==3
+          and bstate()['hp']==dict(c001=100,c002=100,c003=100,guardian=100)
+          and battle.locator('#battleAuto').is_enabled())
+    check('RC25 sprites retain transparent exterior pixels',battle.evaluate("""() => [...document.querySelectorAll('.actor img')].every(img=>{
+      const canvas=document.createElement('canvas');canvas.width=img.naturalWidth;canvas.height=img.naturalHeight;
+      const ctx=canvas.getContext('2d');ctx.drawImage(img,0,0);
+      return [[0,0],[canvas.width-1,0],[0,canvas.height-1],[canvas.width-1,canvas.height-1]].every(([x,y])=>ctx.getImageData(x,y,1,1).data[3]<10);
+    })"""))
+    for width,height in ((320,568),(360,600),(390,636),(393,654),(390,844),(430,932)):
+        battle.set_viewport_size({'width':width,'height':height})
+        geometry=battle.evaluate("""() => {
+          const root=document.querySelector('#battleApp'),f=document.querySelector('#battleField').getBoundingClientRect();
+          const actors=[...document.querySelectorAll('.actor')].map(el=>el.getBoundingClientRect());
+          const controls=[...document.querySelectorAll('.battle-header,.battle-status,.battle-party,.battle-controls,.battle-note')].map(el=>el.getBoundingClientRect());
+          const targets=[...document.querySelectorAll('button,.battle-home')].map(el=>el.getBoundingClientRect());
+          return {fit:controls.every(r=>r.left>=-1&&r.right<=innerWidth+1&&r.top>=0&&r.bottom<=innerHeight+1),
+            actorsFit:actors.every(r=>r.left>=f.left-1&&r.right<=f.right+1&&r.top>=f.top-1&&r.bottom+6<=f.bottom+1),
+            touch:targets.every(r=>r.width>=44&&r.height>=44),
+            names:[...document.querySelectorAll('.hero-name')].every(el=>el.scrollWidth<=el.clientWidth+1&&el.scrollHeight<=el.clientHeight+1&&parseFloat(getComputedStyle(el).fontSize)>=12),
+            images:[...document.images].every(img=>img.complete&&img.naturalWidth>0),
+            noOverflow:root.scrollHeight<=root.clientHeight+1&&document.documentElement.scrollWidth<=innerWidth,
+            field:{width:f.width,height:f.height}};
+        }""")
+        print('RC25 battle layout',width,height,json.dumps(geometry),flush=True)
+        check(f'RC25 all sprites, labels and touch controls fit at {width}x{height}',
+              all(geometry[k] for k in ('fit','actorsFit','touch','names','images','noOverflow')))
+        battle.screenshot(path=str(SHOTS/f'{ENGINE}-battle-{width}x{height}.png'))
+    battle.set_viewport_size({'width':393,'height':654})
+    battle.locator('#card-c001').click()
+    check('RC25 a manual attack begins with a windup before damage',
+          bstate()['busy'] and bstate()['phase']=='windup' and bstate()['hp']['guardian']==100)
+    battle.locator('#card-c002').evaluate("el=>el.dispatchEvent(new MouseEvent('click',{bubbles:true}))")
+    battle.clock.fast_forward(310)
+    check('RC25 queued clicks cannot duplicate a manual impact',
+          bstate()['impacts']==1 and bstate()['hp']['guardian']==86
+          and battle.locator('#enemyPercent').inner_text()=='86%')
+    battle.screenshot(path=str(SHOTS/f'{ENGINE}-battle-holy-impact.png'))
+    battle.clock.fast_forward(470)
+    check('RC25 a manual attack returns to idle after its recovery',
+          not bstate()['busy'] and battle.locator('#battleEffects').locator(':scope > *').count()==0
+          and battle.locator('#card-c002').is_enabled())
+    for hero,remaining in (('c002',88),('c003',84)):
+        battle.locator('#battleReset').click()
+        battle.locator('#card-'+hero).click()
+        battle.clock.fast_forward(310)
+        check(f'RC25 {hero} has its own attack and matching live HP',bstate()['active']==hero and bstate()['hp']['guardian']==remaining)
+        battle.screenshot(path=str(SHOTS/f'{ENGINE}-battle-{hero}-impact.png'))
+        battle.clock.fast_forward(470)
+    battle.locator('#battleReset').click()
+    for _ in range(3):
+        battle.locator('#actor-guardian').click()
+        battle.clock.fast_forward(310)
+        battle.clock.fast_forward(470)
+    check('RC25 enemy attacks rotate across all three allies and update their cards',
+          all(bstate()['hp'][hero]==82 for hero in ('c001','c002','c003'))
+          and battle.locator('.hero-percent').all_inner_texts()==['82%','82%','82%'])
+    battle.locator('#battleReset').click()
+    battle.locator('#battleAuto').click()
+    battle.clock.fast_forward(100)
+    battle.locator('#battleAuto').click()
+    paused=bstate()
+    battle.clock.fast_forward(4000)
+    check('RC25 pausing before impact freezes the action and HP',bstate()==paused and paused['paused'] and paused['hp']['guardian']==100)
+    battle.locator('#battleAuto').click()
+    battle.clock.fast_forward(199)
+    check('RC25 resume preserves the exact remaining windup',bstate()['hp']['guardian']==100)
+    battle.clock.fast_forward(2)
+    check('RC25 resumed windup applies its impact exactly once',bstate()['hp']['guardian']==86 and bstate()['impacts']==1)
+    battle.locator('#battleAuto').click()
+    paused=bstate()
+    battle.clock.fast_forward(4000)
+    check('RC25 pausing after impact also freezes recovery',bstate()==paused and paused['phase']=='impact')
+    battle.locator('#battleSpeed').click()
+    paused=bstate()
+    battle.clock.fast_forward(1000)
+    check('RC25 changing speed while paused keeps the action paused',bstate()==paused and paused['speed']==2)
+    battle.locator('#battleAuto').click()
+    battle.clock.fast_forward(231)
+    battle.clock.fast_forward(261)
+    battle.clock.fast_forward(151)
+    check('RC25 double speed advances the same action sequence',bstate()['hp']['guardian']==74 and bstate()['impacts']==2)
+    for _ in range(60):
+        if bstate()['complete']:break
+        battle.clock.fast_forward(400)
+    double_result=bstate()
+    check('RC25 auto playback stops cleanly at the end of the preview',
+          double_result['complete'] and not double_result['auto'] and not double_result['busy']
+          and double_result['hp']['guardian']==0 and double_result['impacts']==10)
+    battle.clock.fast_forward(5000)
+    check('RC25 no attacks run after completion',bstate()==double_result)
+    battle.screenshot(path=str(SHOTS/f'{ENGINE}-battle-complete.png'))
+    battle.locator('#battleAuto').click()
+    check('RC25 completed playback can restart with fresh HP',
+          bstate()['auto'] and bstate()['phase']=='windup' and bstate()['impacts']==0
+          and all(v==100 for v in bstate()['hp'].values()))
+    battle.locator('#battleReset').click()
+    battle.locator('#battleSpeed').click()
+    battle.locator('#battleAuto').click()
+    for _ in range(60):
+        if bstate()['complete']:break
+        battle.clock.fast_forward(600)
+    check('RC25 playback speed does not alter the demo outcome',
+          bstate()['complete'] and bstate()['hp']==double_result['hp'] and bstate()['impacts']==double_result['impacts'])
+    battle.locator('#battleReset').click()
+    battle.locator('#card-c003').click()
+    battle.clock.fast_forward(120)
+    battle.locator('#battleReset').click()
+    reset_state=bstate()
+    battle.clock.fast_forward(5000)
+    check('RC25 reset cancels an in-flight attack and its pending damage',
+          bstate()==reset_state and not reset_state['busy'] and reset_state['impacts']==0
+          and all(v==100 for v in reset_state['hp'].values()))
+    battle.locator('#card-c001').click()
+    battle.clock.fast_forward(100)
+    battle.locator('#battleSpeed').click()
+    battle.clock.fast_forward(99)
+    check('RC25 mid-attack speed changes preserve elapsed logical time',bstate()['hp']['guardian']==100)
+    battle.clock.fast_forward(2)
+    check('RC25 speed changes cannot duplicate an impact',bstate()['hp']['guardian']==86 and bstate()['impacts']==1)
+    battle.locator('#battleReset').click()
+    battle.locator('#battleAuto').click()
+    battle.clock.fast_forward(50)
+    battle.evaluate("() => {Object.defineProperty(document,'hidden',{configurable:true,get:()=>true});document.dispatchEvent(new Event('visibilitychange'));}")
+    hidden_state=bstate()
+    battle.clock.fast_forward(5000)
+    check('RC25 hiding the page pauses playback without background damage',hidden_state['paused'] and bstate()==hidden_state)
+    battle.evaluate("() => {delete document.hidden;document.dispatchEvent(new Event('visibilitychange'));}")
+    check('RC25 returning to the page keeps explicit resume available',bstate()['paused'] and battle.locator('#battleAuto').inner_text()=='再開')
+    battle.locator('#battleReset').click()
+    for _ in range(18):
+        battle.locator('#actor-guardian').click()
+        battle.clock.fast_forward(160)
+        battle.clock.fast_forward(240)
+    check('RC25 depleted ally HP stays at zero and ends the preview',
+          bstate()['complete'] and all(bstate()['hp'][hero]==0 for hero in ('c001','c002','c003'))
+          and battle.locator('.hero-card:disabled').count()==3)
+    check('RC25 all preview actions preserve every local and session save byte',
+          battle.evaluate('({local:Object.entries(localStorage).sort(),session:Object.entries(sessionStorage).sort()})')==storage_before)
+    battle.locator('#battleReset').click()
+    battle.reload(wait_until='load')
+    battle.wait_for_function('battlePreview.snapshot().ready')
+    check('RC25 reloading starts a fresh visual preview while preserving game saves',
+          all(v==100 for v in bstate()['hp'].values())
+          and battle.evaluate('({local:Object.entries(localStorage).sort(),session:Object.entries(sessionStorage).sort()})')==storage_before)
+    # The exact standalone builder is also used for the downloadable HTML.
+    subprocess.run([sys.executable,str(ROOT/'tools/build_battle_preview.py')],check=True,cwd=ROOT)
+    portable=battle_context.new_page()
+    portable.on('pageerror',lambda err:errors.append('portable battle: '+str(err)))
+    external=[]
+    portable.on('request',lambda request:external.append(request.url) if request.resource_type!='document' and request.url.startswith(('http:','https:')) else None)
+    portable.clock.install(time=datetime(2026,11,8,2,0,tzinfo=timezone.utc))
+    portable.goto(URL.rsplit('/',1)[0]+'/tapgacha-battle-preview-RC25.html',wait_until='load')
+    portable.wait_for_function('battlePreview.snapshot().ready')
+    portable.clock.pause_at(datetime(2026,11,8,2,0,10,tzinfo=timezone.utc))
+    portable.locator('#card-c001').click()
+    portable.clock.fast_forward(310)
+    check('RC25 the standalone HTML runs the same live attack without external assets',
+          portable.evaluate('battlePreview.snapshot().hp.guardian')==86 and not external)
+    portable.close()
+    battle_context.close()
+    reduced=browser.new_context(viewport={'width':320,'height':568},is_mobile=True,has_touch=True,reduced_motion='reduce')
+    battle=reduced.new_page()
+    battle.on('pageerror',lambda err:errors.append('reduced motion battle: '+str(err)))
+    battle.clock.install(time=datetime(2026,11,8,2,0,tzinfo=timezone.utc))
+    battle.goto(battle_url,wait_until='load')
+    battle.wait_for_function('battlePreview.snapshot().ready')
+    battle.clock.pause_at(datetime(2026,11,8,2,0,10,tzinfo=timezone.utc))
+    battle.locator('#card-c001').click()
+    battle.clock.fast_forward(310)
+    check('RC25 reduced-motion mode keeps HP feedback with no shaking or idle animation',
+          battle.evaluate("battlePreview.snapshot().hp.guardian===86 && getComputedStyle(document.querySelector('.actor-idle')).animationName==='none' && document.querySelector('#battleApp').getAnimations({subtree:true}).length===0"))
+    reduced.close()
     check('new save safety checks produce no runtime exceptions',not errors)
     (ROOT/f'qa-results-{ENGINE}.json').write_text(json.dumps({'browser':ENGINE,'passed':len(passed),'checks':passed,'runtime_errors':errors,'broken_images':missing,'resource_failures':resource_failures},ensure_ascii=False,indent=2),encoding='utf-8')
     print(f'ALL {len(passed)} CHECKS PASS',flush=True)
     browser.close()
+
