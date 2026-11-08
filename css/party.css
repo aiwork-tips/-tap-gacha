@@ -41,6 +41,7 @@
 #partyScreen .party-confirm:not(:disabled):active{filter:brightness(1.2)}
 #partyScreen .party-result{min-height:19px;margin-top:3px;color:#e8f1ff;font:550 12px/1.45 system-ui}
 #partyScreen .kit-shared-nav{background:#071d35}
+#partyScreen .party-nav>button{position:relative!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow:visible!important;border-radius:0!important;box-shadow:none!important;outline:none!important;color:transparent!important;text-shadow:none!important;font-size:0!important;line-height:0!important;opacity:1!important}
 @media(max-width:359px){
  #partyScreen .party-shell{left:7px;right:7px}
  #partyScreen .party-header{height:86px}

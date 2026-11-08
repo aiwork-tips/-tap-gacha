@@ -854,6 +854,7 @@ with sync_playwright() as pw:
           const boxes=[nav,...nav.querySelectorAll('button'),...nav.querySelectorAll('button>img')].map(el=>{const r=el.getBoundingClientRect();return [r.x,r.y,r.width,r.height]});
           home.style.display='';return boxes;
         }""")
+        if party_nav!=home_nav:print('RC23 NAV GEOMETRY',json.dumps({'party':party_nav,'home':home_nav}),flush=True)
         check(f'RC23 shared menu retains identical artwork positions at {width}x{height}',party_nav==home_nav)
         check(f'RC23 formation controls and live names remain readable at {width}x{height}',reward.evaluate(r"""async () => {
           const root=document.querySelector('#partyScreen'),roster=document.querySelector('#partyRosterScroll');
