@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+  <meta name="theme-color" content="#071d35">
+  <link rel="icon" href="data:,">
+  <title>戦闘プレビュー · BATTLE-RC25</title>
+  <link rel="preload" as="image" href="assets/rc25-stage.webp">
+  <link rel="stylesheet" href="css/battle-preview.css">
+  <script src="js/battle-preview.js" defer></script>
+</head>
+<body>
+<main class="battle-app" id="battleApp" data-mode="loading" data-paused="false" aria-label="タップ覚醒・戦闘演出プレビュー">
+  <header class="battle-header">
+    <a class="art-button battle-home" href="index.html?reward-preview=1">ホーム</a>
+    <h1>戦闘プレビュー</h1>
+  </header>
+  <section class="battle-field" id="battleField" aria-label="天空の戦闘フィールド">
+    <div class="field-light" aria-hidden="true"></div>
+    <button type="button" class="actor ally actor-alum" id="actor-c001" data-attack="c001" style="--x:22%;--y:40%" aria-label="白翼のアルムの攻撃を確認" disabled>
+      <span class="actor-shadow" aria-hidden="true"></span>
+      <span class="actor-motion"><span class="actor-idle"><img src="assets/rc25-alum.webp" alt="白翼のアルムの戦闘用2Dキャラ" draggable="false"></span></span>
+      <span class="field-hp" aria-hidden="true"><i></i></span>
+    </button>
+    <button type="button" class="actor ally actor-iron" id="actor-c002" data-attack="c002" style="--x:31%;--y:65%" aria-label="鉄骸兵の攻撃を確認" disabled>
+      <span class="actor-shadow" aria-hidden="true"></span>
+      <span class="actor-motion"><span class="actor-idle"><img src="assets/rc25-iron.webp" alt="鉄骸兵の戦闘用2Dキャラ" draggable="false"></span></span>
+      <span class="field-hp" aria-hidden="true"><i></i></span>
+    </button>
+    <button type="button" class="actor ally actor-wolf" id="actor-c003" data-attack="c003" style="--x:22%;--y:90%" aria-label="冥牙クロウルの攻撃を確認" disabled>
+      <span class="actor-shadow" aria-hidden="true"></span>
+      <span class="actor-motion"><span class="actor-idle"><img src="assets/rc25-wolf.webp" alt="冥牙クロウルの戦闘用2Dキャラ" draggable="false"></span></span>
+      <span class="field-hp" aria-hidden="true"><i></i></span>
+    </button>
+    <button type="button" class="actor enemy" id="actor-guardian" data-attack="guardian" style="--x:76%;--y:72%" aria-label="水晶の守護者の攻撃を確認" disabled>
+      <span class="enemy-caption"><strong>水晶の守護者</strong><span id="enemyPercent">100%</span></span>
+      <span class="actor-shadow" aria-hidden="true"></span>
+      <span class="actor-motion"><span class="actor-idle"><img src="assets/rc25-guardian.webp" alt="水晶の守護者の戦闘用2Dキャラ" draggable="false"></span></span>
+      <span class="field-hp" aria-hidden="true"><i></i></span>
+    </button>
+    <div class="battle-effects" id="battleEffects" aria-hidden="true"></div>
+  </section>
+  <p class="battle-status" id="battleStatus" role="status" aria-live="polite">画像を読み込んでいます…</p>
+  <section class="battle-party" aria-label="キャラをタップして攻撃を確認">
+    <button type="button" class="hero-card" id="card-c001" data-attack="c001" aria-label="白翼のアルムの攻撃を確認" disabled><img src="assets/rc25-icon-c001.webp" alt="" draggable="false"><span class="hero-percent">100%</span><span class="hero-name">白翼のアルム</span><span class="hero-hp" aria-hidden="true"><i></i></span></button>
+    <button type="button" class="hero-card" id="card-c002" data-attack="c002" aria-label="鉄骸兵の攻撃を確認" disabled><img src="assets/rc25-icon-c002.webp" alt="" draggable="false"><span class="hero-percent">100%</span><span class="hero-name">鉄骸兵</span><span class="hero-hp" aria-hidden="true"><i></i></span></button>
+    <button type="button" class="hero-card" id="card-c003" data-attack="c003" aria-label="冥牙クロウルの攻撃を確認" disabled><img src="assets/rc25-icon-c003.webp" alt="" draggable="false"><span class="hero-percent">100%</span><span class="hero-name">冥牙クロウル</span><span class="hero-hp" aria-hidden="true"><i></i></span></button>
+  </section>
+  <nav class="battle-controls" aria-label="演出プレビューの操作">
+    <button type="button" class="art-button" id="battleAuto" disabled>自動再生</button>
+    <button type="button" class="art-button" id="battleSpeed" aria-label="再生速度 1倍" disabled>×1</button>
+    <button type="button" class="art-button" id="battleReset" disabled>リセット</button>
+  </nav>
+  <footer class="battle-note"><span>HPは演出確認用の仮値</span><span>Ver.11.8 · BATTLE-RC25</span></footer>
+</main>
+</body>
+</html>
