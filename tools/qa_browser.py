@@ -15,7 +15,10 @@ passed=[]
 errors=[]
 
 def check(label, ok):
-    if not ok: raise AssertionError(f'{label} FAILED; JS errors: {errors}')
+    if not ok:
+        if label.startswith('RC23') and 'reward' in globals():
+            reward.screenshot(path=str(SHOTS/f'{ENGINE}-party-failure.png'))
+        raise AssertionError(f'{label} FAILED; JS errors: {errors}')
     passed.append(label)
     print('PASS:',label,flush=True)
 
@@ -767,6 +770,7 @@ with sync_playwright() as pw:
     reward.locator('.kit-transfer').click()
     pids=lambda:reward.locator('#partySlots [data-party-slot]').evaluate_all("els => els.map(el=>el.querySelector('.party-slot-name').textContent)")
     draft_before=pids()
+    reward.screenshot(path=str(SHOTS/f'{ENGINE}-party-initial.png'))
     check('RC23 transfer opens three owned characters as an uncommitted draft',
           reward.locator('#partyScreen.active').count()==1
           and draft_before==['白翼のアルム','鉄骸兵','冥牙クロウル'] and 'partyIds' not in rstate())
@@ -816,7 +820,7 @@ with sync_playwright() as pw:
           rstate()==previous and reward.evaluate("tapGacha.getSave().partyIds")==previous['partyIds']
           and pids()==['黒耀ヴァルグ','鉄骸兵','夜叉']
           and '保存できませんでした' in reward.locator('#partyResult').inner_text())
-    reward.evaluate("Storage.prototype.setItem=window.__partyStorageSet")
+    reward.evaluate("() => {Storage.prototype.setItem=window.__partyStorageSet;}")
     reward.locator('#partyConfirm').click()
     check('RC23 a retry saves the pending draft exactly once',rstate()['partyIds']==['c005','c002','c004'])
     party_backup=rstate()
@@ -834,6 +838,7 @@ with sync_playwright() as pw:
           and pids()==['白翼のアルム','鉄骸兵','白銀の聖騎士'])
     reward.locator('#partyConfirm').click()
     check('RC23 only canonical owned IDs are written on confirmation',rstate()['partyIds']==['c001','c002','c015'])
+    reward.locator('[data-party-character="c009"]').click()
     for width,height in ((320,568),(393,654),(390,844),(430,932)):
         reward.set_viewport_size({'width':width,'height':height})
         party_nav=reward.locator('#partyScreen > .kit-shared-nav').evaluate("""nav=>[nav,...nav.querySelectorAll('button'),...nav.querySelectorAll('button>img')].map(el=>{const r=el.getBoundingClientRect();return [r.x,r.y,r.width,r.height]})""")

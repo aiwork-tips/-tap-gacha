@@ -16,11 +16,11 @@
 #partyScreen .party-heading h2{font-size:16px;line-height:1.35;letter-spacing:.035em}
 #partyScreen .party-heading>span{font:550 12px/1.35 system-ui;color:#dae8fb;white-space:nowrap}
 #partyScreen .party-slots{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;flex:none;padding:2px 1px 0}
-#partyScreen .party-slot{position:relative;display:block;width:100%;aspect-ratio:.79;border:0;padding:0;background:transparent;color:#fff2d6;text-align:center;min-width:0;overflow:visible}
+#partyScreen .party-slot{position:relative;display:block;width:100%;aspect-ratio:.69;border:0;padding:0;background:transparent;color:#fff2d6;text-align:center;min-width:0;overflow:visible}
 #partyScreen .party-slot::after{content:'';position:absolute;inset:0;background:url('../assets/rc23-party-portrait.webp') center/100% 100% no-repeat;pointer-events:none;z-index:2}
 #partyScreen .party-slot[aria-pressed=true]::after{filter:brightness(1.25) drop-shadow(0 0 4px #ffd28788)}
 #partyScreen .party-slot-art{position:absolute;left:3.4%;top:3.8%;width:93.2%;height:74.8%;object-fit:cover;object-position:center;background:radial-gradient(ellipse at 50% 40%,#275988,#0a2443 85%)}
-#partyScreen .party-slot-name{position:absolute;inset:78% 7% 4%;z-index:3;display:flex;align-items:center;justify-content:center;font-size:13px;line-height:1.25;overflow-wrap:anywhere;text-shadow:0 1px 2px #000a}
+#partyScreen .party-slot-name{position:absolute;inset:78% 7% 1%;z-index:3;display:flex;align-items:center;justify-content:center;font-size:13px;line-height:1.1;overflow-wrap:anywhere;text-shadow:0 1px 2px #000a}
 #partyScreen .party-slot-marker{position:absolute;top:7%;left:7%;z-index:3;padding:3px 5px;border-radius:3px;background:#0a2045ed;color:#ffe9b5;font:700 11px/1.1 system-ui}
 #partyScreen .party-slot[aria-pressed=true] .party-slot-marker{background:#ffe2a4;color:#152c46}
 #partyScreen .party-slot-empty{position:absolute;left:5%;right:5%;top:26%;color:#b5ccdf;font-size:36px}
@@ -58,7 +58,7 @@
  #partyScreen .party-back{top:36px}
  #partyScreen .party-heading{min-height:28px;padding:3px}
  #partyScreen .party-slots{max-width:330px;width:100%;margin:0 auto}
- #partyScreen .party-slot{aspect-ratio:.86}
+ #partyScreen .party-slot{aspect-ratio:.69}
  #partyScreen .party-hint{margin:6px 0 4px;padding:7px 4px;min-height:32px;font-size:12px}
  #partyScreen .party-footer{padding-top:5px}
  #partyScreen .party-confirm{height:55px;width:min(100%,280px);font-size:18px}
