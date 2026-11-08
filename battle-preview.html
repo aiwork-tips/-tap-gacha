@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
   <meta name="theme-color" content="#071d35">
   <link rel="icon" href="data:,">
-  <title>戦闘プレビュー · BATTLE-RC25</title>
+  <title>戦闘プレビュー · BATTLE-RC26</title>
   <link rel="preload" as="image" href="assets/rc25-stage.webp">
   <link rel="stylesheet" href="css/battle-preview.css">
   <script src="js/battle-preview.js" defer></script>
@@ -34,7 +34,7 @@
       <span class="field-hp" aria-hidden="true"><i></i></span>
     </button>
     <button type="button" class="actor enemy" id="actor-guardian" data-attack="guardian" style="--x:76%;--y:72%" aria-label="水晶の守護者の攻撃を確認" disabled>
-      <span class="enemy-caption"><strong>水晶の守護者</strong><span id="enemyPercent">100%</span></span>
+      <span class="enemy-caption"><strong>水晶の守護者</strong></span>
       <span class="actor-shadow" aria-hidden="true"></span>
       <span class="actor-motion"><span class="actor-idle"><img src="assets/rc25-guardian.webp" alt="水晶の守護者の戦闘用2Dキャラ" draggable="false"></span></span>
       <span class="field-hp" aria-hidden="true"><i></i></span>
@@ -43,16 +43,16 @@
   </section>
   <p class="battle-status" id="battleStatus" role="status" aria-live="polite">画像を読み込んでいます…</p>
   <section class="battle-party" aria-label="キャラをタップして攻撃を確認">
-    <button type="button" class="hero-card" id="card-c001" data-attack="c001" aria-label="白翼のアルムの攻撃を確認" disabled><img src="assets/rc25-icon-c001.webp" alt="" draggable="false"><span class="hero-percent">100%</span><span class="hero-name">白翼のアルム</span><span class="hero-hp" aria-hidden="true"><i></i></span></button>
-    <button type="button" class="hero-card" id="card-c002" data-attack="c002" aria-label="鉄骸兵の攻撃を確認" disabled><img src="assets/rc25-icon-c002.webp" alt="" draggable="false"><span class="hero-percent">100%</span><span class="hero-name">鉄骸兵</span><span class="hero-hp" aria-hidden="true"><i></i></span></button>
-    <button type="button" class="hero-card" id="card-c003" data-attack="c003" aria-label="冥牙クロウルの攻撃を確認" disabled><img src="assets/rc25-icon-c003.webp" alt="" draggable="false"><span class="hero-percent">100%</span><span class="hero-name">冥牙クロウル</span><span class="hero-hp" aria-hidden="true"><i></i></span></button>
+    <div class="hero-slot"><button type="button" class="hero-card" id="card-c001" data-attack="c001" aria-label="白翼のアルムの攻撃を確認" disabled><img src="assets/rc25-icon-c001.webp" alt="" draggable="false"><span class="hero-name">白翼のアルム</span><span class="hero-hp" aria-hidden="true"><i></i><span class="hero-percent">100%</span></span></button><button type="button" class="art-button skill-button" id="skill-c001" data-skill="c001" disabled><span>聖光</span><small>発動可能</small></button></div>
+    <div class="hero-slot"><button type="button" class="hero-card" id="card-c002" data-attack="c002" aria-label="鉄骸兵の攻撃を確認" disabled><img src="assets/rc25-icon-c002.webp" alt="" draggable="false"><span class="hero-name">鉄骸兵</span><span class="hero-hp" aria-hidden="true"><i></i><span class="hero-percent">100%</span></span></button><button type="button" class="art-button skill-button" id="skill-c002" data-skill="c002" disabled><span>重砕撃</span><small>発動可能</small></button></div>
+    <div class="hero-slot"><button type="button" class="hero-card" id="card-c003" data-attack="c003" aria-label="冥牙クロウルの攻撃を確認" disabled><img src="assets/rc25-icon-c003.webp" alt="" draggable="false"><span class="hero-name">冥牙クロウル</span><span class="hero-hp" aria-hidden="true"><i></i><span class="hero-percent">100%</span></span></button><button type="button" class="art-button skill-button" id="skill-c003" data-skill="c003" disabled><span>冥牙</span><small>発動可能</small></button></div>
   </section>
   <nav class="battle-controls" aria-label="演出プレビューの操作">
     <button type="button" class="art-button" id="battleAuto" disabled>自動再生</button>
     <button type="button" class="art-button" id="battleSpeed" aria-label="再生速度 1倍" disabled>×1</button>
     <button type="button" class="art-button" id="battleReset" disabled>リセット</button>
   </nav>
-  <footer class="battle-note"><span>HPは演出確認用の仮値</span><span>Ver.11.8 · BATTLE-RC25</span></footer>
+  <footer class="battle-note"><span>HP・スキル効果は確認用の仮値</span><span>Ver.11.8 · BATTLE-RC26</span></footer>
 </main>
 </body>
 </html>

@@ -16,11 +16,20 @@
   };
   const actors=Object.fromEntries(Object.keys(units).map(id=>[id,document.getElementById('actor-'+id)]));
   const cards=Object.fromEntries(heroIds.map(id=>[id,document.getElementById('card-'+id)]));
+  const skillButtons=[...root.querySelectorAll('[data-skill]')];
+  const skillNames={c001:'聖光',c002:'重砕撃',c003:'冥牙'};
   const actionButtons=[...root.querySelectorAll('[data-attack]')];
   const motionPreference=matchMedia('(prefers-reduced-motion: reduce)');
   const animations=new Set();
   const state={ready:false,failed:false,hp:{c001:100,c002:100,c003:100,guardian:100},auto:false,paused:false,busy:false,complete:false,speed:1,sequence:0,target:0,active:null,phase:'idle',impacts:0};
   let pending=null;
+  state.cooldowns={c001:0,c002:0,c003:0};
+  let cooldownStamp=performance.now();
+  function advanceCooldowns(){
+    const now=performance.now(),elapsed=Math.max(0,now-cooldownStamp);cooldownStamp=now;
+    if(!state.ready||state.paused||state.complete||document.hidden)return;
+    for(const id of heroIds)state.cooldowns[id]=Math.max(0,state.cooldowns[id]-elapsed*state.speed);
+  }
   function setStatus(message){status.textContent=message;}
   function clearTask(){if(pending)clearTimeout(pending.timer);pending=null;}
   function consumeTask(){
@@ -54,9 +63,15 @@
       if(cards[id]){
         const card=cards[id];card.style.setProperty('--hp',state.hp[id]+'%');card.dataset.defeated=String(state.hp[id]===0);card.dataset.active=String(state.active===id);card.disabled=actor.disabled;
         card.querySelector('.hero-percent').textContent=state.hp[id]+'%';
+        card.setAttribute('aria-label',units[id].name+' HP '+state.hp[id]+'% · 攻撃を確認');
       }
     }
-    document.getElementById('enemyPercent').textContent=state.hp.guardian+'%';
+    skillButtons.forEach(button=>{
+      const id=button.dataset.skill,remaining=state.cooldowns[id];
+      button.disabled=!state.ready||state.busy||state.auto||state.paused||state.complete||state.hp[id]===0||remaining>0;
+      button.querySelector('small').textContent=state.hp[id]===0?'戦闘不能':remaining>0?Math.ceil(remaining/1000)+'秒':state.complete?'終了':state.paused?'一時停止':state.auto||state.busy?'待機中':'発動可能';
+      button.setAttribute('aria-label',units[id].name+'の'+skillNames[id]+' · '+button.querySelector('small').textContent);
+    });
     autoButton.disabled=!state.ready||(!state.auto&&!state.paused&&state.busy);
     autoButton.textContent=state.paused?'再開':state.auto?'一時停止':state.complete?'もう一度':'自動再生';
     autoButton.setAttribute('aria-pressed',String(state.auto&&!state.paused));
@@ -89,21 +104,24 @@
     state.complete=true;state.auto=false;state.paused=false;state.busy=false;state.phase='complete';clearTask();clearVisuals();
     setStatus('演出プレビュー完了 · もう一度再生できます');render();return true;
   }
-  function startAction(attacker){
+  function startAction(attacker,skill=false){
+    advanceCooldowns();
+    if(skill&&(state.auto||!heroIds.includes(attacker)||state.cooldowns[attacker]>0))return;
     if(!state.ready||state.failed||state.busy||state.paused||state.complete||state.hp[attacker]===0)return;
     const target=attacker==='guardian'?nextLivingHero():'guardian';
     if(!target||state.hp[target]===0){finishIfNeeded();return;}
+    if(skill)state.cooldowns[attacker]=8000;
     state.busy=true;state.active=attacker;state.phase='windup';
-    setStatus((state.auto?'自動再生中 · ':'')+units[attacker].name+'の'+units[attacker].action);render();
+    setStatus((state.auto?'自動再生中 · ':'')+units[attacker].name+'の'+(skill?skillNames[attacker]:units[attacker].action));render();
     const direction=attacker==='guardian'?-1:1;
     const distance=attacker==='c001'?7:field.clientWidth*(attacker==='guardian'?.11:attacker==='c003'?.21:.16);
     animate(actors[attacker].querySelector('.actor-motion'),[{transform:'translate(0,0)',offset:0},{transform:`translate(${distance*direction}px,-3px)`,offset:.4},{transform:'translate(0,0)',offset:1}],760);
     schedule(()=>{
-      const amount=Math.min(state.hp[target],units[attacker].damage);
+      const amount=Math.min(state.hp[target],units[attacker].damage+(skill?10:0));
       state.hp[target]-=amount;state.impacts++;state.phase='impact';
       showImpact(attacker,target,amount);render();
       schedule(()=>{
-        state.busy=false;state.phase='idle';clearVisuals();
+        state.busy=false;state.active=null;state.phase='idle';clearVisuals();
         if(finishIfNeeded())return;
         setStatus(state.auto?'自動再生中 · 次の攻撃を準備':'味方・敵をタップで攻撃を確認');render();
         if(state.auto)schedule(nextAutoAction,520);
@@ -121,20 +139,22 @@
   }
   function pause(){
     if(!state.ready||state.paused||state.complete||(!state.auto&&!state.busy))return;
-    consumeTask();state.paused=true;animations.forEach(animation=>animation.pause());
+    advanceCooldowns();consumeTask();state.paused=true;animations.forEach(animation=>animation.pause());
     setStatus('一時停止中 · 再開で続きから再生');render();
   }
   function resume(){
     if(!state.paused)return;
-    state.paused=false;animations.forEach(animation=>animation.play());
+    cooldownStamp=performance.now();state.paused=false;animations.forEach(animation=>animation.play());
     setStatus(state.auto?'自動再生を再開しました':'攻撃の確認を再開しました');render();
     if(pending)armTask();else if(state.auto)nextAutoAction();
   }
   function reset(){
     clearTask();clearVisuals();
+    state.cooldowns={c001:0,c002:0,c003:0};cooldownStamp=performance.now();
     state.hp={c001:100,c002:100,c003:100,guardian:100};state.auto=false;state.paused=false;state.busy=false;state.complete=false;state.sequence=0;state.target=0;state.active=null;state.phase='idle';state.impacts=0;
     setStatus(state.ready?'味方・敵をタップで攻撃を確認':'画像を読み込んでいます…');render();
   }
+  skillButtons.forEach(button=>button.addEventListener('click',()=>{if(!button.disabled)startAction(button.dataset.skill,true);}));
   actionButtons.forEach(button=>button.addEventListener('click',()=>{if(button.disabled||state.auto)return;startAction(button.dataset.attack);}));
   autoButton.addEventListener('click',()=>{
     if(autoButton.disabled)return;
@@ -145,14 +165,17 @@
   });
   speedButton.addEventListener('click',()=>{
     if(speedButton.disabled)return;
-    consumeTask();state.speed=state.speed===1?2:1;
+    advanceCooldowns();consumeTask();state.speed=state.speed===1?2:1;
     animations.forEach(animation=>animation.updatePlaybackRate(state.speed));
     render();if(pending&&!state.paused)armTask();
   });
   resetButton.addEventListener('click',()=>{if(!resetButton.disabled)reset();});
   document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();});
-  window.addEventListener('pagehide',()=>{clearTask();clearVisuals();state.busy=false;state.auto=false;state.paused=false;state.phase=state.complete?'complete':'idle';render();});
+  window.addEventListener('pagehide',()=>{clearInterval(cooldownTicker);cooldownTicker=null;clearTask();clearVisuals();state.busy=false;state.auto=false;state.paused=false;state.phase=state.complete?'complete':'idle';render();});
   motionPreference.addEventListener('change',()=>{if(motionPreference.matches){animations.forEach(animation=>animation.cancel());animations.clear();}});
+  const tickCooldowns=()=>{advanceCooldowns();render();};
+  let cooldownTicker=setInterval(tickCooldowns,100);
+  window.addEventListener('pageshow',()=>{if(cooldownTicker===null){cooldownStamp=performance.now();cooldownTicker=setInterval(tickCooldowns,100);}});
   window.battlePreview=Object.freeze({snapshot:()=>JSON.parse(JSON.stringify(state))});
   render();
   Promise.all([...root.querySelectorAll('img')].map(async img=>{
