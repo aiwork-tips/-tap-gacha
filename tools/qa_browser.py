@@ -1096,7 +1096,8 @@ with sync_playwright() as pw:
           and battle.evaluate('({local:Object.entries(localStorage).sort(),session:Object.entries(sessionStorage).sort()})')==storage_before)
     # The exact standalone builder is also used for the downloadable HTML.
     subprocess.run([sys.executable,str(ROOT/'tools/build_battle_preview.py')],check=True,cwd=ROOT)
-    portable=battle_context.new_page()
+    portable_context=browser.new_context(viewport={'width':393,'height':654},is_mobile=True,has_touch=True)
+    portable=portable_context.new_page()
     portable.on('pageerror',lambda err:errors.append('portable battle: '+str(err)))
     external=[]
     portable.on('request',lambda request:external.append(request.url) if request.resource_type!='document' and request.url.startswith(('http:','https:')) else None)
@@ -1108,7 +1109,7 @@ with sync_playwright() as pw:
     portable.clock.fast_forward(310)
     check('RC25 the standalone HTML runs the same live attack without external assets',
           portable.evaluate('battlePreview.snapshot().hp.guardian')==86 and not external)
-    portable.close()
+    portable_context.close()
     battle_context.close()
     reduced=browser.new_context(viewport={'width':320,'height':568},is_mobile=True,has_touch=True,reduced_motion='reduce')
     battle=reduced.new_page()
