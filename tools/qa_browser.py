@@ -16,7 +16,7 @@ errors=[]
 
 def check(label, ok):
     if not ok:
-        if label.startswith('RC23') and 'reward' in globals():
+        if label.startswith(('RC23','RC24')) and 'reward' in globals():
             reward.screenshot(path=str(SHOTS/f'{ENGINE}-party-failure.png'))
         raise AssertionError(f'{label} FAILED; JS errors: {errors}')
     passed.append(label)
@@ -782,6 +782,10 @@ with sync_playwright() as pw:
     reward.locator('[data-party-character="c001"]').evaluate("el=>{el.click();el.dispatchEvent(new MouseEvent('click',{bubbles:true}));}")
     check('RC23 direct and synthetic clicks cannot reselect a formed character',pids()==draft_before and 'partyIds' not in rstate())
     reward.locator('[data-party-slot="1"]').click()
+    check('RC24 the replacement target has one explicit active badge',
+          reward.locator('#partySlots [aria-pressed="true"]').count()==1
+          and reward.locator('[data-party-slot="1"] .party-slot-marker').inner_text()=='2枠・入替中'
+          and '2枠目を選択中' in reward.locator('#partyHint').inner_text())
     reward.locator('[data-party-character="c004"]').click()
     check('RC23 replacing a slot immediately disables the new member and releases the old one',
           pids()==['白翼のアルム','夜叉','冥牙クロウル']
@@ -794,12 +798,18 @@ with sync_playwright() as pw:
     reward.locator('[data-party-slot="2"]').click()
     reward.locator('[data-party-character="c004"]').click()
     previous=rstate()
+    roster_before_feedback=reward.locator('#partyRosterScroll').bounding_box()
     reward.locator('#partyConfirm').click()
     saved=rstate()
     check('RC23 confirming saves three unique owned IDs without changing resources',
           saved.get('partyIds')==['c001','c002','c004']
           and {k:v for k,v in saved.items() if k!='partyIds'}==previous
           and reward.locator('#partyResult').inner_text()=='3体の編成を保存しました')
+    check('RC24 the save receipt does not consume roster space',reward.locator('#partyRosterScroll').bounding_box()==roster_before_feedback)
+    reward.clock.fast_forward(2800)
+    check('RC24 the saved receipt disappears automatically without moving the roster',
+          reward.locator('#partyResult').inner_text()==''
+          and reward.locator('#partyRosterScroll').bounding_box()==roster_before_feedback)
     reward.reload(wait_until='load')
     reward.locator('.kit-transfer').click()
     check('RC23 confirmed formation survives reload with matching disabled rows',
@@ -820,6 +830,8 @@ with sync_playwright() as pw:
           rstate()==previous and reward.evaluate("tapGacha.getSave().partyIds")==previous['partyIds']
           and pids()==['黒耀ヴァルグ','鉄骸兵','夜叉']
           and '保存できませんでした' in reward.locator('#partyResult').inner_text())
+    reward.clock.fast_forward(3000)
+    check('RC24 a failed-save explanation stays available for retry','保存できませんでした' in reward.locator('#partyResult').inner_text())
     reward.evaluate("() => {Storage.prototype.setItem=window.__partyStorageSet;}")
     reward.locator('#partyConfirm').click()
     check('RC23 a retry saves the pending draft exactly once',rstate()['partyIds']==['c005','c002','c004'])
@@ -846,7 +858,7 @@ with sync_playwright() as pw:
     reward.locator('#partyConfirm').click()
     check('RC23 only canonical owned IDs are written on confirmation',rstate()['partyIds']==['c001','c002','c015'])
     reward.locator('[data-party-character="c009"]').click()
-    for width,height in ((320,568),(393,654),(390,844),(430,932)):
+    for width,height in ((320,568),(360,600),(393,654),(390,636),(390,844),(430,932)):
         reward.set_viewport_size({'width':width,'height':height})
         party_nav=reward.locator('#partyScreen > .kit-shared-nav').evaluate("""nav=>[nav,...nav.querySelectorAll('button'),...nav.querySelectorAll('button>img')].map(el=>{const r=el.getBoundingClientRect();return [r.x,r.y,r.width,r.height]})""")
         home_nav=reward.locator('#homeScreen > .kit-shared-nav').evaluate("""nav=>{
@@ -856,22 +868,39 @@ with sync_playwright() as pw:
         }""")
         if party_nav!=home_nav:print('RC23 NAV GEOMETRY',json.dumps({'party':party_nav,'home':home_nav}),flush=True)
         check(f'RC23 shared menu retains identical artwork positions at {width}x{height}',party_nav==home_nav)
-        check(f'RC23 formation controls and live names remain readable at {width}x{height}',reward.evaluate(r"""async () => {
+        layout=reward.evaluate(r"""async () => {
           const root=document.querySelector('#partyScreen'),roster=document.querySelector('#partyRosterScroll');
           const nav=root.querySelector('.kit-shared-nav').getBoundingClientRect();
           const rects=['.party-header','.party-slots','.party-hint','.party-footer'].map(s=>root.querySelector(s).getBoundingClientRect());
           const names=[...root.querySelectorAll('.party-slot-name,.party-candidate-name')];
-          const frames=[root.querySelector('.party-header h1'),root.querySelector('.party-slot'),root.querySelector('.party-candidate'),root.querySelector('.party-confirm')];
+          const frames=[root.querySelector('.party-header h1'),root.querySelector('.party-back'),root.querySelector('.party-slot'),root.querySelector('.party-candidate'),root.querySelector('.party-confirm')];
           const ready=await Promise.all(frames.map(el=>{
-            const css=getComputedStyle(el.matches('.party-slot')?el:el,el.matches('.party-slot')?'::after':null);
+            const css=getComputedStyle(el,el.matches('.party-slot,.party-candidate')?'::after':null);
             const match=css.backgroundImage.match(/url\(["']?(.*?)["']?\)/);if(!match)return false;
             return new Promise(resolve=>{const image=new Image();image.onload=()=>resolve(image.naturalWidth>0);image.onerror=()=>resolve(false);image.src=match[1]});
           }));
-          return ready.every(Boolean)&&rects.every(r=>r.left>=-1&&r.right<=innerWidth+1&&r.top>=0&&r.bottom<nav.top)
-            &&roster.clientHeight>=72&&roster.scrollHeight>roster.clientHeight
-            &&names.every(el=>el.scrollWidth<=el.clientWidth+1&&el.scrollHeight<=el.clientHeight+1&&parseFloat(getComputedStyle(el).fontSize)>=12)
-            &&[...root.querySelectorAll('.party-slot,.party-candidate,.party-confirm')].every(el=>getComputedStyle(el).borderTopWidth==='0px');
-        }"""))
+          const badNames=names.filter(el=>el.scrollWidth>el.clientWidth+1||el.scrollHeight>el.clientHeight+1||parseFloat(getComputedStyle(el).fontSize)<12)
+            .map(el=>({name:el.textContent,width:el.clientWidth,scrollWidth:el.scrollWidth,height:el.clientHeight,scrollHeight:el.scrollHeight,font:getComputedStyle(el).fontSize}));
+          return {artReady:ready.every(Boolean),controlsFit:rects.every(r=>r.left>=-1&&r.right<=innerWidth+1&&r.top>=0&&r.bottom<nav.top),
+            rosterScrollable:roster.clientHeight>=72&&roster.scrollHeight>roster.clientHeight,namesFit:badNames.length===0,
+            noDoubleFrames:[...root.querySelectorAll('.party-slot,.party-candidate,.party-confirm,.party-back')].every(el=>getComputedStyle(el).borderTopWidth==='0px'),
+            badNames:badNames,rosterHeight:roster.clientHeight,rosterScrollHeight:roster.scrollHeight};
+        }""")
+        print('RC24 readable layout',width,height,json.dumps(layout,ensure_ascii=False),flush=True)
+        check(f'RC24 formation controls and live names remain readable at {width}x{height}',
+              all(layout[k] for k in ('artReady','controlsFit','rosterScrollable','namesFit','noDoubleFrames')))
+        reward.locator('#partyRosterScroll').evaluate('el=>el.scrollTop=0')
+        visible_cards=reward.evaluate("""() => {
+          const panel=document.querySelector('#partyRosterScroll'),p=panel.getBoundingClientRect();
+          const cards=[...document.querySelectorAll('#partyRoster .party-candidate')];
+          const fully=cards.filter(el=>{const r=el.getBoundingClientRect();return r.left>=p.left-1&&r.right<=p.right+1&&r.top>=p.top-1&&r.bottom<=p.bottom+1});
+          return {count:fully.length,firstRowColumns:new Set(cards.slice(0,4).map(el=>Math.round(el.getBoundingClientRect().x))).size,
+            smallTargets:cards.some(el=>{const r=el.getBoundingClientRect();return r.width<44||r.height<44}),
+            panel: {width:p.width,height:p.height}, card:cards[0].getBoundingClientRect().toJSON()};
+        }""")
+        print('RC24 visible roster',width,height,json.dumps(visible_cards),flush=True)
+        check(f'RC24 at least eight full cards fit in four columns at {width}x{height}',
+              visible_cards['count']>=8 and visible_cards['firstRowColumns']==4 and not visible_cards['smallTargets'])
         reward.locator('#partyRosterScroll').evaluate('el=>el.scrollTop=el.scrollHeight')
         check(f'RC23 all fifteen characters stay reachable by scrolling at {width}px',reward.locator('[data-party-character="c015"]').evaluate("el=>{const r=el.getBoundingClientRect(),s=el.closest('.party-roster-scroll').getBoundingClientRect();return r.top>=s.top-1&&r.bottom<=s.bottom+1}"))
         reward.locator('#partyRosterScroll').evaluate('el=>el.scrollTop=0')

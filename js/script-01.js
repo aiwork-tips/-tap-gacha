@@ -1087,6 +1087,12 @@
   const partyConfirm = homeEl('partyConfirm');
   let partyDraft = [];
   let partySelectedSlot = 0;
+  let partyFeedbackTimer;
+  function partyFeedback(message='',temporary=false){
+    clearTimeout(partyFeedbackTimer);
+    partyResult.textContent=message;
+    if(temporary)partyFeedbackTimer=setTimeout(()=>{partyResult.textContent='';},2600);
+  }
   const partyEntry = document.querySelector('.kit-transfer');
   if(rewardPreview){
     partyEntry.setAttribute('aria-label','転移門・出撃準備');
@@ -1120,7 +1126,7 @@
   function beginParty(){
     partyDraft=normalizedParty(gameSave.partyIds,true);
     partySelectedSlot=0;
-    partyResult.textContent='';
+    partyFeedback();
     homeEl('partyRosterScroll').scrollTop=0;
     renderParty();
   }
@@ -1136,7 +1142,8 @@
       button.disabled=index>=activeSlots;
       button.setAttribute('aria-pressed',String(index===partySelectedSlot&&index<activeSlots));
       button.setAttribute('aria-label',`${index+1}枠目 ${c?c.name:'空き枠'}${index<activeSlots?'・入れ替え先を選択':''}`);
-      const marker=document.createElement('span');marker.className='party-slot-marker';marker.textContent=`${index+1}枠`;
+      const marker=document.createElement('span');marker.className='party-slot-marker';
+      marker.textContent=`${index+1}枠${index===partySelectedSlot&&index<activeSlots?'・入替中':''}`;
       if(c){
         const img=document.createElement('img');img.className='party-slot-art';img.src=c.image;img.alt='';img.draggable=false;
         button.appendChild(img);
@@ -1152,7 +1159,7 @@
       button.append(marker,name);
       button.addEventListener('click',()=>{
         if(button.disabled)return;
-        partySelectedSlot=index;partyResult.textContent='';renderParty();
+        partySelectedSlot=index;partyFeedback();renderParty();
         partySlots.children[index].focus({preventScroll:true});
       });
       partySlots.appendChild(button);
@@ -1162,6 +1169,7 @@
       const position=partyDraft.indexOf(c.id);
       const button=document.createElement('button');button.type='button';button.className='party-candidate';
       button.dataset.partyCharacter=c.id;
+      button.dataset.partyFormed=String(position!==-1);
       // Native disabled blocks pointer/keyboard activation; the handler also guards stale events.
       button.disabled=position!==-1||saveRecoveryBlocked;
       button.setAttribute('aria-label',`${c.name}・${position!==-1?`${position+1}枠目に編成中`:`${partySelectedSlot+1}枠目に編成`}`);
@@ -1172,7 +1180,7 @@
       button.addEventListener('click',()=>{
         if(!rewardPreview||saveRecoveryBlocked||partyDraft.includes(c.id)||!collection[c.id]?.owned)return;
         partyDraft[partySelectedSlot]=c.id;
-        partyResult.textContent='';renderParty();
+        partyFeedback();renderParty();
         partySlots.children[partySelectedSlot].focus({preventScroll:true});
       });
       partyRoster.appendChild(button);
@@ -1195,9 +1203,9 @@
     gameSave.partyIds=valid;
     if(!saveUnified()){
       if(hadPrevious)gameSave.partyIds=previous;else delete gameSave.partyIds;
-      partyResult.textContent='保存できませんでした。もう一度お試しください。';return;
+      partyFeedback('保存できませんでした。もう一度お試しください。');return;
     }
-    partyResult.textContent=`${valid.length}体の編成を保存しました`;
+    partyFeedback(`${valid.length}体の編成を保存しました`,true);
   });
 
   // Mission board UI is deliberately separate from the shop and the approved home design.
@@ -1346,6 +1354,7 @@
     questScreen.classList.toggle('active',toQuest);
     partyScreen.classList.toggle('active',toParty);
     if(toParty)beginParty();
+    else partyFeedback();
     if(!toQuest)closeQuestReward();
     document.getElementById('devBuildLabel').style.display=toQuest?'none':'';
     if(toQuest)renderQuest();
