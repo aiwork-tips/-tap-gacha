@@ -1121,6 +1121,10 @@ with sync_playwright() as pw:
     battle.locator('#skill-c003').click()
     battle.clock.fast_forward(780)
     check('RC26 wolf skill has distinct damage',bstate()['hp']['guardian']==52)
+    battle.evaluate("window.dispatchEvent(new Event('pagehide'))")
+    battle.evaluate("window.dispatchEvent(new Event('pageshow'))")
+    battle.clock.fast_forward(8100)
+    check('RC26 restored pages resume skill cooldowns',battle.locator('#skill-c003').is_enabled())
     battle.screenshot(path=str(SHOTS/f'{ENGINE}-battle-skills.png'))
     battle.locator('#battleReset').click()
     # The exact standalone builder is also used for the downloadable HTML.

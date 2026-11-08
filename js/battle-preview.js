@@ -171,9 +171,11 @@
   });
   resetButton.addEventListener('click',()=>{if(!resetButton.disabled)reset();});
   document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();});
-  window.addEventListener('pagehide',()=>{clearInterval(cooldownTicker);clearTask();clearVisuals();state.busy=false;state.auto=false;state.paused=false;state.phase=state.complete?'complete':'idle';render();});
+  window.addEventListener('pagehide',()=>{clearInterval(cooldownTicker);cooldownTicker=null;clearTask();clearVisuals();state.busy=false;state.auto=false;state.paused=false;state.phase=state.complete?'complete':'idle';render();});
   motionPreference.addEventListener('change',()=>{if(motionPreference.matches){animations.forEach(animation=>animation.cancel());animations.clear();}});
-  const cooldownTicker=setInterval(()=>{advanceCooldowns();render();},100);
+  const tickCooldowns=()=>{advanceCooldowns();render();};
+  let cooldownTicker=setInterval(tickCooldowns,100);
+  window.addEventListener('pageshow',()=>{if(cooldownTicker===null){cooldownStamp=performance.now();cooldownTicker=setInterval(tickCooldowns,100);}});
   window.battlePreview=Object.freeze({snapshot:()=>JSON.parse(JSON.stringify(state))});
   render();
   Promise.all([...root.querySelectorAll('img')].map(async img=>{
