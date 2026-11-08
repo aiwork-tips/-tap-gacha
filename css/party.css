@@ -21,6 +21,7 @@
 #partyScreen .party-slot[aria-pressed=true]::after{filter:brightness(1.25) drop-shadow(0 0 4px #ffd28788)}
 #partyScreen .party-slot-art{position:absolute;left:3.4%;top:3.8%;width:93.2%;height:74.8%;object-fit:cover;object-position:center;background:radial-gradient(ellipse at 50% 40%,#275988,#0a2443 85%)}
 #partyScreen .party-slot-name{position:absolute;inset:77.5% 7% .5%;z-index:3;display:flex;align-items:center;justify-content:center;font-size:13px;line-height:1.05;overflow-wrap:anywhere;text-shadow:0 1px 2px #000a}
+#partyScreen .party-slot-name>span{max-width:100%;word-break:keep-all;overflow-wrap:normal}
 #partyScreen .party-slot-marker{position:absolute;top:7%;left:7%;z-index:3;padding:3px 5px;border-radius:3px;background:#0a2045ed;color:#ffe9b5;font:700 11px/1.1 system-ui}
 #partyScreen .party-slot[aria-pressed=true] .party-slot-marker{background:#ffe2a4;color:#152c46}
 #partyScreen .party-slot-empty{position:absolute;left:5%;right:5%;top:26%;color:#b5ccdf;font-size:36px}

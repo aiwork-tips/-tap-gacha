@@ -1144,6 +1144,11 @@
         const empty=document.createElement('span');empty.className='party-slot-empty';empty.textContent='＋';empty.setAttribute('aria-hidden','true');button.appendChild(empty);
       }
       const name=document.createElement('span');name.className='party-slot-name';name.textContent=c?c.name:'空き枠';
+      if(c?.id==='c009'){
+        const label=document.createElement('span');
+        label.append(document.createTextNode('紫電'),document.createElement('wbr'),document.createTextNode('アルカディオ'));
+        name.replaceChildren(label);
+      }
       button.append(marker,name);
       button.addEventListener('click',()=>{
         if(button.disabled)return;
