@@ -824,12 +824,19 @@ with sync_playwright() as pw:
     reward.locator('#partyConfirm').click()
     check('RC23 a retry saves the pending draft exactly once',rstate()['partyIds']==['c005','c002','c004'])
     party_backup=rstate()
+    reward.add_init_script("""(() => {
+      const next=sessionStorage.getItem('__qa_party_next');
+      if(next){
+        sessionStorage.removeItem('__qa_party_next');
+        sessionStorage.setItem('tapgacha_reward_rc20_preview',next);
+      }
+    })()""")
     reward.evaluate("""() => {
       const s=JSON.parse(sessionStorage.getItem('tapgacha_reward_rc20_preview'));
       s.characters=Object.fromEntries(Array.from({length:15},(_,i)=>['c'+String(i+1).padStart(3,'0'),
         {owned:true,level:100,cap:100,shards:12,trainingCapStep:100}]));
       s.partyIds=['c01','c01','c999',null,'c002','c015'];
-      sessionStorage.setItem('tapgacha_reward_rc20_preview',JSON.stringify(s));
+      sessionStorage.setItem('__qa_party_next',JSON.stringify(s));
     }""")
     reward.reload(wait_until='load')
     reward.locator('.kit-transfer').click()
@@ -853,7 +860,7 @@ with sync_playwright() as pw:
           const nav=root.querySelector('.kit-shared-nav').getBoundingClientRect();
           const rects=['.party-header','.party-slots','.party-hint','.party-footer'].map(s=>root.querySelector(s).getBoundingClientRect());
           const names=[...root.querySelectorAll('.party-slot-name,.party-candidate-name')];
-          const frames=[root.querySelector('.party-header'),root.querySelector('.party-slot'),root.querySelector('.party-candidate'),root.querySelector('.party-confirm')];
+          const frames=[root.querySelector('.party-header h1'),root.querySelector('.party-slot'),root.querySelector('.party-candidate'),root.querySelector('.party-confirm')];
           const ready=await Promise.all(frames.map(el=>{
             const css=getComputedStyle(el.matches('.party-slot')?el:el,el.matches('.party-slot')?'::after':null);
             const match=css.backgroundImage.match(/url\(["']?(.*?)["']?\)/);if(!match)return false;
@@ -875,7 +882,7 @@ with sync_playwright() as pw:
           const s=JSON.parse(sessionStorage.getItem('tapgacha_reward_rc20_preview'));
           s.characters=Object.fromEntries(Array.from({length:count},(_,i)=>['c'+String(i+1).padStart(3,'0'),{owned:true,level:1,cap:100,shards:0,trainingCapStep:100}]));
           s.partyIds=['c015','c001','c001'];
-          sessionStorage.setItem('tapgacha_reward_rc20_preview',JSON.stringify(s));
+          sessionStorage.setItem('__qa_party_next',JSON.stringify(s));
         }""",count)
         reward.reload(wait_until='load')
         reward.locator('.kit-transfer').click()
@@ -888,7 +895,7 @@ with sync_playwright() as pw:
         if count:
             reward.locator('#partyConfirm').click()
             check(f'RC23 a smaller owned formation of {count} members can be saved',rstate()['partyIds']==[f'c00{i+1}' for i in range(count)])
-    reward.evaluate("s=>sessionStorage.setItem('tapgacha_reward_rc20_preview',JSON.stringify(s))",party_backup)
+    reward.evaluate("s=>sessionStorage.setItem('__qa_party_next',JSON.stringify(s))",party_backup)
     reward.reload(wait_until='load')
     check('RC23 formation changes leave every live localStorage key unchanged',reward.evaluate("Object.entries(localStorage).sort()")==live_before)
     preview.close()
