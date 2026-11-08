@@ -850,9 +850,9 @@ with sync_playwright() as pw:
         reward.set_viewport_size({'width':width,'height':height})
         party_nav=reward.locator('#partyScreen > .kit-shared-nav').evaluate("""nav=>[nav,...nav.querySelectorAll('button'),...nav.querySelectorAll('button>img')].map(el=>{const r=el.getBoundingClientRect();return [r.x,r.y,r.width,r.height]})""")
         home_nav=reward.locator('#homeScreen > .kit-shared-nav').evaluate("""nav=>{
-          const home=nav.closest('.screen');home.style.display='block';
+          const home=nav.closest('.screen');home.classList.add('active');
           const boxes=[nav,...nav.querySelectorAll('button'),...nav.querySelectorAll('button>img')].map(el=>{const r=el.getBoundingClientRect();return [r.x,r.y,r.width,r.height]});
-          home.style.display='';return boxes;
+          home.classList.remove('active');return boxes;
         }""")
         if party_nav!=home_nav:print('RC23 NAV GEOMETRY',json.dumps({'party':party_nav,'home':home_nav}),flush=True)
         check(f'RC23 shared menu retains identical artwork positions at {width}x{height}',party_nav==home_nav)
