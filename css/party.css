@@ -1,0 +1,66 @@
+/* PARTY-RC23: generated artwork supplies the frames; names and controls stay live. */
+#partyScreen{background:#071d36;color:#fff1d1;font-family:'Yu Mincho','Hiragino Mincho ProN',serif;overflow:hidden}
+#partyScreen *{box-sizing:border-box}
+#partyScreen .party-backdrop{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 40%;pointer-events:none}
+#partyScreen .party-veil{position:absolute;inset:0;background:linear-gradient(180deg,#061b3970,#071e3cbd 25%,#061c38e8);pointer-events:none}
+#partyScreen .party-shell{position:absolute;inset:5px 10px calc(13.3% + 9px);z-index:2;display:flex;flex-direction:column;min-height:0;max-width:530px;margin:auto;padding:0 2px}
+#partyScreen h1,#partyScreen h2,#partyScreen p{margin:0}
+#partyScreen button{font-family:inherit;appearance:none;-webkit-appearance:none;touch-action:manipulation;cursor:pointer}
+#partyScreen button:disabled{cursor:default;opacity:1}
+#partyScreen button:focus-visible,#partyScreen .party-roster-scroll:focus-visible{outline:2px solid #d8f2ff;outline-offset:2px}
+#partyScreen .party-header{position:relative;flex:none;height:94px;padding-top:3px;background:url('../assets/rc23-party-title.webp') center/100% 100% no-repeat;text-align:center;display:grid;place-items:center}
+#partyScreen .party-header h1{padding-top:20px;font-size:27px;line-height:1.05;letter-spacing:.12em;text-shadow:0 2px 3px #000a}
+#partyScreen .party-header h1 span{display:block;margin-top:6px;font:600 12px/1.1 system-ui;letter-spacing:.16em;color:#e1ecff}
+#partyScreen .party-back{position:absolute;left:17px;top:47px;min-height:34px;padding:4px 6px;border:0;background:transparent;color:#fff2d5;font-size:12px;line-height:1.2;text-shadow:0 1px 3px #00142f}
+#partyScreen .party-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;flex:none;min-height:31px;padding:4px 3px}
+#partyScreen .party-heading h2{font-size:16px;line-height:1.35;letter-spacing:.035em}
+#partyScreen .party-heading>span{font:550 12px/1.35 system-ui;color:#dae8fb;white-space:nowrap}
+#partyScreen .party-slots{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;flex:none;padding:2px 1px 0}
+#partyScreen .party-slot{position:relative;display:block;width:100%;aspect-ratio:.79;border:0;padding:0;background:transparent;color:#fff2d6;text-align:center;min-width:0;overflow:visible}
+#partyScreen .party-slot::after{content:'';position:absolute;inset:0;background:url('../assets/rc23-party-portrait.webp') center/100% 100% no-repeat;pointer-events:none;z-index:2}
+#partyScreen .party-slot[aria-pressed=true]::after{filter:brightness(1.25) drop-shadow(0 0 4px #ffd28788)}
+#partyScreen .party-slot-art{position:absolute;left:3.4%;top:3.8%;width:93.2%;height:74.8%;object-fit:cover;object-position:center;background:radial-gradient(ellipse at 50% 40%,#275988,#0a2443 85%)}
+#partyScreen .party-slot-name{position:absolute;inset:78% 7% 4%;z-index:3;display:flex;align-items:center;justify-content:center;font-size:13px;line-height:1.25;overflow-wrap:anywhere;text-shadow:0 1px 2px #000a}
+#partyScreen .party-slot-marker{position:absolute;top:7%;left:7%;z-index:3;padding:3px 5px;border-radius:3px;background:#0a2045ed;color:#ffe9b5;font:700 11px/1.1 system-ui}
+#partyScreen .party-slot[aria-pressed=true] .party-slot-marker{background:#ffe2a4;color:#152c46}
+#partyScreen .party-slot-empty{position:absolute;left:5%;right:5%;top:26%;color:#b5ccdf;font-size:36px}
+#partyScreen .party-hint{flex:none;margin:9px 0 8px;padding:9px 6px;border-radius:5px;background:#285781ef;color:#f4f9ff;text-align:center;font:650 13px/1.4 system-ui;min-height:36px}
+#partyScreen .party-roster-scroll{min-height:0;flex:1;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#b89a60 #0c2a48;touch-action:pan-y;padding:2px 2px 8px}
+#partyScreen .party-roster{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+#partyScreen .party-candidate{position:relative;display:grid;grid-template-columns:45px minmax(0,1fr);grid-template-rows:1fr auto;gap:0 6px;min-width:0;min-height:82px;padding:10px 11px;border:0;background:transparent url('../assets/rc23-party-roster.webp') center/100% 100% no-repeat;color:#fff2d9;text-align:left}
+#partyScreen .party-candidate img{grid-column:1;grid-row:1/3;width:45px;height:60px;object-fit:cover;object-position:center;border-radius:2px;background:#153855;align-self:center}
+#partyScreen .party-candidate-name{align-self:center;font-size:13px;line-height:1.35;overflow-wrap:anywhere;min-width:0}
+#partyScreen .party-candidate-state{grid-column:2;font:600 11px/1.4 system-ui;color:#b8d8f5;padding-top:3px}
+#partyScreen .party-candidate:disabled img{filter:saturate(.68)}
+#partyScreen .party-candidate:disabled .party-candidate-state{color:#f5d596}
+#partyScreen .party-candidate:not(:disabled):active{filter:brightness(1.25)}
+#partyScreen .party-empty{padding:19px 10px;color:#e2edfc;text-align:center;font:500 14px/1.8 system-ui}
+#partyScreen .party-footer{flex:none;padding:8px 0 0;text-align:center}
+#partyScreen .party-confirm{display:block;width:min(100%,310px);height:66px;margin:0 auto;border:0;padding:10px 35px;background:transparent url('../assets/rc23-party-confirm.webp') center/100% 100% no-repeat;color:#fff1cf;font-size:19px;font-weight:750;line-height:1.2;letter-spacing:.06em;text-shadow:0 2px 3px #001633}
+#partyScreen .party-confirm:disabled{filter:saturate(.35);color:#d6e0eb}
+#partyScreen .party-confirm:not(:disabled):active{filter:brightness(1.2)}
+#partyScreen .party-result{min-height:19px;margin-top:3px;color:#e8f1ff;font:550 12px/1.45 system-ui}
+#partyScreen .kit-shared-nav{background:#071d35}
+@media(max-width:359px){
+ #partyScreen .party-shell{left:7px;right:7px}
+ #partyScreen .party-header{height:82px}
+ #partyScreen .party-header h1{font-size:24px;padding-top:18px}
+ #partyScreen .party-back{left:12px;top:40px;font-size:11px}
+ #partyScreen .party-candidate{grid-template-columns:36px minmax(0,1fr);gap:0 5px;min-height:77px;padding:9px}
+ #partyScreen .party-candidate img{width:36px;height:53px}
+ #partyScreen .party-candidate-name{font-size:12px}
+ #partyScreen .party-slot-name{font-size:12px}
+}
+@media(max-height:690px){
+ #partyScreen .party-header{height:76px}
+ #partyScreen .party-header h1{font-size:24px;padding-top:15px}
+ #partyScreen .party-header h1 span{font-size:11px;margin-top:4px}
+ #partyScreen .party-back{top:36px}
+ #partyScreen .party-heading{min-height:28px;padding:3px}
+ #partyScreen .party-slots{max-width:330px;width:100%;margin:0 auto}
+ #partyScreen .party-slot{aspect-ratio:.86}
+ #partyScreen .party-hint{margin:6px 0 4px;padding:7px 4px;min-height:32px;font-size:12px}
+ #partyScreen .party-footer{padding-top:5px}
+ #partyScreen .party-confirm{height:55px;width:min(100%,280px);font-size:18px}
+}
+@media(prefers-reduced-motion:reduce){#partyScreen *{scroll-behavior:auto}}

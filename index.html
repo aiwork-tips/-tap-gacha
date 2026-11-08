@@ -7,7 +7,7 @@
 <meta content="#071827" name="theme-color"/>
 <meta content="yes" name="apple-mobile-web-app-capable"/>
 <meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
-<title>Ver.11.8 GIFT-RC22 · タップ育成ガチャ -覚醒-</title>
+<title>Ver.11.8 PARTY-RC23 · タップ育成ガチャ -覚醒-</title>
 <!-- Unified Save Rev.3: tapgacha_save_v3 / legacy gV2 preserved read-only -->
 <link rel="stylesheet" href="css/style-01.css">
 
@@ -429,7 +429,7 @@
       <div class="shop-bridge"><button type="button" class="shop-to-character" id="shopGoCharacter">キャラ育成へ →</button></div>
       <div class="shop-future">現在購入できるのは「上限解放の鍵」のみです。<br>新アイテムの価格・効果は後日決定します。</div>
     </div>
-    <span class="shop-version">Ver.11.8 · GIFT-RC22</span>
+    <span class="shop-version">Ver.11.8 · PARTY-RC23</span>
   </div>
 </section>
 
@@ -439,7 +439,7 @@
 <section class="screen" id="questScreen" aria-label="依頼掲示板">
   <img id="questBackdrop" class="quest-backdrop" alt="" aria-hidden="true" />
   <div class="quest-scrim"></div>
-  <span class="quest-version">Ver.11.8 · GIFT-RC22</span>
+  <span class="quest-version">Ver.11.8 · PARTY-RC23</span>
   <div class="quest-shell">
     <header class="quest-top">
       <div class="quest-head"><button id="questBackHome" type="button" class="quest-home">⌂ ホーム</button><h1 class="quest-title">依頼掲示板</h1></div>
@@ -457,6 +457,29 @@
   </div>
   <div class="quest-modal" id="questRewardModal" role="dialog" aria-modal="true" aria-label="報酬獲得" aria-hidden="true">
     <div class="quest-reward"><img class="quest-reward-art" alt="" aria-hidden="true" src="assets/3b101f31222738cfb429.png"><span class="quest-gain" id="questRewardAmount" aria-live="polite">+0 PT</span><button class="quest-close" id="questRewardClose" type="button" aria-label="報酬画面を閉じる">OK</button></div>
+  </div>
+</section>
+
+<section class="screen" id="partyScreen" aria-label="転移門・出撃準備">
+  <img class="party-backdrop" src="assets/2f41a6f6e229cc01b483.webp" alt="" draggable="false">
+  <div class="party-veil" aria-hidden="true"></div>
+  <div class="party-shell">
+    <header class="party-header">
+      <button type="button" id="partyBackHome" class="party-back">ホーム</button>
+      <h1>転移門 <span>出撃準備</span></h1>
+    </header>
+    <div class="party-heading"><h2>出撃メンバー</h2><span id="partyCount">0 / 3体</span></div>
+    <div class="party-slots" id="partySlots" role="group" aria-label="入れ替える枠を選択"></div>
+    <p class="party-hint" id="partyHint" aria-live="polite">入れ替える枠を選んでください</p>
+    <div class="party-heading"><h2>所持キャラクター</h2><span id="partyOwnedCount"></span></div>
+    <div class="party-roster-scroll" id="partyRosterScroll" role="region" aria-label="所持キャラクター一覧・縦スクロール" tabindex="0">
+      <div class="party-roster" id="partyRoster"></div>
+      <p class="party-empty" id="partyEmpty" hidden>召喚門で仲間を迎えると、ここで編成できます。</p>
+    </div>
+    <footer class="party-footer">
+      <button class="party-confirm" id="partyConfirm" type="button" disabled>編成を決定</button>
+      <p id="partyResult" class="party-result" role="status" aria-live="polite"></p>
+    </footer>
   </div>
 </section>
 
@@ -490,7 +513,7 @@
 </dialog>
 
 <div class="toast" id="toast"></div>
-<div id="devBuildLabel" aria-label="開発検証版 Ver.11.8 GIFT-RC22">Ver.11.8 · GIFT-RC22</div>
+<div id="devBuildLabel" aria-label="開発検証版 Ver.11.8 PARTY-RC23">Ver.11.8 · PARTY-RC23</div>
 </main>
 <script src="js/script-01.js"></script>
 
@@ -508,6 +531,7 @@
 <link rel="stylesheet" href="css/encyclopedia.css">
 <link rel="stylesheet" href="css/shop-reward.css">
 <link rel="stylesheet" href="css/login-gift.css">
+<link rel="stylesheet" href="css/party.css">
 <script src="js/script-03.js"></script>
 
 <script src="js/script-04.js"></script>

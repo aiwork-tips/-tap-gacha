@@ -39,7 +39,10 @@ with sync_playwright() as pw:
     check('RC22 login gift test is isolated from the normal game',
           page.locator('#loginGiftDialog').is_hidden() and page.locator('#loginGiftBadge').is_hidden()
           and 'loginGift' not in state())
-    check('seven screens',page.locator('section.screen').count()==7)
+    page.locator('.kit-transfer').click()
+    check('RC23 formation preview remains isolated from the normal game',
+          page.locator('#homeScreen.active').count()==1 and 'partyIds' not in state())
+    check('eight screens',page.locator('section.screen').count()==8)
     def nav_geometry():
         return page.locator('.screen.active > .kit-shared-nav').evaluate('''nav => {
           const rect = el => {
@@ -760,6 +763,129 @@ with sync_playwright() as pw:
           and rstate()['points']==before_gift['points']+1600)
     check('RC22 preview gifts leave all live save keys byte-for-byte unchanged',
           reward.evaluate("Object.entries(localStorage).sort()")==live_before)
+    reward.locator('#loginGiftClose').click()
+    reward.locator('.kit-transfer').click()
+    pids=lambda:reward.locator('#partySlots [data-party-slot]').evaluate_all("els => els.map(el=>el.querySelector('.party-slot-name').textContent)")
+    draft_before=pids()
+    check('RC23 transfer opens three owned characters as an uncommitted draft',
+          reward.locator('#partyScreen.active').count()==1
+          and draft_before==['白翼のアルム','鉄骸兵','冥牙クロウル'] and 'partyIds' not in rstate())
+    candidates=reward.locator('#partyRoster .party-candidate')
+    check('RC23 every formed character is natively disabled and clearly labelled',
+          candidates.count()==10 and reward.locator('#partyRoster .party-candidate:disabled').count()==3
+          and reward.locator('[data-party-character="c001"]').is_disabled()
+          and reward.locator('[data-party-character="c001"] .party-candidate-state').inner_text()=='編成中 1')
+    reward.locator('[data-party-character="c001"]').evaluate("el=>{el.click();el.dispatchEvent(new MouseEvent('click',{bubbles:true}));}")
+    check('RC23 direct and synthetic clicks cannot reselect a formed character',pids()==draft_before and 'partyIds' not in rstate())
+    reward.locator('[data-party-slot="1"]').click()
+    reward.locator('[data-party-character="c004"]').click()
+    check('RC23 replacing a slot immediately disables the new member and releases the old one',
+          pids()==['白翼のアルム','夜叉','冥牙クロウル']
+          and reward.locator('[data-party-character="c004"]').is_disabled()
+          and reward.locator('[data-party-character="c002"]').is_enabled()
+          and 'partyIds' not in rstate())
+    reward.locator('#partyBackHome').click()
+    reward.locator('.kit-transfer').click()
+    check('RC23 leaving without confirmation discards the draft',pids()==draft_before and 'partyIds' not in rstate())
+    reward.locator('[data-party-slot="2"]').click()
+    reward.locator('[data-party-character="c004"]').click()
+    previous=rstate()
+    reward.locator('#partyConfirm').click()
+    saved=rstate()
+    check('RC23 confirming saves three unique owned IDs without changing resources',
+          saved.get('partyIds')==['c001','c002','c004']
+          and {k:v for k,v in saved.items() if k!='partyIds'}==previous
+          and reward.locator('#partyResult').inner_text()=='3体の編成を保存しました')
+    reward.reload(wait_until='load')
+    reward.locator('.kit-transfer').click()
+    check('RC23 confirmed formation survives reload with matching disabled rows',
+          pids()==['白翼のアルム','鉄骸兵','夜叉']
+          and reward.locator('[data-party-character="c004"]').is_disabled()
+          and reward.locator('[data-party-character="c003"]').is_enabled())
+    reward.locator('[data-party-character="c005"]').click()
+    previous=rstate()
+    reward.evaluate("""() => {
+      window.__partyStorageSet=Storage.prototype.setItem;
+      Storage.prototype.setItem=function(key,value){
+        if(this===sessionStorage&&key==='tapgacha_reward_rc20_preview')throw new DOMException('quota','QuotaExceededError');
+        return window.__partyStorageSet.call(this,key,value);
+      };
+    }""")
+    reward.locator('#partyConfirm').click()
+    check('RC23 failed persistence rolls back canonical formation while keeping a retryable draft',
+          rstate()==previous and reward.evaluate("tapGacha.getSave().partyIds")==previous['partyIds']
+          and pids()==['黒耀ヴァルグ','鉄骸兵','夜叉']
+          and '保存できませんでした' in reward.locator('#partyResult').inner_text())
+    reward.evaluate("Storage.prototype.setItem=window.__partyStorageSet")
+    reward.locator('#partyConfirm').click()
+    check('RC23 a retry saves the pending draft exactly once',rstate()['partyIds']==['c005','c002','c004'])
+    party_backup=rstate()
+    reward.evaluate("""() => {
+      const s=JSON.parse(sessionStorage.getItem('tapgacha_reward_rc20_preview'));
+      s.characters=Object.fromEntries(Array.from({length:15},(_,i)=>['c'+String(i+1).padStart(3,'0'),
+        {owned:true,level:100,cap:100,shards:12,trainingCapStep:100}]));
+      s.partyIds=['c01','c01','c999',null,'c002','c015'];
+      sessionStorage.setItem('tapgacha_reward_rc20_preview',JSON.stringify(s));
+    }""")
+    reward.reload(wait_until='load')
+    reward.locator('.kit-transfer').click()
+    check('RC23 formation normalizes legacy IDs and discards duplicates or unknown characters',
+          reward.locator('#partyRoster .party-candidate').count()==15
+          and pids()==['白翼のアルム','鉄骸兵','白銀の聖騎士'])
+    reward.locator('#partyConfirm').click()
+    check('RC23 only canonical owned IDs are written on confirmation',rstate()['partyIds']==['c001','c002','c015'])
+    for width,height in ((320,568),(393,654),(390,844),(430,932)):
+        reward.set_viewport_size({'width':width,'height':height})
+        party_nav=reward.locator('#partyScreen > .kit-shared-nav').evaluate("""nav=>[nav,...nav.querySelectorAll('button'),...nav.querySelectorAll('button>img')].map(el=>{const r=el.getBoundingClientRect();return [r.x,r.y,r.width,r.height]})""")
+        home_nav=reward.locator('#homeScreen > .kit-shared-nav').evaluate("""nav=>{
+          const home=nav.closest('.screen');home.style.display='block';
+          const boxes=[nav,...nav.querySelectorAll('button'),...nav.querySelectorAll('button>img')].map(el=>{const r=el.getBoundingClientRect();return [r.x,r.y,r.width,r.height]});
+          home.style.display='';return boxes;
+        }""")
+        check(f'RC23 shared menu retains identical artwork positions at {width}x{height}',party_nav==home_nav)
+        check(f'RC23 formation controls and live names remain readable at {width}x{height}',reward.evaluate(r"""async () => {
+          const root=document.querySelector('#partyScreen'),roster=document.querySelector('#partyRosterScroll');
+          const nav=root.querySelector('.kit-shared-nav').getBoundingClientRect();
+          const rects=['.party-header','.party-slots','.party-hint','.party-footer'].map(s=>root.querySelector(s).getBoundingClientRect());
+          const names=[...root.querySelectorAll('.party-slot-name,.party-candidate-name')];
+          const frames=[root.querySelector('.party-header'),root.querySelector('.party-slot'),root.querySelector('.party-candidate'),root.querySelector('.party-confirm')];
+          const ready=await Promise.all(frames.map(el=>{
+            const css=getComputedStyle(el.matches('.party-slot')?el:el,el.matches('.party-slot')?'::after':null);
+            const match=css.backgroundImage.match(/url\(["']?(.*?)["']?\)/);if(!match)return false;
+            return new Promise(resolve=>{const image=new Image();image.onload=()=>resolve(image.naturalWidth>0);image.onerror=()=>resolve(false);image.src=match[1]});
+          }));
+          return ready.every(Boolean)&&rects.every(r=>r.left>=-1&&r.right<=innerWidth+1&&r.top>=0&&r.bottom<nav.top)
+            &&roster.clientHeight>=72&&roster.scrollHeight>roster.clientHeight
+            &&names.every(el=>el.scrollWidth<=el.clientWidth+1&&el.scrollHeight<=el.clientHeight+1&&parseFloat(getComputedStyle(el).fontSize)>=12)
+            &&[...root.querySelectorAll('.party-slot,.party-candidate,.party-confirm')].every(el=>getComputedStyle(el).borderTopWidth==='0px');
+        }"""))
+        reward.locator('#partyRosterScroll').evaluate('el=>el.scrollTop=el.scrollHeight')
+        check(f'RC23 all fifteen characters stay reachable by scrolling at {width}px',reward.locator('[data-party-character="c015"]').evaluate("el=>{const r=el.getBoundingClientRect(),s=el.closest('.party-roster-scroll').getBoundingClientRect();return r.top>=s.top-1&&r.bottom<=s.bottom+1}"))
+        reward.locator('#partyRosterScroll').evaluate('el=>el.scrollTop=0')
+        reward.screenshot(path=str(SHOTS/f'{ENGINE}-party-{width}x{height}.png'))
+    reward.locator('#partyScreen [data-nav="キャラ"]').click()
+    check('RC23 formation menu navigates to existing training normally',reward.locator('#characterScreen.active').count()==1)
+    for count in (0,1,2):
+        reward.evaluate("""count => {
+          const s=JSON.parse(sessionStorage.getItem('tapgacha_reward_rc20_preview'));
+          s.characters=Object.fromEntries(Array.from({length:count},(_,i)=>['c'+String(i+1).padStart(3,'0'),{owned:true,level:1,cap:100,shards:0,trainingCapStep:100}]));
+          s.partyIds=['c015','c001','c001'];
+          sessionStorage.setItem('tapgacha_reward_rc20_preview',JSON.stringify(s));
+        }""",count)
+        reward.reload(wait_until='load')
+        reward.locator('.kit-transfer').click()
+        check(f'RC23 the formation supports {count} owned characters without adding unowned members',
+              reward.locator('#partyRoster .party-candidate').count()==count
+              and reward.locator('#partyRoster .party-candidate:disabled').count()==count
+              and reward.locator('#partySlots button:disabled').count()==3-count
+              and reward.locator('#partyConfirm').is_enabled()==bool(count)
+              and reward.locator('#partyEmpty').is_visible()==(count==0))
+        if count:
+            reward.locator('#partyConfirm').click()
+            check(f'RC23 a smaller owned formation of {count} members can be saved',rstate()['partyIds']==[f'c00{i+1}' for i in range(count)])
+    reward.evaluate("s=>sessionStorage.setItem('tapgacha_reward_rc20_preview',JSON.stringify(s))",party_backup)
+    reward.reload(wait_until='load')
+    check('RC23 formation changes leave every live localStorage key unchanged',reward.evaluate("Object.entries(localStorage).sort()")==live_before)
     preview.close()
     check('new save safety checks produce no runtime exceptions',not errors)
     (ROOT/f'qa-results-{ENGINE}.json').write_text(json.dumps({'browser':ENGINE,'passed':len(passed),'checks':passed,'runtime_errors':errors,'broken_images':missing,'resource_failures':resource_failures},ensure_ascii=False,indent=2),encoding='utf-8')
