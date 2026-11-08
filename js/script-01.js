@@ -961,7 +961,10 @@
     showScreen('character');
   });
   document.querySelectorAll('[data-home-go]').forEach(btn=>btn.addEventListener('click',()=>showScreen(btn.dataset.homeGo)));
-  document.querySelectorAll('[data-home-planned]').forEach(btn=>btn.addEventListener('click',()=>showToast(btn.dataset.homePlanned+' は次工程で接続')));
+  document.querySelectorAll('[data-home-planned]').forEach(btn=>btn.addEventListener('click',()=>{
+    if(btn.classList.contains('kit-transfer') && rewardPreview)showScreen('party');
+    else showToast(btn.dataset.homePlanned+' は次工程で接続');
+  }));
   charEl('charFavoriteButton').addEventListener('click',()=>chooseFavorite(selectedCharId));
 
   // Keep login claims inside the same isolated save as the reward preview.
@@ -1075,6 +1078,127 @@
     else if(home.classList.contains('active'))renderLoginGift();
   });
 
+
+  // Formation changes are drafts until confirmed, in the same isolated review save.
+  const partyScreen = homeEl('partyScreen');
+  const partySlots = homeEl('partySlots');
+  const partyRoster = homeEl('partyRoster');
+  const partyResult = homeEl('partyResult');
+  const partyConfirm = homeEl('partyConfirm');
+  let partyDraft = [];
+  let partySelectedSlot = 0;
+  const partyEntry = document.querySelector('.kit-transfer');
+  if(rewardPreview){
+    partyEntry.setAttribute('aria-label','転移門・出撃準備');
+    partyEntry.querySelector('small').textContent='出撃準備';
+  }
+  homeEl('partyBackHome').addEventListener('click',()=>showScreen('home'));
+  const partyNav = document.querySelector('#homeScreen nav.home-nav').cloneNode(true);
+  partyNav.className='party-nav kit-shared-nav';
+  partyNav.setAttribute('aria-label','転移門の下部メニュー');
+  partyNav.querySelectorAll('[data-nav]').forEach(button=>{
+    button.classList.remove('kit-selected');
+    button.removeAttribute('aria-current');
+    button.addEventListener('click',()=>openSharedMenu(button.dataset.nav));
+  });
+  partyScreen.appendChild(partyNav);
+  function ownedPartyCharacters(){
+    return GACHA_CHARACTERS.filter(c=>collection[c.id]?.owned);
+  }
+  function normalizedParty(raw,fillVacancies=false){
+    const owned=ownedPartyCharacters();
+    const allowed=new Set(owned.map(c=>c.id));
+    const ids=[];
+    if(Array.isArray(raw))raw.forEach(id=>{
+      if(typeof id!=='string')return;
+      const normalized=/^c\d{2}$/.test(id)?'c'+id.slice(1).padStart(3,'0'):id;
+      if(allowed.has(normalized)&&!ids.includes(normalized)&&ids.length<3)ids.push(normalized);
+    });
+    if(fillVacancies)owned.forEach(c=>{if(ids.length<3&&!ids.includes(c.id))ids.push(c.id);});
+    return ids;
+  }
+  function beginParty(){
+    partyDraft=normalizedParty(gameSave.partyIds,true);
+    partySelectedSlot=0;
+    partyResult.textContent='';
+    homeEl('partyRosterScroll').scrollTop=0;
+    renderParty();
+  }
+  function renderParty(){
+    const owned=ownedPartyCharacters();
+    const activeSlots=Math.min(3,owned.length);
+    partySlots.replaceChildren();
+    for(let index=0;index<3;index++){
+      const c=owned.find(c=>c.id===partyDraft[index]);
+      const button=document.createElement('button');
+      button.type='button';button.className='party-slot';
+      button.dataset.partySlot=String(index);
+      button.disabled=index>=activeSlots;
+      button.setAttribute('aria-pressed',String(index===partySelectedSlot&&index<activeSlots));
+      button.setAttribute('aria-label',`${index+1}枠目 ${c?c.name:'空き枠'}${index<activeSlots?'・入れ替え先を選択':''}`);
+      const marker=document.createElement('span');marker.className='party-slot-marker';marker.textContent=`${index+1}枠`;
+      if(c){
+        const img=document.createElement('img');img.className='party-slot-art';img.src=c.image;img.alt='';img.draggable=false;
+        button.appendChild(img);
+      }else{
+        const empty=document.createElement('span');empty.className='party-slot-empty';empty.textContent='＋';empty.setAttribute('aria-hidden','true');button.appendChild(empty);
+      }
+      const name=document.createElement('span');name.className='party-slot-name';name.textContent=c?c.name:'空き枠';
+      if(c?.id==='c009'){
+        const label=document.createElement('span');
+        label.append(document.createTextNode('紫電'),document.createElement('wbr'),document.createTextNode('アルカディオ'));
+        name.replaceChildren(label);
+      }
+      button.append(marker,name);
+      button.addEventListener('click',()=>{
+        if(button.disabled)return;
+        partySelectedSlot=index;partyResult.textContent='';renderParty();
+        partySlots.children[index].focus({preventScroll:true});
+      });
+      partySlots.appendChild(button);
+    }
+    partyRoster.replaceChildren();
+    owned.forEach(c=>{
+      const position=partyDraft.indexOf(c.id);
+      const button=document.createElement('button');button.type='button';button.className='party-candidate';
+      button.dataset.partyCharacter=c.id;
+      // Native disabled blocks pointer/keyboard activation; the handler also guards stale events.
+      button.disabled=position!==-1||saveRecoveryBlocked;
+      button.setAttribute('aria-label',`${c.name}・${position!==-1?`${position+1}枠目に編成中`:`${partySelectedSlot+1}枠目に編成`}`);
+      const img=document.createElement('img');img.src=c.image;img.alt='';img.draggable=false;img.loading='lazy';
+      const name=document.createElement('span');name.className='party-candidate-name';name.textContent=c.name;
+      const state=document.createElement('span');state.className='party-candidate-state';state.textContent=position!==-1?`編成中 ${position+1}`:'入れ替える';
+      button.append(img,name,state);
+      button.addEventListener('click',()=>{
+        if(!rewardPreview||saveRecoveryBlocked||partyDraft.includes(c.id)||!collection[c.id]?.owned)return;
+        partyDraft[partySelectedSlot]=c.id;
+        partyResult.textContent='';renderParty();
+        partySlots.children[partySelectedSlot].focus({preventScroll:true});
+      });
+      partyRoster.appendChild(button);
+    });
+    homeEl('partyCount').textContent=`${partyDraft.length} / 3体`;
+    homeEl('partyOwnedCount').textContent=`所持 ${owned.length}体`;
+    homeEl('partyEmpty').hidden=owned.length>0;
+    homeEl('partyHint').textContent=saveRecoveryBlocked?'セーブの確認が必要です':owned.length===0?'召喚門から仲間を迎えましょう':
+      owned.length<=3?'仲間を迎えると、ここで入れ替えられます':`${partySelectedSlot+1}枠目を選択中 · 下のキャラで入れ替え`;
+    partyConfirm.disabled=!rewardPreview||saveRecoveryBlocked||partyDraft.length===0;
+  }
+  partyConfirm.addEventListener('click',()=>{
+    if(!rewardPreview||saveRecoveryBlocked)return;
+    const valid=normalizedParty(partyDraft);
+    if(!valid.length||valid.length!==Math.min(3,ownedPartyCharacters().length)){
+      partyDraft=normalizedParty(partyDraft,true);renderParty();return;
+    }
+    const hadPrevious=Object.hasOwn(gameSave,'partyIds');
+    const previous=gameSave.partyIds;
+    gameSave.partyIds=valid;
+    if(!saveUnified()){
+      if(hadPrevious)gameSave.partyIds=previous;else delete gameSave.partyIds;
+      partyResult.textContent='保存できませんでした。もう一度お試しください。';return;
+    }
+    partyResult.textContent=`${valid.length}体の編成を保存しました`;
+  });
 
   // Mission board UI is deliberately separate from the shop and the approved home design.
   const questScreen=document.getElementById('questScreen');
@@ -1210,6 +1334,7 @@
     const toDex = which === 'dex';
     const toShop = which === 'shop';
     const toQuest = which === 'quest';
+    const toParty = which === 'party' && rewardPreview;
 
     if(!toCharacter)stopTrainingHold();
     home.classList.toggle('active',toHome);
@@ -1219,6 +1344,8 @@
     dexScreen.classList.toggle('active',toDex);
     shopScreen.classList.toggle('active',toShop);
     questScreen.classList.toggle('active',toQuest);
+    partyScreen.classList.toggle('active',toParty);
+    if(toParty)beginParty();
     if(!toQuest)closeQuestReward();
     document.getElementById('devBuildLabel').style.display=toQuest?'none':'';
     if(toQuest)renderQuest();
