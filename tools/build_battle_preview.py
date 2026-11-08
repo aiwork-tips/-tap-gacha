@@ -23,7 +23,7 @@ html=html.replace('</body>','<script data-source="js/battle-preview.js">\n'+js+'
 assert not pattern.search(html)
 assert 'localStorage' not in js and 'sessionStorage' not in js
 assert html.index('id="battleApp"')<html.index('<script data-source=')
-output=root.parent/'tapgacha-battle-preview-RC25.html'
+output=root.parent/'tapgacha-battle-preview-RC26.html'
 output.write_text(html)
 meta={'filename':output.name,'bytes':output.stat().st_size,'sha256':hashlib.sha256(output.read_bytes()).hexdigest()}
 (root/'standalone-meta.json').write_text(json.dumps(meta,indent=2))
