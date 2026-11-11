@@ -17,6 +17,7 @@
 #battleStageScreen { overflow: auto; overscroll-behavior: contain; background: #07192e; }
 #battleStageScreen:not(.active) { display: none; }
 .stage-app {
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   gap: 5px;

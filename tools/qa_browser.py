@@ -1314,6 +1314,7 @@ with sync_playwright() as pw:
     check('RC28 training starts a fresh round with the stronger guardian',
           stage_page.locator('#stageEnemyStats').inner_text()=='敵HP 750 · 攻 34'
           and stage_page.locator('#stageElapsed').inner_text()=='0.0秒'
+          and stage_page.locator('.stage-app').evaluate('el => el.getBoundingClientRect().right <= innerWidth + 1 && el.getBoundingClientRect().bottom <= innerHeight + 1')
           and stage_page.locator('.stage-hp-number').all_inner_texts()==['100%','100%','100%'])
     stage_page.screenshot(path=str(SHOTS/f'{ENGINE}-training-ready.png'), animations='disabled')
     stage_page.locator('#stageStart').click()
