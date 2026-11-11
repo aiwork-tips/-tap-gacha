@@ -16,7 +16,7 @@ permissions:
 jobs:
   browser-qa:
     if: github.ref == 'refs/heads/test-modular-upload-rc02'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 25
     strategy:
       fail-fast: false
@@ -24,8 +24,6 @@ jobs:
         browser: [chromium, webkit]
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: test-modular-upload-rc02
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
