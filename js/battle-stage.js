@@ -7,7 +7,7 @@
     2: [[28, 52], [22, 85]],
     3: [[22, 40], [31, 65], [22, 90]]
   };
-  const skillLabels = { heal: '回復', shield: '盾', hit: '攻撃' };
+  const skillLabels = { heal: '回復', shield: '盾', hit: '攻撃', combo: '3連撃', weaken: '弱体' };
   const formatNumber = new Intl.NumberFormat('ja-JP');
   const compactNumber = new Intl.NumberFormat('ja-JP', { notation: 'compact', maximumFractionDigits: 1 });
   const percent = unit => Math.min(100, Math.ceil(100 * unit.hp / unit.maxHp));
@@ -119,7 +119,10 @@
       if (!battle) return;
       const state = battle.state;
       const difficultyLabel = state.difficulty === 'training' ? '高難度' : '通常';
-      setText(enemyStats, difficultyLabel + ' · 敵HP ' + state.enemy.maxHp + ' · 攻 ' + state.enemy.attack);
+      const attack = battle.enemyAttack();
+      const weakened = attack < state.enemy.attack && !state.result;
+      setText(enemyStats, difficultyLabel + ' · 敵HP ' + state.enemy.maxHp + ' · 攻 ' +
+        (weakened ? attack + ' ↓' : state.enemy.attack));
       const front = state.allies.find(ally => ally.hp > 0);
       for (const unit of [...state.allies, state.enemy]) {
         const { node } = actorViews.get(unit.id);
@@ -178,13 +181,17 @@
       const spell = events.findLast(event => event.skill);
       if (spell) {
         const caster = battle.state.allies.find(ally => ally.id === spell.from);
-        const messages = { heal: 'HPを回復', shield: 'シールドを付与', hit: '強力な一撃' };
-        latestSkill = caster.skill.name + ' · ' + messages[spell.kind];
+        const messages = {
+          heal: 'HPを回復', shield: 'シールドを付与', hit: '強力な一撃',
+          combo: '3連撃', weaken: '敵の攻撃力低下（6秒）'
+        };
+        latestSkill = caster.skill.name + ' · ' + messages[caster.skill.kind];
       }
       if (motion.matches) return;
       const scene = field.getBoundingClientRect();
       const participants = [...battle.state.allies, battle.state.enemy];
-      events.filter(event => event.time >= battle.state.time - 550).slice(-6).forEach((event, index) => {
+      const eventsInView = events.filter(event => event.time >= battle.state.time - 550).slice(-6);
+      eventsInView.forEach((event, index) => {
         const attacker = actorViews.get(event.from);
         const target = actorViews.get(event.to).node.getBoundingClientRect();
         const delay = index * 50;
@@ -204,7 +211,8 @@
           { opacity: 0, transform: 'translate(-50%, -29px)' }
         ], { delay, duration: 430, fill: 'both' }, true);
 
-        if (event.kind === 'hit') {
+        if (event.kind === 'hit' && !(event.skill && index > 0 && eventsInView[index - 1].from === event.from
+            && eventsInView[index - 1].time === event.time && eventsInView[index - 1].skill)) {
           const distance = event.from === 'guardian' ? -18 : event.from === 'c001' ? 7 : 22;
           animate(attacker.sprite, [
             { transform: 'translate(0, 0)' },
