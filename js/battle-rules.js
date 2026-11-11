@@ -16,6 +16,21 @@
       name: '冥牙クロウル', rarity: 1, baseHp: 100, baseAttack: 22,
       sprite: 'assets/rc25-wolf.webp', portrait: 'assets/rc25-icon-c003.webp',
       color: '#dab1ff', skill: { name: '冥牙', kind: 'hit', multiplier: 2.5, cooldown: 10000 }
+    },
+    c004: {
+      name: '夜叉', rarity: 1, baseHp: 120, baseAttack: 20,
+      sprite: 'assets/rc30-yasha.webp', portrait: 'assets/deed14cad6bd683d64ea.webp',
+      color: '#ff9b61', skill: { name: '紅刃', kind: 'hit', multiplier: 2.8, cooldown: 12000 }
+    },
+    c005: {
+      name: '黒耀ヴァルグ', rarity: 1, baseHp: 110, baseAttack: 20,
+      sprite: 'assets/rc30-varg.webp', portrait: 'assets/a888dd42bddf1a78481f.webp',
+      color: '#db9dff', skill: { name: '黒雷', kind: 'combo', multiplier: 2.2, hits: 3, cooldown: 10000 }
+    },
+    c006: {
+      name: '骸の剣士', rarity: 1, baseHp: 160, baseAttack: 14,
+      sprite: 'assets/rc30-swordsman.webp', portrait: 'assets/dex-swordsman.webp',
+      color: '#8bcaff', skill: { name: '骸の呪刃', kind: 'weaken', multiplier: 1.5, duration: 6000, reduction: 0.25, cooldown: 12000 }
     }
   };
   const guardian = {
@@ -57,7 +72,10 @@
         shield: 0, shieldUntil: 0, skillReadyAt: 0
       };
     });
-    const enemy = { ...guardian, ...difficulties[difficulty], hp: difficulties[difficulty].maxHp, shield: 0 };
+    const enemy = {
+      ...guardian, ...difficulties[difficulty], hp: difficulties[difficulty].maxHp,
+      shield: 0, weakenUntil: 0, attackReduction: 0
+    };
     const state = { allies, enemy, difficulty, time: 0, result: null, queuedSkill: null };
     let nextAllyAttack = allyInterval;
     let nextEnemyAttack = enemyInterval;
@@ -124,7 +142,17 @@
           events.push({ kind: 'shield', from: ally.id, to: target.id, amount, skill: true, time: state.time });
         }
       } else {
-        attack(ally, enemy, Math.round(ally.attack * skill.multiplier), true, events);
+        const damage = Math.min(Number.MAX_SAFE_INTEGER, Math.round(ally.attack * skill.multiplier));
+        const hits = skill.hits ?? 1;
+        const perHit = Math.floor(damage / hits);
+        const remainder = damage % hits;
+        for (let hit = 0; hit < hits && !state.result; hit += 1) {
+          attack(ally, enemy, perHit + (hit < remainder ? 1 : 0), true, events);
+        }
+        if (skill.kind === 'weaken' && !state.result) {
+          enemy.weakenUntil = state.time + skill.duration;
+          enemy.attackReduction = skill.reduction;
+        }
       }
       markAnimation();
     }
@@ -167,7 +195,7 @@
         if (!state.result && nextEnemyAttack === next) {
           nextEnemyAttack += enemyInterval;
           const front = allies.find(ally => ally.hp > 0);
-          attack(enemy, front, enemy.attack, false, events);
+          attack(enemy, front, enemyAttack(), false, events);
           markAnimation();
         }
       }
@@ -178,7 +206,11 @@
       return events;
     }
 
-    return { state, advanceTo, requestSkill, skillStatus };
+    function enemyAttack() {
+      return state.time < enemy.weakenUntil ? Math.round(enemy.attack * (1 - enemy.attackReduction)) : enemy.attack;
+    }
+
+    return { state, advanceTo, requestSkill, skillStatus, enemyAttack };
   }
 
   globalThis.TapGachaBattle = Object.freeze({ supports, sampleParty, createBattle });
