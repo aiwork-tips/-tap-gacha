@@ -1194,6 +1194,7 @@ with sync_playwright() as pw:
           };
           return root.scrollHeight <= root.clientHeight + 1 &&
             [...root.querySelectorAll('button')].every(el => fits(el) && el.clientHeight >= 44 && el.clientWidth >= 44) &&
+            [...root.querySelectorAll('.stage-skill')].every(el => el.getBoundingClientRect().bottom <= root.querySelector('.stage-controls').getBoundingClientRect().top) &&
             [...root.querySelectorAll('.stage-name,.stage-stats')].every(el => el.scrollWidth <= el.clientWidth + 1) &&
             [...root.querySelectorAll('.stage-card-hp')].every(el => el.getBoundingClientRect().height >= 12) &&
             [...root.querySelectorAll('img')].every(img => img.complete && img.naturalWidth > 0) &&

@@ -172,18 +172,20 @@
 .stage-party {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: minmax(0, 1fr);
   height: 143px;
   flex: none;
   gap: 6px;
 }
 .stage-party:has(.stage-slot:only-child) { grid-template-columns: minmax(0, 142px); justify-content: center; }
 .stage-party:has(.stage-slot:nth-child(2):last-child) { grid-template-columns: repeat(2, minmax(0, 142px)); justify-content: center; }
-.stage-slot { display: grid; grid-template-rows: minmax(0, 1fr) 44px; min-width: 0; gap: 3px; }
+.stage-slot { display: grid; grid-template-rows: minmax(0, 1fr) 44px; min-width: 0; min-height: 0; gap: 3px; }
 .stage-card {
   position: relative;
   display: grid;
   grid-template-rows: minmax(0, 1fr) 12px 15px 11px;
   min-width: 0;
+  min-height: 0;
   padding: 4px 5px 4px;
   text-align: center;
   color: #fff1cc;
@@ -201,6 +203,7 @@
   display: block;
   width: 100%;
   height: 100%;
+  min-height: 0;
   object-fit: contain;
   background: radial-gradient(ellipse at center, #285071, #0a2545);
 }
