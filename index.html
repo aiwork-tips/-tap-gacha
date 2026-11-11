@@ -7,7 +7,7 @@
 <meta content="#071827" name="theme-color"/>
 <meta content="yes" name="apple-mobile-web-app-capable"/>
 <meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
-<title>Ver.11.8 PARTY-RC24 · タップ育成ガチャ -覚醒-</title>
+<title>Ver.11.8 BATTLE-RC27 · タップ育成ガチャ -覚醒-</title>
 <!-- Unified Save Rev.3: tapgacha_save_v3 / legacy gV2 preserved read-only -->
 <link rel="stylesheet" href="css/style-01.css">
 
@@ -429,7 +429,7 @@
       <div class="shop-bridge"><button type="button" class="shop-to-character" id="shopGoCharacter">キャラ育成へ →</button></div>
       <div class="shop-future">現在購入できるのは「上限解放の鍵」のみです。<br>新アイテムの価格・効果は後日決定します。</div>
     </div>
-    <span class="shop-version">Ver.11.8 · PARTY-RC24</span>
+    <span class="shop-version">Ver.11.8 · BATTLE-RC27</span>
   </div>
 </section>
 
@@ -439,7 +439,7 @@
 <section class="screen" id="questScreen" aria-label="依頼掲示板">
   <img id="questBackdrop" class="quest-backdrop" alt="" aria-hidden="true" />
   <div class="quest-scrim"></div>
-  <span class="quest-version">Ver.11.8 · PARTY-RC24</span>
+  <span class="quest-version">Ver.11.8 · BATTLE-RC27</span>
   <div class="quest-shell">
     <header class="quest-top">
       <div class="quest-head"><button id="questBackHome" type="button" class="quest-home">⌂ ホーム</button><h1 class="quest-title">依頼掲示板</h1></div>
@@ -477,9 +477,54 @@
       <p class="party-empty" id="partyEmpty" hidden>召喚門で仲間を迎えると、ここで編成できます。</p>
     </div>
     <footer class="party-footer">
-      <button class="party-confirm" id="partyConfirm" type="button" disabled>編成を決定</button>
+      <div class="party-actions">
+        <button class="party-confirm" id="partyConfirm" type="button" disabled>編成を決定</button>
+        <button class="party-confirm" id="partyBattle" type="button" disabled>戦闘へ</button>
+      </div>
       <p id="partyResult" class="party-result" role="status" aria-live="polite"></p>
     </footer>
+  </div>
+</section>
+
+<section class="screen" id="battleStageScreen" aria-labelledby="stageTitle" inert>
+  <div class="stage-app" data-mode="closed">
+    <header class="stage-header">
+      <button type="button" class="stage-button stage-back" id="stageBack">編成</button>
+      <h1 id="stageTitle">水晶の回廊</h1>
+    </header>
+    <div class="stage-field" id="stageField" aria-label="戦場">
+      <div class="stage-actors" id="stageActors"></div>
+      <div class="stage-effects" id="stageEffects" aria-hidden="true"></div>
+    </div>
+    <div class="stage-status">
+      <p id="stageStatus" role="status" aria-live="polite">戦闘の準備中…</p>
+      <time id="stageElapsed" aria-label="戦闘時間">0.0秒</time>
+    </div>
+    <div class="stage-party" id="stageParty" aria-label="出撃メンバー"></div>
+    <div class="stage-controls" aria-label="戦闘の操作">
+      <button type="button" class="stage-button" id="stageStart" disabled>戦闘開始</button>
+      <button type="button" class="stage-button" id="stageSpeed" aria-label="戦闘速度 1倍" disabled>×1</button>
+      <button type="button" class="stage-button" id="stageReset" disabled>リセット</button>
+    </div>
+    <footer class="stage-note">
+      <span id="stageTrialLabel" hidden>お試し編成 · Lv1</span>
+      <span>Ver.11.8 · BATTLE-RC27</span>
+    </footer>
+    <template id="stageCardTemplate">
+      <div class="stage-slot">
+        <div class="stage-card">
+          <img alt="" draggable="false">
+          <span class="stage-level"></span>
+          <span class="stage-front" hidden>前衛</span>
+          <div class="stage-card-hp" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+            <span class="stage-hp-number" aria-hidden="true">100%</span>
+          </div>
+          <span class="stage-name"></span>
+          <span class="stage-stats"></span>
+        </div>
+        <button type="button" class="stage-button stage-skill" disabled><span></span><small></small></button>
+      </div>
+    </template>
   </div>
 </section>
 
@@ -513,8 +558,10 @@
 </dialog>
 
 <div class="toast" id="toast"></div>
-<div id="devBuildLabel" aria-label="開発検証版 Ver.11.8 PARTY-RC24">Ver.11.8 · PARTY-RC24</div>
+<div id="devBuildLabel" aria-label="開発検証版 Ver.11.8 BATTLE-RC27">Ver.11.8 · BATTLE-RC27</div>
 </main>
+<script src="js/battle-rules.js"></script>
+<script src="js/battle-stage.js"></script>
 <script src="js/script-01.js"></script>
 
 <script src="js/script-02.js"></script>
@@ -532,6 +579,7 @@
 <link rel="stylesheet" href="css/shop-reward.css">
 <link rel="stylesheet" href="css/login-gift.css">
 <link rel="stylesheet" href="css/party.css">
+<link rel="stylesheet" href="css/battle-stage.css">
 <script src="js/script-03.js"></script>
 
 <script src="js/script-04.js"></script>
