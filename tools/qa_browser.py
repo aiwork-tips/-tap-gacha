@@ -1255,6 +1255,8 @@ with sync_playwright() as pw:
     stage_page.locator('#stageReset').click()
     stage_page.locator('.stage-app[data-mode=ready]').wait_for()
     check('RC27 reset restores the same party at full HP', stage_time.inner_text()=='0.0秒' and hp()==['245 / 245','120 / 120','136 / 136'])
+    # Later skill timings assume normal speed, which persists between battles.
+    stage_page.locator('#stageSpeed').click()
     stage_page.locator('#stageBack').click()
     check('RC27 returning from battle preserves formation and save bytes',
           stage_page.locator('#partyScreen.active').count()==1
