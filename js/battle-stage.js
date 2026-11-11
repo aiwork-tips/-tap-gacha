@@ -22,7 +22,6 @@
     const status = get('stageStatus');
     const elapsed = get('stageElapsed');
     const startButton = get('stageStart');
-    const difficultySelect = get('stageDifficulty');
     const enemyStats = get('stageEnemyStats');
     const resetButton = get('stageReset');
     const speedButton = get('stageSpeed');
@@ -113,15 +112,14 @@
     function render() {
       root.dataset.mode = mode;
       startButton.disabled = !battle || mode === 'loading' || mode === 'error' || mode === 'closed';
-      difficultySelect.disabled = !['ready', 'victory', 'defeat'].includes(mode);
       resetButton.disabled = startButton.disabled;
       speedButton.disabled = startButton.disabled;
       setText(speedButton, '×' + speed);
       speedButton.setAttribute('aria-label', '戦闘速度 ' + speed + '倍');
       if (!battle) return;
       const state = battle.state;
-      difficultySelect.value = state.difficulty;
-      setText(enemyStats, '敵HP ' + state.enemy.maxHp + ' · 攻 ' + state.enemy.attack);
+      const difficultyLabel = state.difficulty === 'training' ? '高難度' : '通常';
+      setText(enemyStats, difficultyLabel + ' · 敵HP ' + state.enemy.maxHp + ' · 攻 ' + state.enemy.attack);
       const front = state.allies.find(ally => ally.hp > 0);
       for (const unit of [...state.allies, state.enemy]) {
         const { node } = actorViews.get(unit.id);
@@ -290,10 +288,10 @@
       });
     }
 
-    function reset(restart, difficulty = battle?.state.difficulty) {
+    function reset(restart) {
       if (!battle || resetButton.disabled) return;
       const members = battle.state.allies.map(({ id, level }) => ({ id, level }));
-      load(members, trial, difficulty).then(ready => {
+      load(members, trial, battle.state.difficulty).then(ready => {
         if (ready && restart) start();
       });
     }
@@ -313,9 +311,6 @@
       else start();
     });
     resetButton.addEventListener('click', () => reset(false));
-    difficultySelect.addEventListener('change', () => {
-      if (!difficultySelect.disabled) reset(false, difficultySelect.value);
-    });
     speedButton.addEventListener('click', () => {
       if (mode === 'running') advanceClock(performance.now());
       speed = speed === 1 ? 2 : 1;

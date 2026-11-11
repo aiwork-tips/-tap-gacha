@@ -1265,6 +1265,38 @@ with sync_playwright() as pw:
     stage_page.locator('#stageBack').click()
     check('RC27 an unsaved formation edit survives the round trip',
           stage_page.locator('#partySlots .party-slot-name').all_inner_texts()==['鉄骸兵','夜叉','冥牙クロウル'])
+    difficulty = stage_page.locator('#partyDifficulty')
+    stage_page.set_viewport_size({'width':320,'height':568})
+    stage_page.locator('#partyScreen.active').wait_for()
+    difficulty.select_option('training')
+    check('RC29 difficulty control fits beside the launch buttons',
+          difficulty.evaluate("""el => {
+            const box = el.getBoundingClientRect();
+            const launch = document.querySelector('#partyBattle').getBoundingClientRect();
+            return box.height >= 44 && box.right <= launch.left && launch.right <= innerWidth;
+          }"""))
+    stage_page.screenshot(path=str(SHOTS/f'{ENGINE}-difficulty-preparation.png'), animations='disabled')
+    stage_page.locator('#partyBattle').click()
+    stage_page.locator('.stage-app[data-mode=ready]').wait_for()
+    check('RC29 selected difficulty is shown on the stage',
+          stage_page.locator('#stageEnemyStats').inner_text()=='高難度 · 敵HP 750 · 攻 34'
+          and stage_page.locator('#battleStageScreen select').count()==0)
+    stage_page.locator('#stageStart').click()
+    stage_page.clock.fast_forward(34500)
+    check('RC29 untrained sample loses on high difficulty without skills',
+          stage_page.locator('.stage-app[data-mode=defeat]').count()==1)
+    stage_page.locator('#stageStart').click()
+    stage_page.locator('.stage-app[data-mode=running]').wait_for()
+    check('RC29 rematch preserves the chosen difficulty',
+          stage_page.locator('#stageEnemyStats').inner_text()=='高難度 · 敵HP 750 · 攻 34')
+    stage_page.locator('#stageBack').click()
+    check('RC29 going back retains the selected difficulty', difficulty.input_value()=='training')
+    difficulty.select_option('normal')
+    stage_page.locator('#partyBattle').click()
+    stage_page.locator('.stage-app[data-mode=ready]').wait_for()
+    check('RC29 returning to normal restores the original opponent',
+          stage_page.locator('#stageEnemyStats').inner_text()=='通常 · 敵HP 360 · 攻 26'
+          and stage_page.evaluate('({local:Object.entries(localStorage).sort(),session:Object.entries(sessionStorage).sort()})')==before_stage)
     stage_context.close()
 
     solo_context = browser.new_context(viewport={'width':320,'height':568}, is_mobile=True, has_touch=True)
@@ -1299,7 +1331,7 @@ with sync_playwright() as pw:
     stage_page.on('request', lambda request: sample_requests.append(request.url)
                   if request.resource_type!='document' and request.url.startswith(('http:', 'https:')) else None)
     stage_page.clock.install(time=datetime(2026,11,11,3,0,tzinfo=timezone.utc))
-    stage_page.goto(URL.rsplit('/',1)[0]+'/tapgacha-battle-stage-RC28.html', wait_until='load')
+    stage_page.goto(URL.rsplit('/',1)[0]+'/tapgacha-battle-stage-RC29.html', wait_until='load')
     stage_page.locator('.stage-app[data-mode=ready]').wait_for()
     stage_page.clock.pause_at(datetime(2026,11,11,3,0,30,tzinfo=timezone.utc))
     stage_page.locator('#stageStart').click()
@@ -1307,30 +1339,6 @@ with sync_playwright() as pw:
     check('RC27 standalone runs to victory with all assets embedded',
           stage_page.locator('.stage-app[data-mode=victory]').count()==1
           and stage_page.locator('#stageElapsed').inner_text()=='16.0秒'
-          and not sample_requests)
-    difficulty = stage_page.locator('#stageDifficulty')
-    difficulty.select_option('training')
-    stage_page.locator('.stage-app[data-mode=ready]').wait_for()
-    check('RC28 training starts a fresh round with the stronger guardian',
-          stage_page.locator('#stageEnemyStats').inner_text()=='敵HP 750 · 攻 34'
-          and stage_page.locator('#stageElapsed').inner_text()=='0.0秒'
-          and stage_page.locator('.stage-app').evaluate('el => el.getBoundingClientRect().right <= innerWidth + 1 && el.getBoundingClientRect().bottom <= innerHeight + 1')
-          and stage_page.locator('.stage-hp-number').all_inner_texts()==['100%','100%','100%'])
-    stage_page.screenshot(path=str(SHOTS/f'{ENGINE}-training-ready.png'), animations='disabled')
-    stage_page.locator('#stageStart').click()
-    check('RC28 difficulty stays fixed during a battle', difficulty.is_disabled())
-    stage_page.clock.fast_forward(33500)
-    check('RC28 untrained party loses training on normal attacks alone',
-          stage_page.locator('.stage-app[data-mode=defeat]').count()==1)
-    stage_page.locator('#stageStart').click()
-    stage_page.locator('.stage-app[data-mode=running]').wait_for()
-    check('RC28 rematch keeps the selected difficulty', difficulty.input_value()=='training')
-    stage_page.locator('#stageReset').click()
-    stage_page.locator('.stage-app[data-mode=ready]').wait_for()
-    difficulty.select_option('normal')
-    stage_page.locator('.stage-app[data-mode=ready]').wait_for()
-    check('RC28 normal difficulty restores the original guardian',
-          stage_page.locator('#stageEnemyStats').inner_text()=='敵HP 360 · 攻 26'
           and not sample_requests)
     sample_context.close()
 

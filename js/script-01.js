@@ -1086,6 +1086,7 @@
   const partyResult = homeEl('partyResult');
   const partyConfirm = homeEl('partyConfirm');
   const partyBattle = homeEl('partyBattle');
+  const partyDifficulty = homeEl('partyDifficulty');
   const battleScreen = homeEl('battleStageScreen');
   const battleStage = window.TapGachaBattleStage.createController(
     battleScreen.querySelector('.stage-app'),
@@ -1214,7 +1215,7 @@
   partyBattle.addEventListener('click',()=>{
     if(!rewardPreview||partyBattle.disabled)return;
     const members=partyForBattle();
-    const loading=battleStage.load(members||window.TapGachaBattle.sampleParty(),!members);
+    const loading=battleStage.load(members||window.TapGachaBattle.sampleParty(),!members,partyDifficulty.value);
     showScreen('battle');
     loading.then(ready=>{
       if(ready&&battleScreen.classList.contains('active'))homeEl('stageStart').focus({preventScroll:true});
