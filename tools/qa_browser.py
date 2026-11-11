@@ -17,6 +17,8 @@ errors=[]
 def check(label, ok):
     if not ok:
         failed_page=globals().get('battle') if label.startswith('RC25') else globals().get('reward')
+        if label.startswith('RC27'):
+            failed_page=globals().get('stage_page')
         if failed_page and not failed_page.is_closed():
             failed_page.screenshot(path=str(SHOTS/f'{ENGINE}-failure.png'))
         raise AssertionError(f'{label} FAILED; JS errors: {errors}')
@@ -46,7 +48,7 @@ with sync_playwright() as pw:
     page.locator('.kit-transfer').click()
     check('RC23 formation preview remains isolated from the normal game',
           page.locator('#homeScreen.active').count()==1 and 'partyIds' not in state())
-    check('eight screens',page.locator('section.screen').count()==8)
+    check('nine screens with the battle stage',page.locator('section.screen').count()==9)
     def nav_geometry():
         return page.locator('.screen.active > .kit-shared-nav').evaluate('''nav => {
           const rect = el => {
@@ -1156,6 +1158,157 @@ with sync_playwright() as pw:
     check('RC25 reduced-motion mode keeps HP feedback with no shaking or idle animation',
           battle.evaluate("battlePreview.snapshot().hp.guardian===86 && getComputedStyle(document.querySelector('.actor-idle')).animationName==='none' && document.querySelector('#battleApp').getAnimations({subtree:true}).length===0"))
     reduced.close()
+    # Run the stage through the same formation screen players use, with an existing save.
+    stage_context = browser.new_context(viewport={'width':393,'height':654}, is_mobile=True, has_touch=True)
+    stage_context.add_init_script("""localStorage.setItem('tapgacha_save_v3', JSON.stringify({
+      schemaVersion: 3, points: 333, keys: 2, tapPower: 5, partyIds: ['c002','c001','c003'],
+      characters: {
+        c001: {owned:true, level:1, cap:100, shards:1},
+        c002: {owned:true, level:10, cap:100, shards:2},
+        c003: {owned:true, level:10, cap:100, shards:3},
+        c004: {owned:true, level:30, cap:100, shards:4}
+      }
+    }));""")
+    stage_page = stage_context.new_page()
+    stage_page.on('pageerror', lambda error: errors.append('RC27 stage: ' + str(error)))
+    stage_page.on('response', lambda response: resource_failures.append(f'{response.status} {response.url}')
+                  if response.status >= 400 and any(path in response.url for path in ('/assets/', '/js/', '/css/')) else None)
+    stage_page.clock.install(time=datetime(2026,11,11,3,0,tzinfo=timezone.utc))
+    stage_page.goto(URL+'?reward-preview=1', wait_until='load')
+    stage_page.locator('.kit-transfer').click()
+    before_stage = stage_page.evaluate('({local:Object.entries(localStorage).sort(),session:Object.entries(sessionStorage).sort()})')
+    stage_page.locator('#partyBattle').click()
+    stage_page.locator('.stage-app[data-mode=ready]').wait_for()
+    stage_page.clock.pause_at(datetime(2026,11,11,3,0,30,tzinfo=timezone.utc))
+    check('RC27 formation order and levels determine displayed stats', 
+          stage_page.locator('.stage-name').all_inner_texts()==['鉄骸兵','白翼のアルム','冥牙クロウル']
+          and stage_page.locator('.stage-level').all_inner_texts()==['Lv10','Lv1','Lv10']
+          and stage_page.locator('.stage-stats').all_inner_texts()==['HP 245 · 攻 16','HP 120 · 攻 14','HP 136 · 攻 30']
+          and stage_page.locator('#stageTrialLabel').is_hidden())
+    for width,height in ((320,568),(393,654),(390,844),(430,932)):
+        stage_page.set_viewport_size({'width':width,'height':height})
+        check(f'RC27 battlefield and controls fit at {width}x{height}', stage_page.locator('.stage-app').evaluate("""root => {
+          const fits = el => {
+            const r = el.getBoundingClientRect();
+            return r.left >= 0 && r.right <= innerWidth + 1 && r.top >= 0 && r.bottom <= innerHeight + 1;
+          };
+          return root.scrollHeight <= root.clientHeight + 1 &&
+            [...root.querySelectorAll('button')].every(el => fits(el) && el.clientHeight >= 44 && el.clientWidth >= 44) &&
+            [...root.querySelectorAll('.stage-name,.stage-stats')].every(el => el.scrollWidth <= el.clientWidth + 1) &&
+            [...root.querySelectorAll('.stage-card-hp')].every(el => el.getBoundingClientRect().height >= 12) &&
+            [...root.querySelectorAll('img')].every(img => img.complete && img.naturalWidth > 0) &&
+            root.querySelector('.stage-enemy-caption').textContent === '水晶の守護者';
+        }"""))
+        stage_page.screenshot(path=str(SHOTS/f'{ENGINE}-stage-{width}x{height}.png'), animations='disabled')
+    stage_page.set_viewport_size({'width':393,'height':654})
+    hp = lambda: stage_page.locator('.stage-card-hp').evaluate_all("els=>els.map(el=>el.getAttribute('aria-valuetext'))")
+    skill = lambda id: stage_page.locator(f'.stage-slot[data-unit={id}] .stage-skill')
+    stage_start = stage_page.locator('#stageStart')
+    stage_time = stage_page.locator('#stageElapsed')
+    stage_page.clock.run_for(2500)
+    check('RC27 attacks wait for the player to start', stage_time.inner_text()=='0.0秒' and hp()==['245 / 245','120 / 120','136 / 136'])
+    stage_start.click()
+    check('RC27 heal stays unavailable while all allies are full', skill('c001').is_disabled())
+    skill('c002').click()
+    check('RC27 iron shield protects every living ally',
+          stage_page.locator('.stage-card[data-shielded=true]').count()==3
+          and '12秒' in skill('c002').inner_text())
+    stage_page.clock.run_for(2600)
+    check('RC27 automatic hit targets the first slot and consumes its shield',
+          hp()==['244 / 245','120 / 120','136 / 136']
+          and stage_page.locator('.stage-slot[data-unit=c002] .stage-front').is_visible())
+    skill('c001').click()
+    check('RC27 a skill during an attack is queued without spending its cooldown',
+          skill('c001').get_attribute('data-queued')=='true' and hp()[0]=='244 / 245')
+    skill('c001').click()
+    check('RC27 the same button cancels a queued skill', skill('c001').get_attribute('data-queued')=='false')
+    skill('c001').click()
+    stage_page.clock.run_for(550)
+    check('RC27 queued healing restores HP with a cooldown',
+          hp()[0]=='245 / 245' and '10秒' in skill('c001').inner_text())
+    stage_page.clock.run_for(550)
+    skill('c003').click()
+    check('RC27 wolf skill uses 250 percent of its trained attack',
+          stage_page.locator('.stage-enemy').evaluate("el=>el.style.getPropertyValue('--stage-hp')")=='63%')
+    stage_page.screenshot(path=str(SHOTS/f'{ENGINE}-stage-skill.png'), animations='disabled')
+    stage_start.click()
+    pause_time = stage_time.inner_text()
+    pause_hp = hp()
+    stage_page.locator('#stageSpeed').click()
+    stage_page.clock.fast_forward(5000)
+    check('RC27 pause freezes combat and skill cooldowns at either speed',
+          stage_time.inner_text()==pause_time and hp()==pause_hp and skill('c003').is_disabled())
+    stage_start.click()
+    stage_page.clock.fast_forward(2000)
+    check('RC27 double speed advances four combat seconds in two seconds',
+          abs(float(stage_time.inner_text()[:-1])-float(pause_time[:-1])-4)<0.25)
+    stage_page.clock.fast_forward(20000)
+    check('RC27 the trained party can finish the stage', stage_page.locator('.stage-app[data-mode=victory]').count()==1)
+    stage_page.screenshot(path=str(SHOTS/f'{ENGINE}-stage-victory.png'), animations='disabled')
+    stage_page.locator('#stageReset').click()
+    stage_page.locator('.stage-app[data-mode=ready]').wait_for()
+    check('RC27 reset restores the same party at full HP', stage_time.inner_text()=='0.0秒' and hp()==['245 / 245','120 / 120','136 / 136'])
+    stage_page.locator('#stageBack').click()
+    check('RC27 returning from battle preserves formation and save bytes',
+          stage_page.locator('#partyScreen.active').count()==1
+          and stage_page.locator('#partySlots .party-slot-name').all_inner_texts()==['鉄骸兵','白翼のアルム','冥牙クロウル']
+          and stage_page.evaluate('({local:Object.entries(localStorage).sort(),session:Object.entries(sessionStorage).sort()})')==before_stage)
+    stage_page.locator('#partySlots [data-party-slot="1"]').click()
+    stage_page.locator('#partyRoster [data-party-character=c004]').click()
+    check('RC27 an unsupported party offers an explicitly labeled trial', stage_page.locator('#partyBattle').inner_text()=='お試し戦闘')
+    stage_page.locator('#partyBattle').click()
+    stage_page.locator('.stage-app[data-mode=ready]').wait_for()
+    check('RC27 trial uses the sample at level 1',
+          stage_page.locator('#stageTrialLabel').is_visible()
+          and stage_page.locator('.stage-level').all_inner_texts()==['Lv1','Lv1','Lv1'])
+    stage_page.locator('#stageBack').click()
+    check('RC27 an unsaved formation edit survives the round trip',
+          stage_page.locator('#partySlots .party-slot-name').all_inner_texts()==['鉄骸兵','夜叉','冥牙クロウル'])
+    stage_context.close()
+
+    solo_context = browser.new_context(viewport={'width':320,'height':568}, is_mobile=True, has_touch=True)
+    solo_context.add_init_script("""localStorage.setItem('tapgacha_save_v3', JSON.stringify({
+      schemaVersion:3, points:0, keys:0, tapPower:1, partyIds:['c003'],
+      characters:{c003:{owned:true, level:1, cap:100, shards:0}}
+    }));""")
+    stage_page = solo_context.new_page()
+    stage_page.on('pageerror', lambda error: errors.append('RC27 solo: ' + str(error)))
+    stage_page.clock.install(time=datetime(2026,11,11,3,0,tzinfo=timezone.utc))
+    stage_page.goto(URL+'?reward-preview=1', wait_until='load')
+    stage_page.locator('.kit-transfer').click()
+    stage_page.locator('#partyBattle').click()
+    stage_page.locator('.stage-app[data-mode=ready]').wait_for()
+    stage_page.clock.pause_at(datetime(2026,11,11,3,0,30,tzinfo=timezone.utc))
+    stage_page.locator('#stageStart').click()
+    stage_page.clock.fast_forward(10500)
+    check('RC27 a solo defeat stops combat at zero HP',
+          stage_page.locator('.stage-app[data-mode=defeat]').count()==1
+          and stage_page.locator('.stage-card-hp').get_attribute('aria-valuenow')=='0'
+          and stage_page.locator('#stageElapsed').inner_text()=='10.0秒')
+    stage_page.locator('#stageStart').click()
+    stage_page.locator('.stage-app[data-mode=running]').wait_for()
+    check('RC27 rematch restores the fallen party', stage_page.locator('.stage-card-hp').get_attribute('aria-valuenow')=='100')
+    solo_context.close()
+
+    subprocess.run([sys.executable, str(ROOT/'tools/build_battle_stage.py')], check=True, cwd=ROOT)
+    sample_context = browser.new_context(viewport={'width':393,'height':654}, is_mobile=True, has_touch=True)
+    stage_page = sample_context.new_page()
+    stage_page.on('pageerror', lambda error: errors.append('RC27 standalone: ' + str(error)))
+    sample_requests = []
+    stage_page.on('request', lambda request: sample_requests.append(request.url)
+                  if request.resource_type!='document' and request.url.startswith(('http:', 'https:')) else None)
+    stage_page.clock.install(time=datetime(2026,11,11,3,0,tzinfo=timezone.utc))
+    stage_page.goto(URL.rsplit('/',1)[0]+'/tapgacha-battle-stage-RC27.html', wait_until='load')
+    stage_page.locator('.stage-app[data-mode=ready]').wait_for()
+    stage_page.clock.pause_at(datetime(2026,11,11,3,0,30,tzinfo=timezone.utc))
+    stage_page.locator('#stageStart').click()
+    stage_page.clock.fast_forward(16500)
+    check('RC27 standalone runs to victory with all assets embedded',
+          stage_page.locator('.stage-app[data-mode=victory]').count()==1
+          and stage_page.locator('#stageElapsed').inner_text()=='16.0秒'
+          and not sample_requests)
+    sample_context.close()
+
     check('new save safety checks produce no runtime exceptions',not errors)
     (ROOT/f'qa-results-{ENGINE}.json').write_text(json.dumps({'browser':ENGINE,'passed':len(passed),'checks':passed,'runtime_errors':errors,'broken_images':missing,'resource_failures':resource_failures},ensure_ascii=False,indent=2),encoding='utf-8')
     print(f'ALL {len(passed)} CHECKS PASS',flush=True)

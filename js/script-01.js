@@ -1085,6 +1085,15 @@
   const partyRoster = homeEl('partyRoster');
   const partyResult = homeEl('partyResult');
   const partyConfirm = homeEl('partyConfirm');
+  const partyBattle = homeEl('partyBattle');
+  const battleScreen = homeEl('battleStageScreen');
+  const battleStage = window.TapGachaBattleStage.createController(
+    battleScreen.querySelector('.stage-app'),
+    () => {
+      showScreen('party');
+      partyBattle.focus({preventScroll:true});
+    }
+  );
   let partyDraft = [];
   let partySelectedSlot = 0;
   let partyFeedbackTimer;
@@ -1129,6 +1138,12 @@
     partyFeedback();
     homeEl('partyRosterScroll').scrollTop=0;
     renderParty();
+  }
+  function partyForBattle(){
+    if(saveRecoveryBlocked)return null;
+    const ids=normalizedParty(partyDraft);
+    if(!ids.length||!ids.every(window.TapGachaBattle.supports))return null;
+    return ids.map(id=>({id,level:collection[id].level||1}));
   }
   function renderParty(){
     const owned=ownedPartyCharacters();
@@ -1191,7 +1206,20 @@
     homeEl('partyHint').textContent=saveRecoveryBlocked?'セーブの確認が必要です':owned.length===0?'召喚門から仲間を迎えましょう':
       owned.length<=3?'仲間を迎えると、ここで入れ替えられます':`${partySelectedSlot+1}枠目を選択中 · 下のキャラで入れ替え`;
     partyConfirm.disabled=!rewardPreview||saveRecoveryBlocked||partyDraft.length===0;
+    const canLaunch=Boolean(partyForBattle());
+    partyBattle.disabled=!rewardPreview;
+    partyBattle.textContent=canLaunch?'戦闘へ':'お試し戦闘';
+    partyBattle.title=canLaunch?'選んだ仲間の育成レベルで戦闘へ':'アルム・鉄骸兵・クロウルのLv1編成で試す';
   }
+  partyBattle.addEventListener('click',()=>{
+    if(!rewardPreview||partyBattle.disabled)return;
+    const members=partyForBattle();
+    const loading=battleStage.load(members||window.TapGachaBattle.sampleParty(),!members);
+    showScreen('battle');
+    loading.then(ready=>{
+      if(ready&&battleScreen.classList.contains('active'))homeEl('stageStart').focus({preventScroll:true});
+    });
+  });
   partyConfirm.addEventListener('click',()=>{
     if(!rewardPreview||saveRecoveryBlocked)return;
     const valid=normalizedParty(partyDraft);
@@ -1343,6 +1371,9 @@
     const toShop = which === 'shop';
     const toQuest = which === 'quest';
     const toParty = which === 'party' && rewardPreview;
+    const toBattle = which === 'battle' && rewardPreview;
+    const returningFromBattle = battleScreen.classList.contains('active');
+    if(returningFromBattle&&!toBattle)battleStage.close();
 
     if(!toCharacter)stopTrainingHold();
     home.classList.toggle('active',toHome);
@@ -1353,10 +1384,14 @@
     shopScreen.classList.toggle('active',toShop);
     questScreen.classList.toggle('active',toQuest);
     partyScreen.classList.toggle('active',toParty);
-    if(toParty)beginParty();
-    else partyFeedback();
+    battleScreen.classList.toggle('active',toBattle);
+    battleScreen.inert=!toBattle;
+    if(toParty){
+      if(returningFromBattle)renderParty();
+      else beginParty();
+    }else partyFeedback();
     if(!toQuest)closeQuestReward();
-    document.getElementById('devBuildLabel').style.display=toQuest?'none':'';
+    document.getElementById('devBuildLabel').style.display=toQuest||toBattle?'none':'';
     if(toQuest)renderQuest();
     if(toShop) renderShop();
     else clearTimeout(shopRewardResetTimer);
