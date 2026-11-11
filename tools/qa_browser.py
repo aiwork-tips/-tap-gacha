@@ -17,7 +17,7 @@ errors=[]
 def check(label, ok):
     if not ok:
         failed_page=globals().get('battle') if label.startswith('RC25') else globals().get('reward')
-        if label.startswith(('RC27', 'RC29', 'RC30')):
+        if label.startswith(('RC27', 'RC29', 'RC30', 'RC31')):
             failed_page=globals().get('stage_page')
         if failed_page and not failed_page.is_closed():
             failed_page.screenshot(path=str(SHOTS/f'{ENGINE}-failure.png'))
@@ -1169,7 +1169,10 @@ with sync_playwright() as pw:
         c004: {owned:true, level:30, cap:100, shards:4},
         c005: {owned:true, level:1, cap:100, shards:5},
         c006: {owned:true, level:1, cap:100, shards:6},
-        c007: {owned:true, level:1, cap:100, shards:7}
+        c007: {owned:true, level:1, cap:100, shards:7},
+        c008: {owned:true, level:1, cap:100, shards:8},
+        c009: {owned:true, level:1, cap:100, shards:9},
+        c010: {owned:true, level:1, cap:100, shards:10}
       }
     }));""")
     stage_page = stage_context.new_page()
@@ -1275,7 +1278,7 @@ with sync_playwright() as pw:
     check('RC27 an unsaved formation edit survives the round trip',
           stage_page.locator('#partySlots .party-slot-name').all_inner_texts()==['鉄骸兵','夜叉','冥牙クロウル'])
     stage_page.locator('#partySlots [data-party-slot="1"]').click()
-    stage_page.locator('#partyRoster [data-party-character=c007]').click()
+    stage_page.locator('#partyRoster [data-party-character=c010]').click()
     check('RC27 an unsupported party offers an explicitly labeled trial', stage_page.locator('#partyBattle').inner_text()=='お試し戦闘')
     stage_page.locator('#partyBattle').click()
     stage_page.locator('.stage-app[data-mode=ready]').wait_for()
@@ -1335,8 +1338,8 @@ with sync_playwright() as pw:
           stage_page.locator('#stageEnemyStats').inner_text()=='高難度 · 敵HP 750 · 攻 26 ↓')
     stage_page.clock.run_for(550)
     skill('c005').click()
-    check('RC30 Varg displays three distinct impacts and its cooldown',
-          stage_page.locator('.stage-impact-hit').count()==3
+    check('RC30 Varg deals 44 total skill damage and enters cooldown',
+          stage_page.locator('.stage-enemy').evaluate("el=>el.style.getPropertyValue('--stage-hp')")=='92%'
           and '10秒' in skill('c005').inner_text())
     stage_page.clock.run_for(2070)
     check('RC30 weakened enemy deals 26 damage to the front ally', hp()[0]=='134 / 160')
@@ -1345,6 +1348,56 @@ with sync_playwright() as pw:
           stage_page.locator('#stageEnemyStats').inner_text()=='高難度 · 敵HP 750 · 攻 34')
     stage_page.locator('#stageBack').click()
     check('RC30 testing the new party and both difficulties leaves the save intact',
+          stage_page.evaluate('({local:Object.entries(localStorage).sort(),session:Object.entries(sessionStorage).sort()})')==before_stage)
+    for slot, member in enumerate(('c007','c008','c009')):
+        stage_page.locator(f'#partySlots [data-party-slot="{slot}"]').click()
+        stage_page.locator(f'#partyRoster [data-party-character={member}]').click()
+    stage_page.locator('#partyBattle').click()
+    stage_page.locator('.stage-app[data-mode=ready]').wait_for()
+    check('RC31 new allies and battle controls fit at 320px',
+          stage_page.locator('#stageTrialLabel').is_hidden()
+          and hp()==['144 / 144','202 / 202','130 / 130']
+          and stage_page.locator('.stage-app').evaluate("""root => root.scrollHeight <= root.clientHeight + 1
+            && [...root.querySelectorAll('img')].every(img => img.complete && img.naturalWidth > 0)
+            && [...root.querySelectorAll('.stage-skill,.stage-name')].every(el => el.scrollWidth <= el.clientWidth + 1)"""))
+    stage_page.screenshot(path=str(SHOTS/f'{ENGINE}-stage-rc31-320.png'), animations='disabled')
+    stage_start.click()
+    skill('c009').click()
+    check('RC31 Arcadio deals one hit and shows the enemy delay',
+          stage_page.locator('#stageEnemyStats').inner_text()=='高難度 · 敵HP 750 · 攻 34 · 遅延中'
+          and stage_page.locator('.stage-enemy').evaluate("el=>el.style.getPropertyValue('--stage-hp')")=='93%')
+    stage_page.clock.run_for(550)
+    skill('c007').click()
+    check('RC31 Kain reduces the enemy attack by ten percent',
+          stage_page.locator('#stageEnemyStats').inner_text()=='高難度 · 敵HP 750 · 攻 31 ↓ · 遅延中')
+    stage_page.clock.run_for(550)
+    skill('c008').click()
+    check('RC31 Siglas shows the four-second burn',
+          stage_page.locator('#stageStatus').inner_text()=='煉獄火 · 燃焼ダメージ（4秒）')
+    stage_page.clock.run_for(2000)
+    check('RC31 the enemy does not attack at its original time', hp()[0]=='144 / 144')
+    stage_page.clock.run_for(520)
+    check('RC31 the delayed attack lands exactly once and clears the delay',
+          hp()[0]=='113 / 144' and '遅延中' not in stage_page.locator('#stageEnemyStats').inner_text())
+    check('RC31 burn ticks once per second and weaker debuffs never overwrite stronger ones',
+          stage_page.evaluate("""() => {
+            const make = ids => TapGachaBattle.createBattle(ids.map(id => ({ id, level: 1 })), 'training');
+            const fire = make(['c008']);
+            if (fire.requestSkill('c008')[0].amount !== 41) return false;
+            const ticks = fire.advanceTo(5000).filter(event => event.periodic);
+            const weaken = make(['c006','c007']);
+            weaken.requestSkill('c006');
+            weaken.advanceTo(1000);
+            weaken.requestSkill('c007');
+            if (weaken.enemyAttack() !== 26) return false;
+            weaken.advanceTo(6000);
+            if (weaken.enemyAttack() !== 31) return false;
+            weaken.advanceTo(7000);
+            return weaken.enemyAttack() === 34 && ticks.length === 4
+              && ticks.every((event, index) => event.time === 1000 * (index + 1) && event.amount === 9);
+          }"""))
+    stage_page.locator('#stageBack').click()
+    check('RC31 fighting with the three new allies leaves the save intact',
           stage_page.evaluate('({local:Object.entries(localStorage).sort(),session:Object.entries(sessionStorage).sort()})')==before_stage)
     stage_context.close()
 
@@ -1380,7 +1433,7 @@ with sync_playwright() as pw:
     stage_page.on('request', lambda request: sample_requests.append(request.url)
                   if request.resource_type!='document' and request.url.startswith(('http:', 'https:')) else None)
     stage_page.clock.install(time=datetime(2026,11,11,3,0,tzinfo=timezone.utc))
-    stage_page.goto(URL.rsplit('/',1)[0]+'/tapgacha-battle-stage-RC30.html', wait_until='load')
+    stage_page.goto(URL.rsplit('/',1)[0]+'/tapgacha-battle-stage-RC31.html', wait_until='load')
     stage_page.locator('.stage-app[data-mode=ready]').wait_for()
     stage_page.clock.pause_at(datetime(2026,11,11,3,0,30,tzinfo=timezone.utc))
     stage_page.locator('#stageStart').click()

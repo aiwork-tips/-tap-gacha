@@ -31,6 +31,21 @@
       name: '骸の剣士', rarity: 1, baseHp: 160, baseAttack: 14,
       sprite: 'assets/rc30-swordsman.webp', portrait: 'assets/dex-swordsman.webp',
       color: '#8bcaff', skill: { name: '骸の呪刃', kind: 'weaken', multiplier: 1.5, duration: 6000, reduction: 0.25, cooldown: 12000 }
+    },
+    c007: {
+      name: '堕天使カイン', rarity: 2, baseHp: 120, baseAttack: 26,
+      sprite: 'assets/rc31-kain.webp', portrait: 'assets/4715d51ddceba9dab7e8.webp',
+      color: '#c0a1ef', skill: { name: '堕天の翼', kind: 'weaken', multiplier: 2.6, duration: 6000, reduction: 0.10, cooldown: 12000 }
+    },
+    c008: {
+      name: '煉獄シグラス', rarity: 2, baseHp: 168, baseAttack: 19,
+      sprite: 'assets/rc31-siglas.webp', portrait: 'assets/4b7c3e81eac4b21c3344.webp',
+      color: '#ff9a4a', skill: { name: '煉獄火', kind: 'burn', multiplier: 1.8, tickMultiplier: 0.4, ticks: 4, cooldown: 12000 }
+    },
+    c009: {
+      name: '紫電アルカディオ', rarity: 2, baseHp: 108, baseAttack: 29,
+      sprite: 'assets/rc31-arcadio.webp', portrait: 'assets/55466b3cd275d73074f9.webp',
+      color: '#d4a1ff', skill: { name: '紫電連牙', kind: 'delay', multiplier: 1.6, delay: 1000, cooldown: 12000 }
     }
   };
   const guardian = {
@@ -44,6 +59,7 @@
   const allyInterval = 2000;
   const enemyInterval = 2500;
   const animationWindow = 480;
+  const burnInterval = 1000;
 
   function supports(id) {
     return typeof id === 'string' && Object.hasOwn(characters, id);
@@ -74,12 +90,14 @@
     });
     const enemy = {
       ...guardian, ...difficulties[difficulty], hp: difficulties[difficulty].maxHp,
-      shield: 0, weakenUntil: 0, attackReduction: 0
+      shield: 0, attackDelayed: false
     };
     const state = { allies, enemy, difficulty, time: 0, result: null, queuedSkill: null };
     let nextAllyAttack = allyInterval;
     let nextEnemyAttack = enemyInterval;
     let animationUntil = 0;
+    const weakenEffects = new Map();
+    let burn = null;
 
     function healTarget() {
       return allies.reduce((target, ally) => {
@@ -105,13 +123,13 @@
       }
     }
 
-    function attack(attacker, target, power, skill, events) {
+    function attack(attacker, target, power, skill, events, periodic = false) {
       const blocked = Math.min(power, target.shield);
       target.shield -= blocked;
       const amount = Math.min(target.hp, power - blocked);
       target.hp -= amount;
       events.push({
-        kind: 'hit', from: attacker.id, to: target.id, amount, blocked, skill, time: state.time
+        kind: 'hit', from: attacker.id, to: target.id, amount, blocked, skill, periodic, time: state.time
       });
       if (target.hp === 0 && state.queuedSkill?.id === target.id) state.queuedSkill = null;
       if (enemy.hp === 0) state.result = 'victory';
@@ -149,9 +167,22 @@
         for (let hit = 0; hit < hits && !state.result; hit += 1) {
           attack(ally, enemy, perHit + (hit < remainder ? 1 : 0), true, events);
         }
-        if (skill.kind === 'weaken' && !state.result) {
-          enemy.weakenUntil = state.time + skill.duration;
-          enemy.attackReduction = skill.reduction;
+        if (!state.result) {
+          switch (skill.kind) {
+            case 'weaken':
+              weakenEffects.set(ally.id, { until: state.time + skill.duration, reduction: skill.reduction });
+              break;
+            case 'burn':
+              burn = {
+                caster: ally, amount: Math.round(ally.attack * skill.tickMultiplier),
+                next: state.time + burnInterval, remaining: skill.ticks
+              };
+              break;
+            case 'delay':
+              nextEnemyAttack += skill.delay;
+              enemy.attackDelayed = true;
+              break;
+          }
         }
       }
       markAnimation();
@@ -175,7 +206,7 @@
       const events = [];
       if (!Number.isFinite(time) || time < state.time || state.result) return events;
       while (!state.result) {
-        const next = Math.min(nextAllyAttack, nextEnemyAttack, state.queuedSkill?.at ?? Infinity);
+        const next = Math.min(nextAllyAttack, nextEnemyAttack, state.queuedSkill?.at ?? Infinity, burn?.next ?? Infinity);
         if (next > time) break;
         state.time = next;
         expireShields();
@@ -183,6 +214,11 @@
           const { id } = state.queuedSkill;
           state.queuedSkill = null;
           resolveSkill(allies.find(ally => ally.id === id), events);
+        }
+        if (!state.result && burn?.next === next) {
+          attack(burn.caster, enemy, burn.amount, false, events, true);
+          burn.next += burnInterval;
+          if (--burn.remaining === 0) burn = null;
         }
         if (!state.result && nextAllyAttack === next) {
           nextAllyAttack += allyInterval;
@@ -194,6 +230,7 @@
         }
         if (!state.result && nextEnemyAttack === next) {
           nextEnemyAttack += enemyInterval;
+          enemy.attackDelayed = false;
           const front = allies.find(ally => ally.hp > 0);
           attack(enemy, front, enemyAttack(), false, events);
           markAnimation();
@@ -207,7 +244,11 @@
     }
 
     function enemyAttack() {
-      return state.time < enemy.weakenUntil ? Math.round(enemy.attack * (1 - enemy.attackReduction)) : enemy.attack;
+      let reduction = 0;
+      for (const effect of weakenEffects.values()) {
+        if (state.time < effect.until) reduction = Math.max(reduction, effect.reduction);
+      }
+      return Math.round(enemy.attack * (1 - reduction));
     }
 
     return { state, advanceTo, requestSkill, skillStatus, enemyAttack };

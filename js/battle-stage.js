@@ -7,7 +7,7 @@
     2: [[28, 52], [22, 85]],
     3: [[22, 40], [31, 65], [22, 90]]
   };
-  const skillLabels = { heal: '回復', shield: '盾', hit: '攻撃', combo: '3連撃', weaken: '弱体' };
+  const skillLabels = { heal: '回復', shield: '盾', hit: '攻撃', combo: '3連撃', weaken: '弱体', burn: '燃焼', delay: '遅延' };
   const formatNumber = new Intl.NumberFormat('ja-JP');
   const compactNumber = new Intl.NumberFormat('ja-JP', { notation: 'compact', maximumFractionDigits: 1 });
   const percent = unit => Math.min(100, Math.ceil(100 * unit.hp / unit.maxHp));
@@ -122,7 +122,8 @@
       const attack = battle.enemyAttack();
       const weakened = attack < state.enemy.attack && !state.result;
       setText(enemyStats, difficultyLabel + ' · 敵HP ' + state.enemy.maxHp + ' · 攻 ' +
-        (weakened ? attack + ' ↓' : state.enemy.attack));
+        (weakened ? attack + ' ↓' : state.enemy.attack) +
+        (state.enemy.attackDelayed && !state.result ? ' · 遅延中' : ''));
       const front = state.allies.find(ally => ally.hp > 0);
       for (const unit of [...state.allies, state.enemy]) {
         const { node } = actorViews.get(unit.id);
@@ -183,7 +184,8 @@
         const caster = battle.state.allies.find(ally => ally.id === spell.from);
         const messages = {
           heal: 'HPを回復', shield: 'シールドを付与', hit: '強力な一撃',
-          combo: '3連撃', weaken: '敵の攻撃力低下（6秒）'
+          combo: '3連撃', weaken: '敵の攻撃力低下（6秒）',
+          burn: '燃焼ダメージ（4秒）', delay: '敵の次の通常攻撃を1秒遅延'
         };
         latestSkill = caster.skill.name + ' · ' + messages[caster.skill.kind];
       }
@@ -200,7 +202,8 @@
         popup.style.left = target.left + target.width / 2 - scene.left + (index % 3 - 1) * 15 + 'px';
         popup.style.top = target.top + target.height * 0.28 - scene.top + 'px';
         popup.style.setProperty('--impact-color', participants.find(unit => unit.id === event.from).color);
-        popup.textContent = event.kind === 'shield' ? '盾 +' + event.amount
+        popup.textContent = event.periodic ? '炎 −' + event.amount
+          : event.kind === 'shield' ? '盾 +' + event.amount
           : event.kind === 'heal' ? '+' + event.amount
           : event.amount ? '−' + event.amount : '防御';
         effects.append(popup);
@@ -211,7 +214,7 @@
           { opacity: 0, transform: 'translate(-50%, -29px)' }
         ], { delay, duration: 430, fill: 'both' }, true);
 
-        if (event.kind === 'hit' && !(event.skill && index > 0 && eventsInView[index - 1].from === event.from
+        if (event.kind === 'hit' && !event.periodic && !(event.skill && index > 0 && eventsInView[index - 1].from === event.from
             && eventsInView[index - 1].time === event.time && eventsInView[index - 1].skill)) {
           const distance = event.from === 'guardian' ? -18 : event.from === 'c001' ? 7 : 22;
           animate(attacker.sprite, [
