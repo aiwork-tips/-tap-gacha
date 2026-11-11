@@ -22,6 +22,8 @@
     const status = get('stageStatus');
     const elapsed = get('stageElapsed');
     const startButton = get('stageStart');
+    const difficultySelect = get('stageDifficulty');
+    const enemyStats = get('stageEnemyStats');
     const resetButton = get('stageReset');
     const speedButton = get('stageSpeed');
     const motion = matchMedia('(prefers-reduced-motion: reduce)');
@@ -111,12 +113,15 @@
     function render() {
       root.dataset.mode = mode;
       startButton.disabled = !battle || mode === 'loading' || mode === 'error' || mode === 'closed';
+      difficultySelect.disabled = !['ready', 'victory', 'defeat'].includes(mode);
       resetButton.disabled = startButton.disabled;
       speedButton.disabled = startButton.disabled;
       setText(speedButton, '×' + speed);
       speedButton.setAttribute('aria-label', '戦闘速度 ' + speed + '倍');
       if (!battle) return;
       const state = battle.state;
+      difficultySelect.value = state.difficulty;
+      setText(enemyStats, '敵HP ' + state.enemy.maxHp + ' · 攻 ' + state.enemy.attack);
       const front = state.allies.find(ally => ally.hp > 0);
       for (const unit of [...state.allies, state.enemy]) {
         const { node } = actorViews.get(unit.id);
@@ -251,8 +256,8 @@
       render();
     }
 
-    function load(members, isTrial = false) {
-      const nextBattle = rules.createBattle(members);
+    function load(members, isTrial = false, difficulty = 'normal') {
+      const nextBattle = rules.createBattle(members, difficulty);
       const generation = ++loadGeneration;
       cancelFrame();
       clearEffects();
@@ -285,10 +290,10 @@
       });
     }
 
-    function reset(restart) {
+    function reset(restart, difficulty = battle?.state.difficulty) {
       if (!battle || resetButton.disabled) return;
       const members = battle.state.allies.map(({ id, level }) => ({ id, level }));
-      load(members, trial).then(ready => {
+      load(members, trial, difficulty).then(ready => {
         if (ready && restart) start();
       });
     }
@@ -308,6 +313,9 @@
       else start();
     });
     resetButton.addEventListener('click', () => reset(false));
+    difficultySelect.addEventListener('change', () => {
+      if (!difficultySelect.disabled) reset(false, difficultySelect.value);
+    });
     speedButton.addEventListener('click', () => {
       if (mode === 'running') advanceClock(performance.now());
       speed = speed === 1 ? 2 : 1;

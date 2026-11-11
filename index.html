@@ -7,7 +7,7 @@
 <meta content="#071827" name="theme-color"/>
 <meta content="yes" name="apple-mobile-web-app-capable"/>
 <meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
-<title>Ver.11.8 BATTLE-RC27 · タップ育成ガチャ -覚醒-</title>
+<title>Ver.11.8 BATTLE-RC28 · タップ育成ガチャ -覚醒-</title>
 <!-- Unified Save Rev.3: tapgacha_save_v3 / legacy gV2 preserved read-only -->
 <link rel="stylesheet" href="css/style-01.css">
 
@@ -429,7 +429,7 @@
       <div class="shop-bridge"><button type="button" class="shop-to-character" id="shopGoCharacter">キャラ育成へ →</button></div>
       <div class="shop-future">現在購入できるのは「上限解放の鍵」のみです。<br>新アイテムの価格・効果は後日決定します。</div>
     </div>
-    <span class="shop-version">Ver.11.8 · BATTLE-RC27</span>
+    <span class="shop-version">Ver.11.8 · BATTLE-RC28</span>
   </div>
 </section>
 
@@ -439,7 +439,7 @@
 <section class="screen" id="questScreen" aria-label="依頼掲示板">
   <img id="questBackdrop" class="quest-backdrop" alt="" aria-hidden="true" />
   <div class="quest-scrim"></div>
-  <span class="quest-version">Ver.11.8 · BATTLE-RC27</span>
+  <span class="quest-version">Ver.11.8 · BATTLE-RC28</span>
   <div class="quest-shell">
     <header class="quest-top">
       <div class="quest-head"><button id="questBackHome" type="button" class="quest-home">⌂ ホーム</button><h1 class="quest-title">依頼掲示板</h1></div>
@@ -492,6 +492,14 @@
       <button type="button" class="stage-button stage-back" id="stageBack">編成</button>
       <h1 id="stageTitle">水晶の回廊</h1>
     </header>
+    <div class="stage-difficulty-row">
+      <label for="stageDifficulty">難度</label>
+      <select id="stageDifficulty" disabled>
+        <option value="normal">通常</option>
+        <option value="training">鍛錬</option>
+      </select>
+      <span id="stageEnemyStats"></span>
+    </div>
     <div class="stage-field" id="stageField" aria-label="戦場">
       <div class="stage-actors" id="stageActors"></div>
       <div class="stage-effects" id="stageEffects" aria-hidden="true"></div>
@@ -508,7 +516,7 @@
     </div>
     <footer class="stage-note">
       <span id="stageTrialLabel" hidden>お試し編成 · Lv1</span>
-      <span>Ver.11.8 · BATTLE-RC27</span>
+      <span>Ver.11.8 · BATTLE-RC28</span>
     </footer>
     <template id="stageCardTemplate">
       <div class="stage-slot">
@@ -558,7 +566,7 @@
 </dialog>
 
 <div class="toast" id="toast"></div>
-<div id="devBuildLabel" aria-label="開発検証版 Ver.11.8 BATTLE-RC27">Ver.11.8 · BATTLE-RC27</div>
+<div id="devBuildLabel" aria-label="開発検証版 Ver.11.8 BATTLE-RC28">Ver.11.8 · BATTLE-RC28</div>
 </main>
 <script src="js/battle-rules.js"></script>
 <script src="js/battle-stage.js"></script>

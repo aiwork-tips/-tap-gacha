@@ -22,6 +22,10 @@
     id: 'guardian', name: '水晶の守護者', maxHp: 360, attack: 26,
     sprite: 'assets/rc25-guardian.webp', color: '#72e4ff'
   };
+  const difficulties = Object.freeze({
+    normal: Object.freeze({ maxHp: guardian.maxHp, attack: guardian.attack }),
+    training: Object.freeze({ maxHp: 750, attack: 34 })
+  });
   const allyInterval = 2000;
   const enemyInterval = 2500;
   const animationWindow = 480;
@@ -34,7 +38,8 @@
     return ['c002', 'c001', 'c003'].map(id => ({ id, level: 1 }));
   }
 
-  function createBattle(party) {
+  function createBattle(party, difficulty = "normal") {
+    if (!Object.hasOwn(difficulties, difficulty)) throw new RangeError("Unknown battle difficulty.");
     const ids = new Set(party.map(member => member.id));
     if (!party.length || party.length > 3 || ids.size !== party.length || ![...ids].every(supports)) {
       throw new RangeError('A battle needs one to three different supported allies.');
@@ -52,8 +57,8 @@
         shield: 0, shieldUntil: 0, skillReadyAt: 0
       };
     });
-    const enemy = { ...guardian, hp: guardian.maxHp, shield: 0 };
-    const state = { allies, enemy, time: 0, result: null, queuedSkill: null };
+    const enemy = { ...guardian, ...difficulties[difficulty], hp: difficulties[difficulty].maxHp, shield: 0 };
+    const state = { allies, enemy, difficulty, time: 0, result: null, queuedSkill: null };
     let nextAllyAttack = allyInterval;
     let nextEnemyAttack = enemyInterval;
     let animationUntil = 0;
