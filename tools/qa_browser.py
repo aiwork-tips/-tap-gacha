@@ -1299,7 +1299,7 @@ with sync_playwright() as pw:
     stage_page.on('request', lambda request: sample_requests.append(request.url)
                   if request.resource_type!='document' and request.url.startswith(('http:', 'https:')) else None)
     stage_page.clock.install(time=datetime(2026,11,11,3,0,tzinfo=timezone.utc))
-    stage_page.goto(URL.rsplit('/',1)[0]+'/tapgacha-battle-stage-RC27.html', wait_until='load')
+    stage_page.goto(URL.rsplit('/',1)[0]+'/tapgacha-battle-stage-RC28.html', wait_until='load')
     stage_page.locator('.stage-app[data-mode=ready]').wait_for()
     stage_page.clock.pause_at(datetime(2026,11,11,3,0,30,tzinfo=timezone.utc))
     stage_page.locator('#stageStart').click()
@@ -1307,6 +1307,29 @@ with sync_playwright() as pw:
     check('RC27 standalone runs to victory with all assets embedded',
           stage_page.locator('.stage-app[data-mode=victory]').count()==1
           and stage_page.locator('#stageElapsed').inner_text()=='16.0秒'
+          and not sample_requests)
+    difficulty = stage_page.locator('#stageDifficulty')
+    difficulty.select_option('training')
+    stage_page.locator('.stage-app[data-mode=ready]').wait_for()
+    check('RC28 training starts a fresh round with the stronger guardian',
+          stage_page.locator('#stageEnemyStats').inner_text()=='敵HP 750 · 攻 34'
+          and stage_page.locator('#stageElapsed').inner_text()=='0.0秒'
+          and stage_page.locator('.stage-hp-number').all_inner_texts()==['100%','100%','100%'])
+    stage_page.screenshot(path=str(SHOTS/f'{ENGINE}-training-ready.png'), animations='disabled')
+    stage_page.locator('#stageStart').click()
+    check('RC28 difficulty stays fixed during a battle', difficulty.is_disabled())
+    stage_page.clock.fast_forward(33500)
+    check('RC28 untrained party loses training on normal attacks alone',
+          stage_page.locator('.stage-app[data-mode=defeat]').count()==1)
+    stage_page.locator('#stageStart').click()
+    stage_page.locator('.stage-app[data-mode=running]').wait_for()
+    check('RC28 rematch keeps the selected difficulty', difficulty.input_value()=='training')
+    stage_page.locator('#stageReset').click()
+    stage_page.locator('.stage-app[data-mode=ready]').wait_for()
+    difficulty.select_option('normal')
+    stage_page.locator('.stage-app[data-mode=ready]').wait_for()
+    check('RC28 normal difficulty restores the original guardian',
+          stage_page.locator('#stageEnemyStats').inner_text()=='敵HP 360 · 攻 26'
           and not sample_requests)
     sample_context.close()
 

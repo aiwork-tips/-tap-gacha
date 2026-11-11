@@ -264,3 +264,28 @@
 @media (prefers-reduced-motion: reduce) {
   .stage-actor img { animation: none !important; }
 }
+
+.stage-difficulty-row {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  font: 650 12px/1.2 system-ui;
+}
+.stage-difficulty-row select {
+  min-width: 85px;
+  min-height: 44px;
+  padding: 4px 8px;
+  border: 1px solid #baa164;
+  border-radius: 6px;
+  background: #102b50;
+  color: #fff0cf;
+  font: inherit;
+}
+.stage-difficulty-row select:disabled { opacity: .72; }
+#stageEnemyStats { color: #c8e0f3; font-variant-numeric: tabular-nums; }
+@media (max-height: 640px) {
+  .stage-field { min-height: 202px; }
+}
