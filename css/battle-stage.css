@@ -276,12 +276,15 @@
   font: 650 12px/1.2 system-ui;
 }
 .stage-difficulty-row select {
+  appearance: none;
+  -webkit-appearance: none;
   min-width: 85px;
   min-height: 44px;
-  padding: 4px 8px;
+  padding: 4px 26px 4px 8px;
   border: 1px solid #baa164;
   border-radius: 6px;
-  background: #102b50;
+  background: linear-gradient(45deg, transparent 50%, #ffe5a6 50%) right 12px center / 5px 5px no-repeat,
+    linear-gradient(135deg, #ffe5a6 50%, transparent 50%) right 7px center / 5px 5px no-repeat #102b50;
   color: #fff0cf;
   font: inherit;
 }
