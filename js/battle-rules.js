@@ -99,6 +99,20 @@
     return ['c002', 'c001', 'c003'].map(id => ({ id, level: 1 }));
   }
 
+  function characterStats(id, rawLevel) {
+    if (!supports(id)) return null;
+    const profile = characters[id];
+    const parsedLevel = Number(rawLevel);
+    const level = Number.isSafeInteger(parsedLevel) && parsedLevel > 0 ? parsedLevel : 1;
+    // Apply linear growth and rarity before rounding.
+    const multiplier = (level + 24) * (profile.rarity + 4) / 125;
+    return {
+      level,
+      maxHp: Math.min(Number.MAX_SAFE_INTEGER, Math.round(profile.baseHp * multiplier)),
+      attack: Math.min(Number.MAX_SAFE_INTEGER, Math.round(profile.baseAttack * multiplier))
+    };
+  }
+
   function createBattle(party, difficulty = "normal") {
     if (!Object.hasOwn(difficulties, difficulty)) throw new RangeError("Unknown battle difficulty.");
     const ids = new Set(party.map(member => member.id));
@@ -107,14 +121,9 @@
     }
     const allies = party.map(member => {
       const profile = characters[member.id];
-      const parsedLevel = Number(member.level);
-      const level = Number.isSafeInteger(parsedLevel) && parsedLevel > 0 ? parsedLevel : 1;
-      // (level + 24) / 25 is the linear level multiplier. Apply rarity before rounding.
-      const multiplier = (level + 24) * (profile.rarity + 4) / 125;
-      const maxHp = Math.min(Number.MAX_SAFE_INTEGER, Math.round(profile.baseHp * multiplier));
-      const attack = Math.min(Number.MAX_SAFE_INTEGER, Math.round(profile.baseAttack * multiplier));
+      const stats = characterStats(member.id, member.level);
       return {
-        ...profile, id: member.id, level, maxHp, attack, hp: maxHp,
+        ...profile, id: member.id, ...stats, hp: stats.maxHp,
         shield: 0, shieldUntil: 0, wardUntil: 0, coverUntil: 0, skillReadyAt: 0
       };
     });
@@ -323,5 +332,5 @@
     return { state, advanceTo, requestSkill, skillStatus, enemyAttack };
   }
 
-  globalThis.TapGachaBattle = Object.freeze({ supports, sampleParty, createBattle });
+  globalThis.TapGachaBattle = Object.freeze({ supports, sampleParty, characterStats, createBattle });
 })();
