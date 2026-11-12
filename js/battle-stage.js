@@ -7,7 +7,8 @@
     2: [[28, 52], [22, 85]],
     3: [[22, 40], [31, 65], [22, 90]]
   };
-  const skillLabels = { heal: '回復', shield: '盾', hit: '攻撃', combo: '3連撃', weaken: '弱体', burn: '燃焼', delay: '遅延' };
+  const skillLabels = { heal: '回復', shield: '盾', hit: '攻撃', combo: '3連撃', weaken: '弱体', burn: '燃焼', delay: '遅延',
+    healAll: '全体回復', rally: '攻撃強化', curse: '呪い', execute: '大技', ward: '無効化', cover: 'かばう' };
   const formatNumber = new Intl.NumberFormat('ja-JP');
   const compactNumber = new Intl.NumberFormat('ja-JP', { notation: 'compact', maximumFractionDigits: 1 });
   const percent = unit => Math.min(100, Math.ceil(100 * unit.hp / unit.maxHp));
@@ -123,13 +124,14 @@
       const weakened = attack < state.enemy.attack && !state.result;
       setText(enemyStats, difficultyLabel + ' · 敵HP ' + state.enemy.maxHp + ' · 攻 ' +
         (weakened ? attack + ' ↓' : state.enemy.attack) +
-        (state.enemy.attackDelayed && !state.result ? ' · 遅延中' : ''));
+        (state.enemy.attackDelayed && !state.result ? ' · 遅延中' : '') +
+        (state.time < state.enemy.curseUntil && !state.result ? ' · 呪い' : ''));
       const front = state.allies.find(ally => ally.hp > 0);
       for (const unit of [...state.allies, state.enemy]) {
         const { node } = actorViews.get(unit.id);
         node.style.setProperty('--stage-hp', percent(unit) + '%');
         node.dataset.defeated = String(unit.hp === 0);
-        node.dataset.shielded = String(unit.shield > 0 && unit.hp > 0);
+        node.dataset.shielded = String(unit.hp > 0 && (unit.shield > 0 || state.time < unit.wardUntil));
       }
       for (const ally of state.allies) {
         const view = cardViews.get(ally.id);
@@ -141,8 +143,10 @@
         };
         const label = mode === 'ready' ? '開始後に使用' : mode === 'paused' ? '一時停止' : labels[skillState];
         view.tile.dataset.defeated = String(ally.hp === 0);
-        view.tile.dataset.shielded = String(ally.shield > 0 && ally.hp > 0);
-        view.front.hidden = front !== ally;
+        view.tile.dataset.shielded = String(ally.hp > 0 && (ally.shield > 0 || state.time < ally.wardUntil));
+        const covering = ally.hp > 0 && state.time < ally.coverUntil;
+        view.front.hidden = front !== ally && !covering;
+        setText(view.front, covering ? 'かばう' : '前衛');
         view.hp.style.setProperty('--stage-hp', percent(ally) + '%');
         view.hp.setAttribute('aria-valuenow', percent(ally));
         view.hp.setAttribute('aria-valuetext', ally.hp + ' / ' + ally.maxHp);
@@ -185,7 +189,10 @@
         const messages = {
           heal: 'HPを回復', shield: 'シールドを付与', hit: '強力な一撃',
           combo: '3連撃', weaken: '敵の攻撃力低下（6秒）',
-          burn: '燃焼ダメージ（4秒）', delay: '敵の次の通常攻撃を1秒遅延'
+          burn: '燃焼ダメージ（4秒）', delay: '敵の次の通常攻撃を1秒遅延',
+          healAll: '味方全体を回復', rally: '通常攻撃＋20％（6秒）',
+          curse: '被スキルダメージ＋15％（6秒）', execute: '敵のHP30％以下で威力上昇',
+          ward: '味方全員が被弾1回無効（4秒）', cover: '自己回復＋次の通常攻撃をかばう'
         };
         latestSkill = caster.skill.name + ' · ' + messages[caster.skill.kind];
       }
@@ -202,7 +209,11 @@
         popup.style.left = target.left + target.width / 2 - scene.left + (index % 3 - 1) * 15 + 'px';
         popup.style.top = target.top + target.height * 0.28 - scene.top + 'px';
         popup.style.setProperty('--impact-color', participants.find(unit => unit.id === event.from).color);
-        popup.textContent = event.periodic ? '炎 −' + event.amount
+        popup.textContent = event.warded ? '無効'
+          : event.kind === 'rally' ? '攻撃強化'
+          : event.kind === 'ward' ? '結界'
+          : event.kind === 'cover' ? 'かばう'
+          : event.periodic ? '炎 −' + event.amount
           : event.kind === 'shield' ? '盾 +' + event.amount
           : event.kind === 'heal' ? '+' + event.amount
           : event.amount ? '−' + event.amount : '防御';

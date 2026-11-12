@@ -17,7 +17,7 @@ errors=[]
 def check(label, ok):
     if not ok:
         failed_page=globals().get('battle') if label.startswith('RC25') else globals().get('reward')
-        if label.startswith(('RC27', 'RC29', 'RC30', 'RC31')):
+        if label.startswith(('RC27', 'RC29', 'RC30', 'RC31', 'RC32')):
             failed_page=globals().get('stage_page')
         if failed_page and not failed_page.is_closed():
             failed_page.screenshot(path=str(SHOTS/f'{ENGINE}-failure.png'))
@@ -1172,7 +1172,12 @@ with sync_playwright() as pw:
         c007: {owned:true, level:1, cap:100, shards:7},
         c008: {owned:true, level:1, cap:100, shards:8},
         c009: {owned:true, level:1, cap:100, shards:9},
-        c010: {owned:true, level:1, cap:100, shards:10}
+        c010: {owned:true, level:1, cap:100, shards:10},
+        c011: {owned:true, level:1, cap:100, shards:11},
+        c012: {owned:true, level:1, cap:100, shards:12},
+        c013: {owned:true, level:1, cap:100, shards:13},
+        c014: {owned:true, level:1, cap:100, shards:14},
+        c015: {owned:true, level:1, cap:100, shards:15}
       }
     }));""")
     stage_page = stage_context.new_page()
@@ -1281,12 +1286,12 @@ with sync_playwright() as pw:
           stage_page.locator('#partySlots .party-slot-name').all_inner_texts()==['鉄骸兵','夜叉','冥牙クロウル'])
     stage_page.locator('#partySlots [data-party-slot="1"]').click()
     stage_page.locator('#partyRoster [data-party-character=c010]').click()
-    check('RC27 an unsupported party offers an explicitly labeled trial', stage_page.locator('#partyBattle').inner_text()=='お試し戦闘')
+    check('RC32 an owned Raven can enter the real stage', stage_page.locator('#partyBattle').inner_text()=='戦闘へ')
     stage_page.locator('#partyBattle').click()
     stage_page.locator('.stage-app[data-mode=ready]').wait_for()
-    check('RC27 trial uses the sample at level 1',
-          stage_page.locator('#stageTrialLabel').is_visible()
-          and stage_page.locator('.stage-level').all_inner_texts()==['Lv1','Lv1','Lv1'])
+    check('RC32 Raven uses the saved formation',
+          stage_page.locator('#stageTrialLabel').is_hidden()
+          and stage_page.locator('.stage-name').all_inner_texts()==['鉄骸兵','蒼月レイヴン','冥牙クロウル'])
     stage_page.locator('#stageBack').click()
     difficulty = stage_page.locator('#partyDifficulty')
     stage_page.set_viewport_size({'width':320,'height':568})
@@ -1306,8 +1311,8 @@ with sync_playwright() as pw:
           and stage_page.locator('#battleStageScreen select').count()==0)
     stage_page.locator('#stageStart').click()
     stage_page.clock.fast_forward(34500)
-    check('RC29 untrained sample loses on high difficulty without skills',
-          stage_page.locator('.stage-app[data-mode=defeat]').count()==1)
+    check('RC32 a trained Raven party wins on high difficulty',
+          stage_page.locator('.stage-app[data-mode=victory]').count()==1)
     stage_page.locator('#stageStart').click()
     stage_page.locator('.stage-app[data-mode=running]').wait_for()
     check('RC29 rematch preserves the chosen difficulty',
@@ -1401,6 +1406,118 @@ with sync_playwright() as pw:
     stage_page.locator('#stageBack').click()
     check('RC31 fighting with the three new allies leaves the save intact',
           stage_page.evaluate('({local:Object.entries(localStorage).sort(),session:Object.entries(sessionStorage).sort()})')==before_stage)
+    for members in (('c010','c011','c012'),('c013','c014','c015')):
+        for slot, member in enumerate(members):
+            stage_page.locator(f'#partySlots [data-party-slot="{slot}"]').click()
+            stage_page.locator(f'#partyRoster [data-party-character={member}]').click()
+        stage_page.locator('#partyBattle').click()
+        stage = stage_page.locator('.stage-app[data-mode=ready]')
+        stage.wait_for()
+        check(f'RC32 {members[0]} to {members[-1]} use their own sprites and fit at 320px',
+              stage_page.locator('#stageTrialLabel').is_hidden()
+              and stage_page.locator('.stage-slot').evaluate_all("els => els.map(el => el.dataset.unit)")==list(members)
+              and stage.evaluate('''root => root.scrollHeight <= root.clientHeight + 1
+                && [...root.querySelectorAll('img')].every(img => img.complete && img.naturalWidth > 0)
+                && [...root.querySelectorAll('.stage-skill,.stage-name,.stage-stats')].every(el => el.scrollWidth <= el.clientWidth + 1)'''))
+        stage_page.screenshot(path=str(SHOTS/f'{ENGINE}-stage-rc32-{members[0]}-320.png'), animations='disabled')
+        stage_start.click()
+        if members[0] == 'c010':
+            check('RC32 Raven cannot waste a heal on a full party', skill('c010').is_disabled())
+            skill('c011').click()
+            check('RC32 dancer skill shows the attack increase', '通常攻撃＋20％' in stage_page.locator('#stageStatus').inner_text())
+            stage_page.clock.run_for(2620)
+            check('RC32 Raven becomes available after damage', skill('c010').is_enabled())
+            stage_page.clock.run_for(500)
+            skill('c010').click()
+            check('RC32 Raven restores party HP from the battle interface', stage_page.locator('#stageStatus').inner_text()=='月鏡の雫 · 味方全体を回復')
+        else:
+            skill('c014').click()
+            stage_page.clock.run_for(520)
+            skill('c015').click()
+            check('RC32 paladin indicates that it is covering an ally',
+                  stage_page.locator('.stage-slot[data-unit=c015] .stage-front').inner_text()=='かばう')
+            before_hp = hp()
+            stage_page.clock.run_for(2120)
+            check('RC32 paladin intercepts the next attack and the ward absorbs it', hp()==before_hp
+                  and stage_page.locator('.stage-slot[data-unit=c015] .stage-front').is_hidden()
+                  and stage_page.locator('.stage-slot[data-unit=c015] .stage-card').get_attribute('data-shielded')=='false')
+        stage_page.locator('#stageBack').click()
+    check('RC32 new parties leave all save storage intact',
+          stage_page.evaluate('({local:Object.entries(localStorage).sort(),session:Object.entries(sessionStorage).sort()})')==before_stage)
+    rules_check = """(test) => {
+  const make = (...ids) => TapGachaBattle.createBattle(ids.map(id => ({id, level:1})), 'training');
+  const hit = (events, from) => events.find(e=>e.kind === 'hit' && e.from === from);
+  const tests = {
+    roster() {
+      return Array.from({length:15}, (_,i)=>'c'+String(i+1).padStart(3,'0')).every(TapGachaBattle.supports);
+    },
+    heal() {
+      const battle = make('c010','c001','c002');
+      const [raven,alum,iron] = battle.state.allies;
+      if (battle.skillStatus(raven) !== 'full') return false;
+      raven.hp -= 7; alum.hp -= 60; iron.hp = 0;
+      const result = battle.requestSkill('c010');
+      return result.length===2 && result[0].amount===7 && result[1].amount===Math.round(raven.attack*1.5)
+        && iron.hp===0 && raven.skillReadyAt===12000;
+    },
+    rally() {
+      const battle = make('c011','c003');
+      const wolf = battle.state.allies[1];
+      battle.requestSkill('c011');
+      battle.advanceTo(500);
+      if (hit(battle.requestSkill('c003'),'c003').amount !== Math.round(wolf.attack*2.5)) return false;
+      const early = battle.advanceTo(4000).filter(e=>e.kind==='hit'&&e.from==='c003');
+      return early.length===2 && early.every(e=>e.amount===Math.round(wolf.attack*1.2))
+        && hit(battle.advanceTo(6000),'c003').amount===wolf.attack;
+    },
+    curse() {
+      const battle = make('c012','c013','c008');
+      const [witch,emperor,siglas] = battle.state.allies;
+      const open = hit(battle.requestSkill('c012'),'c012');
+      battle.advanceTo(500);
+      const fire = hit(battle.requestSkill('c008'),'c008');
+      battle.advanceTo(1000);
+      const burst = hit(battle.requestSkill('c013'),'c013');
+      const damage = (attack, factor) => Math.round(Math.round(attack*factor)*1.15);
+      const events = battle.advanceTo(6000);
+      const tick = events.find(e=>e.periodic);
+      return open.amount===Math.round(witch.attack*1.6) && fire.amount===damage(siglas.attack,1.8)
+        && burst.amount===damage(emperor.attack,3.2) && tick.amount===damage(siglas.attack,0.4)
+        && hit(events,'c013').amount===emperor.attack && battle.state.enemy.curseUntil===6000;
+    },
+    execute() {
+      const on = make('c013'), above = make('c013');
+      on.state.enemy.hp=225; above.state.enemy.hp=226;
+      const attack = on.state.allies[0].attack;
+      return hit(on.requestSkill('c013'),'c013').amount===Math.round(attack*4.5)
+        && hit(above.requestSkill('c013'),'c013').amount===Math.round(attack*3.2);
+    },
+    ward() {
+      const battle=make('c002','c014');
+      const [tank,voidGod]=battle.state.allies;
+      battle.requestSkill('c002'); battle.advanceTo(500); battle.requestSkill('c014');
+      const shield=tank.shield;
+      const first=hit(battle.advanceTo(2500),'guardian');
+      if (!first.warded || first.amount!==0 || tank.shield!==shield || tank.wardUntil!==0 || voidGod.wardUntil!==4500) return false;
+      const second=hit(battle.advanceTo(5000),'guardian');
+      return !second.warded && second.amount===34-shield;
+    },
+    cover() {
+      const battle=make('c002','c015');
+      const [front,paladin]=battle.state.allies;
+      paladin.hp-=80;
+      const cast=battle.requestSkill('c015');
+      const first=hit(battle.advanceTo(2500),'guardian');
+      const second=hit(battle.advanceTo(5000),'guardian');
+      return cast.find(e=>e.kind==='heal').amount===Math.round(paladin.attack*2)
+        && first.to==='c015' && first.amount===34 && paladin.coverUntil===0
+        && second.to==='c002' && front.hp===front.maxHp-34;
+    }
+  };
+  return tests[test]();
+}"""
+    for test in ('roster','heal','rally','curse','execute','ward','cover'):
+        check('RC32 exact combat rule '+test, stage_page.evaluate(rules_check,test))
     stage_context.close()
 
     solo_context = browser.new_context(viewport={'width':320,'height':568}, is_mobile=True, has_touch=True)
@@ -1435,7 +1552,7 @@ with sync_playwright() as pw:
     stage_page.on('request', lambda request: sample_requests.append(request.url)
                   if request.resource_type!='document' and request.url.startswith(('http:', 'https:')) else None)
     stage_page.clock.install(time=datetime(2026,11,11,3,0,tzinfo=timezone.utc))
-    stage_page.goto(URL.rsplit('/',1)[0]+'/tapgacha-battle-stage-RC31.html', wait_until='load')
+    stage_page.goto(URL.rsplit('/',1)[0]+'/tapgacha-battle-stage-RC32.html', wait_until='load')
     stage_page.locator('.stage-app[data-mode=ready]').wait_for()
     stage_page.clock.pause_at(datetime(2026,11,11,3,0,30,tzinfo=timezone.utc))
     stage_page.locator('#stageStart').click()

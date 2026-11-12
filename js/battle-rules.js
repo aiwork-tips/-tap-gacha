@@ -46,6 +46,36 @@
       name: '紫電アルカディオ', rarity: 2, baseHp: 108, baseAttack: 29,
       sprite: 'assets/rc31-arcadio.webp', portrait: 'assets/55466b3cd275d73074f9.webp',
       color: '#d4a1ff', skill: { name: '紫電連牙', kind: 'delay', multiplier: 1.6, delay: 1000, cooldown: 12000 }
+    },
+    c010: {
+      name: '蒼月レイヴン', rarity: 2, baseHp: 120, baseAttack: 14,
+      sprite: 'assets/rc32-raven.webp', portrait: 'assets/8cdeb84e361846857c5b.webp',
+      color: '#a6e8ff', skill: { name: '月鏡の雫', kind: 'healAll', multiplier: 1.5, cooldown: 12000 }
+    },
+    c011: {
+      name: '紅蓮の舞姫', rarity: 2, baseHp: 110, baseAttack: 18,
+      sprite: 'assets/rc32-dancer.webp', portrait: 'assets/fa9be2f319ee0ca55c0f.webp',
+      color: '#ff9b65', skill: { name: '紅蓮の舞', kind: 'rally', multiplier: 1.2, duration: 6000, cooldown: 12000 }
+    },
+    c012: {
+      name: '呪詛の魔女', rarity: 3, baseHp: 100, baseAttack: 22,
+      sprite: 'assets/rc32-witch.webp', portrait: 'assets/3cf3761242e4e6737b84.webp',
+      color: '#d199ff', skill: { name: '千呪', kind: 'curse', multiplier: 1.6, vulnerability: 1.15, duration: 6000, cooldown: 12000 }
+    },
+    c013: {
+      name: '終焉の天帝', rarity: 3, baseHp: 100, baseAttack: 24,
+      sprite: 'assets/rc32-emperor.webp', portrait: 'assets/f25bec3e7f3a03b4622d.webp',
+      color: '#ffe59a', skill: { name: '終焉', kind: 'execute', multiplier: 3.2, lowHpMultiplier: 4.5, threshold: 0.3, cooldown: 14000 }
+    },
+    c014: {
+      name: '虚空神・無限', rarity: 3, baseHp: 120, baseAttack: 16,
+      sprite: 'assets/rc32-void.webp', portrait: 'assets/41884eba380b57711e4c.webp',
+      color: '#cbc8ff', skill: { name: '虚空の帳', kind: 'ward', duration: 4000, cooldown: 14000 }
+    },
+    c015: {
+      name: '白銀の聖騎士', rarity: 3, baseHp: 150, baseAttack: 16,
+      sprite: 'assets/rc32-paladin.webp', portrait: 'assets/24dd594f1e189a24c8c8.webp',
+      color: '#a8e1ff', skill: { name: '白銀の誓い', kind: 'cover', multiplier: 2, duration: 6000, cooldown: 12000 }
     }
   };
   const guardian = {
@@ -85,19 +115,21 @@
       const attack = Math.min(Number.MAX_SAFE_INTEGER, Math.round(profile.baseAttack * multiplier));
       return {
         ...profile, id: member.id, level, maxHp, attack, hp: maxHp,
-        shield: 0, shieldUntil: 0, skillReadyAt: 0
+        shield: 0, shieldUntil: 0, wardUntil: 0, coverUntil: 0, skillReadyAt: 0
       };
     });
     const enemy = {
       ...guardian, ...difficulties[difficulty], hp: difficulties[difficulty].maxHp,
-      shield: 0, attackDelayed: false
+      shield: 0, attackDelayed: false, curseUntil: 0
     };
-    const state = { allies, enemy, difficulty, time: 0, result: null, queuedSkill: null };
+    const state = { allies, enemy, difficulty, time: 0, result: null, queuedSkill: null, rallyUntil: 0 };
     let nextAllyAttack = allyInterval;
     let nextEnemyAttack = enemyInterval;
     let animationUntil = 0;
     const weakenEffects = new Map();
     let burn = null;
+    let rallyMultiplier = 1;
+    let curseMultiplier = 1;
 
     function healTarget() {
       return allies.reduce((target, ally) => {
@@ -112,7 +144,7 @@
       if (state.result) return 'finished';
       if (state.queuedSkill?.id === ally.id) return 'queued';
       if (ally.skillReadyAt > state.time) return 'cooldown';
-      if (ally.skill.kind === 'heal' && !healTarget()) return 'full';
+      if (['heal', 'healAll'].includes(ally.skill.kind) && !healTarget()) return 'full';
       if (state.queuedSkill) return 'waiting';
       return 'ready';
     }
@@ -124,12 +156,17 @@
     }
 
     function attack(attacker, target, power, skill, events, periodic = false) {
-      const blocked = Math.min(power, target.shield);
-      target.shield -= blocked;
+      if (target === enemy && (skill || periodic) && state.time < enemy.curseUntil) {
+        power = Math.min(Number.MAX_SAFE_INTEGER, Math.round(power * curseMultiplier));
+      }
+      const warded = power > 0 && state.time < (target.wardUntil ?? 0);
+      const blocked = warded ? power : Math.min(power, target.shield);
+      if (warded) target.wardUntil = 0;
+      else target.shield -= blocked;
       const amount = Math.min(target.hp, power - blocked);
       target.hp -= amount;
       events.push({
-        kind: 'hit', from: attacker.id, to: target.id, amount, blocked, skill, periodic, time: state.time
+        kind: 'hit', from: attacker.id, to: target.id, amount, blocked, skill, periodic, warded, time: state.time
       });
       if (target.hp === 0 && state.queuedSkill?.id === target.id) state.queuedSkill = null;
       if (enemy.hp === 0) state.result = 'victory';
@@ -142,15 +179,36 @@
       if (state.queuedSkill) state.queuedSkill.at = animationUntil;
     }
 
+    function heal(caster, target, multiplier, events) {
+      const amount = Math.min(target.maxHp - target.hp, Math.round(caster.attack * multiplier));
+      target.hp += amount;
+      events.push({ kind: 'heal', from: caster.id, to: target.id, amount, skill: true, time: state.time });
+    }
+
     function resolveSkill(ally, events) {
       if (skillStatus(ally) !== 'ready') return;
       const skill = ally.skill;
       ally.skillReadyAt = state.time + skill.cooldown;
       if (skill.kind === 'heal') {
-        const target = healTarget();
-        const amount = Math.min(target.maxHp - target.hp, Math.round(ally.attack * skill.multiplier));
-        target.hp += amount;
-        events.push({ kind: 'heal', from: ally.id, to: target.id, amount, skill: true, time: state.time });
+        heal(ally, healTarget(), skill.multiplier, events);
+      } else if (skill.kind === 'healAll') {
+        for (const target of allies) {
+          if (target.hp > 0 && target.hp < target.maxHp) heal(ally, target, skill.multiplier, events);
+        }
+      } else if (skill.kind === 'rally') {
+        state.rallyUntil = state.time + skill.duration;
+        rallyMultiplier = skill.multiplier;
+        events.push({ kind: 'rally', from: ally.id, to: ally.id, skill: true, time: state.time });
+      } else if (skill.kind === 'ward') {
+        for (const target of allies) {
+          if (target.hp === 0) continue;
+          target.wardUntil = state.time + skill.duration;
+          events.push({ kind: 'ward', from: ally.id, to: target.id, skill: true, time: state.time });
+        }
+      } else if (skill.kind === 'cover') {
+        ally.coverUntil = state.time + skill.duration;
+        events.push({ kind: 'cover', from: ally.id, to: ally.id, skill: true, time: state.time });
+        if (ally.hp < ally.maxHp) heal(ally, ally, skill.multiplier, events);
       } else if (skill.kind === 'shield') {
         const amount = Math.round(ally.maxHp * skill.multiplier);
         for (const target of allies) {
@@ -160,7 +218,9 @@
           events.push({ kind: 'shield', from: ally.id, to: target.id, amount, skill: true, time: state.time });
         }
       } else {
-        const damage = Math.min(Number.MAX_SAFE_INTEGER, Math.round(ally.attack * skill.multiplier));
+        const multiplier = skill.kind === 'execute' && enemy.hp <= enemy.maxHp * skill.threshold
+          ? skill.lowHpMultiplier : skill.multiplier;
+        const damage = Math.min(Number.MAX_SAFE_INTEGER, Math.round(ally.attack * multiplier));
         const hits = skill.hits ?? 1;
         const perHit = Math.floor(damage / hits);
         const remainder = damage % hits;
@@ -177,6 +237,10 @@
                 caster: ally, amount: Math.round(ally.attack * skill.tickMultiplier),
                 next: state.time + burnInterval, remaining: skill.ticks
               };
+              break;
+            case 'curse':
+              enemy.curseUntil = state.time + skill.duration;
+              curseMultiplier = skill.vulnerability;
               break;
             case 'delay':
               nextEnemyAttack += skill.delay;
@@ -222,8 +286,11 @@
         }
         if (!state.result && nextAllyAttack === next) {
           nextAllyAttack += allyInterval;
+          const power = state.time < state.rallyUntil ? rallyMultiplier : 1;
           for (const ally of allies) {
-            if (ally.hp > 0) attack(ally, enemy, ally.attack, false, events);
+            if (ally.hp > 0) {
+              attack(ally, enemy, Math.min(Number.MAX_SAFE_INTEGER, Math.round(ally.attack * power)), false, events);
+            }
             if (state.result) break;
           }
           markAnimation();
@@ -232,7 +299,9 @@
           nextEnemyAttack += enemyInterval;
           enemy.attackDelayed = false;
           const front = allies.find(ally => ally.hp > 0);
-          attack(enemy, front, enemyAttack(), false, events);
+          const coveringAlly = allies.find(ally => ally.hp > 0 && state.time < ally.coverUntil);
+          if (coveringAlly) coveringAlly.coverUntil = 0;
+          attack(enemy, coveringAlly ?? front, enemyAttack(), false, events);
           markAnimation();
         }
       }
