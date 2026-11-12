@@ -1087,6 +1087,11 @@
   const partyConfirm = homeEl('partyConfirm');
   const partyBattle = homeEl('partyBattle');
   const partyDifficulty = homeEl('partyDifficulty');
+  const partyStatsDialog = homeEl('partyStatsDialog');
+  const partyStatNumber = new Intl.NumberFormat('ja-JP');
+  const partyCompactStat = new Intl.NumberFormat('ja-JP',{notation:'compact',maximumFractionDigits:1});
+  let partyStatsTrigger;
+  partyStatsDialog.addEventListener('close',()=>partyStatsTrigger?.focus({preventScroll:true}));
   const battleScreen = homeEl('battleStageScreen');
   const battleStage = window.TapGachaBattleStage.createController(
     battleScreen.querySelector('.stage-app'),
@@ -1146,6 +1151,55 @@
     if(!ids.length||!ids.every(window.TapGachaBattle.supports))return null;
     return ids.map(id=>({id,level:collection[id].level||1}));
   }
+  function openPartyStats(character,trigger){
+    const stats=window.TapGachaBattle.characterStats(character.id,collection[character.id]?.level);
+    if(!stats||partyStatsDialog.open)return;
+    homeEl('partyStatsName').textContent=character.name;
+    homeEl('partyStatsLevel').textContent=partyStatNumber.format(stats.level);
+    homeEl('partyStatsHp').textContent=partyStatNumber.format(stats.maxHp);
+    homeEl('partyStatsAttack').textContent=partyStatNumber.format(stats.attack);
+    partyStatsTrigger=trigger;
+    partyStatsDialog.showModal();
+  }
+  function bindPartyLongPress(card,onLongPress){
+    let press;
+    let suppressClick=false;
+    card.addEventListener('pointerdown',event=>{
+      if(!event.isPrimary||event.button!==0)return;
+      suppressClick=false;
+      if(event.target.closest('.party-candidate-detail'))return;
+      press={id:event.pointerId,x:event.clientX,y:event.clientY,started:performance.now(),moved:false};
+    });
+    function updateMovement(event){
+      if(press?.id!==event.pointerId)return;
+      if(Math.hypot(event.clientX-press.x,event.clientY-press.y)>10)press.moved=true;
+    }
+    card.addEventListener('pointermove',updateMovement);
+    card.addEventListener('pointerup',event=>{
+      if(press?.id!==event.pointerId)return;
+      updateMovement(event);
+      const held=!press.moved&&performance.now()-press.started>=500;
+      suppressClick=held||press.moved;
+      press=undefined;
+      if(held)onLongPress();
+    });
+    card.addEventListener('pointercancel',event=>{
+      if(press?.id!==event.pointerId)return;
+      suppressClick=true;
+      press=undefined;
+    });
+    card.addEventListener('pointerleave',event=>{
+      if(press?.id===event.pointerId&&event.pointerType==='mouse')press.moved=true;
+    });
+    card.addEventListener('contextmenu',event=>{
+      if(!event.target.closest('.party-candidate-detail'))event.preventDefault();
+    });
+    card.addEventListener('click',event=>{
+      if(!suppressClick||event.detail===0||event.target.closest('.party-candidate-detail'))return;
+      event.preventDefault();
+      event.stopPropagation();
+    },true);
+  }
   function renderParty(){
     const owned=ownedPartyCharacters();
     const activeSlots=Math.min(3,owned.length);
@@ -1172,7 +1226,18 @@
         label.append(document.createTextNode('紫電'),document.createElement('wbr'),document.createTextNode('アルカディオ'));
         name.replaceChildren(label);
       }
-      button.append(marker,name);
+      const caption=document.createElement('span');caption.className='party-slot-caption';
+      caption.appendChild(name);
+      const stats=c&&window.TapGachaBattle.characterStats(c.id,collection[c.id]?.level);
+      if(stats){
+        const summary=document.createElement('span');summary.className='party-slot-stats';
+        const short=value=>value<10000?String(value):partyCompactStat.format(value);
+        summary.textContent=`Lv${short(stats.level)} · HP${short(stats.maxHp)} · 攻撃${short(stats.attack)}`;
+        summary.title=`Lv${partyStatNumber.format(stats.level)} · HP${partyStatNumber.format(stats.maxHp)} · 攻撃${partyStatNumber.format(stats.attack)}`;
+        button.setAttribute('aria-label',`${button.getAttribute('aria-label')}・${summary.title}`);
+        caption.appendChild(summary);
+      }
+      button.append(marker,caption);
       button.addEventListener('click',()=>{
         if(button.disabled)return;
         partySelectedSlot=index;partyFeedback();renderParty();
@@ -1199,7 +1264,15 @@
         partyFeedback();renderParty();
         partySlots.children[partySelectedSlot].focus({preventScroll:true});
       });
-      partyRoster.appendChild(button);
+      const card=document.createElement('div');card.className='party-candidate-card';
+      const detail=document.createElement('button');detail.type='button';detail.className='party-candidate-detail';
+      detail.textContent='詳細';
+      detail.setAttribute('aria-label',`${c.name}のステータス詳細`);
+      detail.setAttribute('aria-haspopup','dialog');
+      detail.addEventListener('click',()=>openPartyStats(c,detail));
+      bindPartyLongPress(card,()=>openPartyStats(c,detail));
+      card.append(button,detail);
+      partyRoster.appendChild(card);
     });
     homeEl('partyCount').textContent=`${partyDraft.length} / 3体`;
     homeEl('partyOwnedCount').textContent=`所持 ${owned.length}体`;

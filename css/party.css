@@ -19,8 +19,8 @@
 #partyScreen .party-slot{position:relative;display:block;width:100%;height:100%;min-width:0;border:0;padding:0;background:transparent;color:#fff2d6;text-align:center;overflow:visible}
 #partyScreen .party-slot::after,#partyScreen .party-candidate::after{content:'';position:absolute;inset:0;background:url('../assets/rc24-party-card.webp') center/100% 100% no-repeat;pointer-events:none;z-index:2}
 #partyScreen .party-slot[aria-pressed=true]::after{filter:brightness(1.23) drop-shadow(0 0 3px #91eaff) drop-shadow(0 0 7px #148bff)}
-#partyScreen .party-slot-art{position:absolute;left:3.3%;top:3.5%;width:93.4%;height:64.5%;object-fit:cover;object-position:center top;background:radial-gradient(ellipse at 50% 40%,#275988,#0a2443 85%)}
-#partyScreen .party-slot-name{position:absolute;inset:69% 3.5% 3%;z-index:3;display:flex;align-items:center;justify-content:center;font-size:12px;line-height:1.06;overflow-wrap:anywhere;text-shadow:0 1px 2px #000a}
+#partyScreen .party-slot-art{position:absolute;left:3.3%;top:3.5%;width:93.4%;height:54.5%;object-fit:cover;object-position:center top;background:radial-gradient(ellipse at 50% 40%,#275988,#0a2443 85%)}
+#partyScreen .party-slot-name{display:flex;align-items:center;justify-content:center;max-width:100%;font-size:12px;line-height:1.06;overflow-wrap:anywhere;text-shadow:0 1px 2px #000a}
 #partyScreen .party-slot-name>span{max-width:100%;word-break:keep-all;overflow-wrap:normal}
 #partyScreen .party-slot-marker{position:absolute;top:6%;left:6%;z-index:3;padding:3px 4px;border-radius:3px;background:#0a2045ed;color:#ffe9b5;font:700 10px/1.1 system-ui;white-space:nowrap}
 #partyScreen .party-slot[aria-pressed=true] .party-slot-marker{background:#165594;color:#fff6db;box-shadow:0 0 5px #55cfff80}
@@ -32,7 +32,7 @@
 #partyScreen .party-candidate{position:relative;display:block;min-width:0;width:100%;height:100%;padding:0;border:0;background:transparent;color:#fff2d9;text-align:center}
 #partyScreen .party-candidate img{position:absolute;left:3.3%;top:3.5%;width:93.4%;height:64.5%;object-fit:cover;object-position:center top;background:radial-gradient(ellipse at 50% 40%,#24496c,#0a2443 85%)}
 #partyScreen .party-candidate-name{position:absolute;inset:69% 3% 3%;z-index:3;display:flex;align-items:center;justify-content:center;min-width:0;font-size:clamp(12px,3.1vw,13px);line-height:1.06;overflow-wrap:anywhere;text-wrap:balance;text-shadow:0 1px 2px #000a}
-#partyScreen .party-candidate-state{position:absolute;left:6%;top:6%;z-index:3;padding:2px 3px;border-radius:3px;background:#0b2345f2;font:700 10px/1.1 system-ui;color:#ffe0a2;white-space:nowrap}
+#partyScreen .party-candidate-state{position:absolute;left:6%;bottom:34%;z-index:3;padding:2px 3px;border-radius:3px;background:#0b2345f2;font:700 10px/1.1 system-ui;color:#ffe0a2;white-space:nowrap}
 #partyScreen .party-candidate[data-party-formed=false] .party-candidate-state{display:none}
 #partyScreen .party-candidate:disabled img{filter:saturate(.52) brightness(.8)}
 #partyScreen .party-candidate:not(:disabled):active{filter:brightness(1.25)}
@@ -61,3 +61,17 @@
  #partyScreen .party-confirm{height:44px}
 }
 @media(prefers-reduced-motion:reduce){#partyScreen *{scroll-behavior:auto}}
+
+/* RC33: show equipped stats and keep roster details independent of swapping. */
+#partyScreen .party-slot-caption{position:absolute;inset:58% 5% 5%;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:#091b34}
+#partyScreen .party-slot-stats{max-width:100%;color:#d9efff;font:650 clamp(8px,2.3vw,9px)/1.1 system-ui;text-wrap:balance;overflow-wrap:anywhere}
+#partyScreen .party-candidate-card{position:relative;min-width:0;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:pan-y}
+#partyScreen .party-candidate:disabled{pointer-events:none}
+#partyScreen .party-candidate-detail{position:absolute;top:6%;right:5%;z-index:4;width:30px;height:27px;padding:0;border:1px solid #d4b479;border-radius:4px;background:#0b2448f5;color:#fff2d5;font:650 10px/1 system-ui}
+#partyScreen .party-stats-dialog{width:min(310px,calc(100% - 36px));padding:19px 17px;margin:auto;border:1px solid #caaa6c;border-radius:10px;background:#0b2749;color:#fff2d5;box-shadow:0 10px 38px #0009;text-align:center}
+#partyScreen .party-stats-dialog::backdrop{background:#031021bd}
+#partyScreen .party-stats-dialog h2{font-size:19px}
+#partyScreen .party-stats-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:15px 0;color:#e1f3ff;font:650 13px/1.3 system-ui}
+#partyScreen .party-stats-list div{padding:7px 3px;border:1px solid #406786;border-radius:5px;background:#112f52}
+#partyScreen .party-stats-list dd{margin:3px 0 0;color:#fff2d5;font-size:16px;overflow-wrap:anywhere}
+#partyScreen .party-stats-close{min-width:110px;min-height:44px;padding:6px 15px;border:1px solid #caaa6c;border-radius:5px;background:#1b466e;color:#fff2d5;font-size:14px}

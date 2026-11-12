@@ -784,6 +784,39 @@ with sync_playwright() as pw:
           and reward.locator('[data-party-character="c001"] .party-candidate-state').inner_text()=='編成中 1')
     reward.locator('[data-party-character="c001"]').evaluate("el=>{el.click();el.dispatchEvent(new MouseEvent('click',{bubbles:true}));}")
     check('RC23 direct and synthetic clicks cannot reselect a formed character',pids()==draft_before and 'partyIds' not in rstate())
+    stored_before_details = reward.evaluate('({local:Object.entries(localStorage).sort(),session:Object.entries(sessionStorage).sort()})')
+    check('RC33 equipped cards show all three combat stats',
+          reward.locator('#partySlots .party-slot-stats').count()==3
+          and reward.locator('[data-party-slot="0"] .party-slot-stats').inner_text().startswith('Lv')
+          and 'HP' in reward.locator('[data-party-slot="0"] .party-slot-stats').inner_text())
+    stats_dialog=reward.locator('#partyStatsDialog')
+    close_stats=stats_dialog.get_by_role('button',name='閉じる')
+    details=reward.get_by_role('button',name='白翼のアルムのステータス詳細')
+    details.focus()
+    details.press('Enter')
+    check('RC33 details can open for an already-equipped character using the keyboard',
+          stats_dialog.is_visible() and reward.locator('#partyStatsName').inner_text()=='白翼のアルム')
+    close_stats.click()
+    check('RC33 closing restores focus to the details button',details.evaluate('el=>el===document.activeElement'))
+    candidate=reward.locator('[data-party-character="c004"]')
+    candidate.scroll_into_view_if_needed()
+    rect=candidate.bounding_box()
+    x,y=rect['x']+rect['width']/2,rect['y']+rect['height']/2
+    reward.mouse.move(x,y)
+    reward.mouse.down()
+    reward.clock.run_for(530)
+    reward.mouse.up()
+    check('RC33 long press opens candidate stats without swapping',
+          stats_dialog.is_visible() and reward.locator('#partyStatsName').inner_text()=='夜叉' and pids()==draft_before)
+    close_stats.click()
+    reward.mouse.move(x,y)
+    reward.mouse.down()
+    reward.mouse.move(x,y+15)
+    reward.clock.run_for(530)
+    reward.mouse.up()
+    check('RC33 dragging cancels long press and preserves draft and saved data',
+          not stats_dialog.is_visible() and pids()==draft_before and reward.evaluate(
+          '({local:Object.entries(localStorage).sort(),session:Object.entries(sessionStorage).sort()})')==stored_before_details)
     reward.locator('[data-party-slot="1"]').click()
     check('RC24 the replacement target has one explicit active badge',
           reward.locator('#partySlots [aria-pressed="true"]').count()==1
@@ -1552,7 +1585,7 @@ with sync_playwright() as pw:
     stage_page.on('request', lambda request: sample_requests.append(request.url)
                   if request.resource_type!='document' and request.url.startswith(('http:', 'https:')) else None)
     stage_page.clock.install(time=datetime(2026,11,11,3,0,tzinfo=timezone.utc))
-    stage_page.goto(URL.rsplit('/',1)[0]+'/tapgacha-battle-stage-RC32.html', wait_until='load')
+    stage_page.goto(URL.rsplit('/',1)[0]+'/tapgacha-battle-stage-RC33.html', wait_until='load')
     stage_page.locator('.stage-app[data-mode=ready]').wait_for()
     stage_page.clock.pause_at(datetime(2026,11,11,3,0,30,tzinfo=timezone.utc))
     stage_page.locator('#stageStart').click()
