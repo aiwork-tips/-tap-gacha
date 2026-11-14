@@ -95,6 +95,12 @@
     return typeof id === 'string' && Object.hasOwn(characters, id);
   }
 
+  function characterArt(id) {
+    if (!supports(id)) return null;
+    const { sprite, color } = characters[id];
+    return { sprite, color };
+  }
+
   function sampleParty() {
     return ['c002', 'c001', 'c003'].map(id => ({ id, level: 1 }));
   }
@@ -332,5 +338,5 @@
     return { state, advanceTo, requestSkill, skillStatus, enemyAttack };
   }
 
-  globalThis.TapGachaBattle = Object.freeze({ supports, sampleParty, characterStats, createBattle });
+  globalThis.TapGachaBattle = Object.freeze({ supports, sampleParty, characterArt, characterStats, createBattle });
 })();

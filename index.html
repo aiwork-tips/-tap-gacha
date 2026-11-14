@@ -7,7 +7,7 @@
 <meta content="#071827" name="theme-color"/>
 <meta content="yes" name="apple-mobile-web-app-capable"/>
 <meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
-<title>Ver.11.8 BATTLE-RC33 · タップ育成ガチャ -覚醒-</title>
+<title>Ver.11.8 BATTLE-RC34 · タップ育成ガチャ -覚醒-</title>
 <!-- Unified Save Rev.3: tapgacha_save_v3 / legacy gV2 preserved read-only -->
 <link rel="stylesheet" href="css/style-01.css">
 
@@ -429,7 +429,7 @@
       <div class="shop-bridge"><button type="button" class="shop-to-character" id="shopGoCharacter">キャラ育成へ →</button></div>
       <div class="shop-future">現在購入できるのは「上限解放の鍵」のみです。<br>新アイテムの価格・効果は後日決定します。</div>
     </div>
-    <span class="shop-version">Ver.11.8 · BATTLE-RC33</span>
+    <span class="shop-version">Ver.11.8 · BATTLE-RC34</span>
   </div>
 </section>
 
@@ -439,7 +439,7 @@
 <section class="screen" id="questScreen" aria-label="依頼掲示板">
   <img id="questBackdrop" class="quest-backdrop" alt="" aria-hidden="true" />
   <div class="quest-scrim"></div>
-  <span class="quest-version">Ver.11.8 · BATTLE-RC33</span>
+  <span class="quest-version">Ver.11.8 · BATTLE-RC34</span>
   <div class="quest-shell">
     <header class="quest-top">
       <div class="quest-head"><button id="questBackHome" type="button" class="quest-home">⌂ ホーム</button><h1 class="quest-title">依頼掲示板</h1></div>
@@ -461,20 +461,22 @@
 </section>
 
 <section class="screen" id="partyScreen" aria-label="転移門・出撃準備">
-  <img class="party-backdrop" src="assets/2f41a6f6e229cc01b483.webp" alt="" draggable="false">
-  <div class="party-veil" aria-hidden="true"></div>
   <div class="party-shell">
-    <header class="party-header">
-      <button type="button" id="partyBackHome" class="party-back">ホーム</button>
-      <h1>転移門 <span>出撃準備</span></h1>
-    </header>
-    <div class="party-heading"><h2>出撃メンバー</h2><span id="partyCount">0 / 3体</span></div>
-    <div class="party-slots" id="partySlots" role="group" aria-label="入れ替える枠を選択"></div>
-    <p class="party-hint" id="partyHint" aria-live="polite">入れ替える枠を選んでください</p>
-    <div class="party-heading"><h2>所持キャラクター</h2><span id="partyOwnedCount"></span></div>
-    <div class="party-roster-scroll" id="partyRosterScroll" role="region" aria-label="所持キャラクター一覧・縦スクロール" tabindex="0">
-      <div class="party-roster" id="partyRoster"></div>
-      <p class="party-empty" id="partyEmpty" hidden>召喚門で仲間を迎えると、ここで編成できます。</p>
+    <div class="party-gate">
+      <header class="party-header">
+        <button type="button" id="partyBackHome" class="party-back"><span>ホーム</span></button>
+        <h1>転移門</h1>
+      </header>
+      <div class="party-heading"><h2>出撃メンバー</h2><span id="partyCount">0 / 3体</span></div>
+      <div class="party-slots" id="partySlots" role="group" aria-label="入れ替える枠を選択"></div>
+      <p class="party-hint" id="partyHint" aria-live="polite"></p>
+    </div>
+    <div class="party-inventory">
+      <div class="party-heading"><h2>所持キャラクター</h2><span id="partyOwnedCount"></span></div>
+      <div class="party-roster-scroll" id="partyRosterScroll" role="region" aria-label="所持キャラクター一覧・縦スクロール" tabindex="0">
+        <div class="party-roster" id="partyRoster"></div>
+        <p class="party-empty" id="partyEmpty" hidden>召喚門で仲間を迎えると、ここで編成できます。</p>
+      </div>
     </div>
     <footer class="party-footer">
       <div class="party-actions">
@@ -483,20 +485,53 @@
           <option value="normal">通常</option>
           <option value="training">高難度</option>
         </select>
-        <button class="party-confirm" id="partyBattle" type="button" disabled>戦闘へ</button>
+        <button class="party-confirm party-launch" id="partyBattle" type="button" disabled>戦闘へ</button>
       </div>
       <p id="partyResult" class="party-result" role="status" aria-live="polite"></p>
     </footer>
   </div>
   <dialog id="partyStatsDialog" class="party-stats-dialog" aria-labelledby="partyStatsName">
+    <div class="party-stats-header">
+      <span class="party-stats-level">Lv <strong id="partyStatsLevel"></strong></span>
+      <span class="party-stats-rarity" id="partyStatsRarity"></span>
+    </div>
+    <div class="party-stats-art"><img id="partyStatsSprite" alt="" draggable="false"></div>
     <h2 id="partyStatsName"></h2>
     <dl class="party-stats-list">
-      <div><dt>Lv</dt><dd id="partyStatsLevel"></dd></div>
       <div><dt>最大HP</dt><dd id="partyStatsHp"></dd></div>
       <div><dt>攻撃力</dt><dd id="partyStatsAttack"></dd></div>
     </dl>
     <form method="dialog"><button type="submit" class="party-stats-close" autofocus>閉じる</button></form>
   </dialog>
+  <template id="partySlotTemplate">
+    <button type="button" class="party-slot">
+      <span class="party-slot-display">
+        <span class="party-slot-marker"></span>
+        <img class="party-slot-art" alt="" draggable="false">
+        <span class="party-slot-empty" aria-hidden="true">＋</span>
+      </span>
+      <span class="party-slot-caption">
+        <span class="party-slot-name"></span>
+        <small class="party-slot-level"></small>
+      </span>
+      <span class="party-slot-stats">
+        <span><small>HP</small><strong class="party-slot-hp"></strong></span>
+        <span><small>攻撃</small><strong class="party-slot-attack"></strong></span>
+      </span>
+    </button>
+  </template>
+  <template id="partyCandidateTemplate">
+    <div class="party-candidate-card">
+      <button type="button" class="party-candidate">
+        <span class="party-candidate-portrait">
+          <img alt="" draggable="false" loading="lazy">
+          <span class="party-candidate-state">編成中</span>
+        </span>
+        <span class="party-candidate-name"></span>
+      </button>
+      <button type="button" class="party-candidate-detail" aria-haspopup="dialog"><span>詳細</span></button>
+    </div>
+  </template>
 </section>
 
 <section class="screen" id="battleStageScreen" aria-labelledby="stageTitle" inert>
@@ -522,7 +557,7 @@
     </div>
     <footer class="stage-note">
       <span id="stageTrialLabel" hidden>お試し編成 · Lv1</span>
-      <span>Ver.11.8 · BATTLE-RC33</span>
+      <span>Ver.11.8 · BATTLE-RC34</span>
     </footer>
     <template id="stageCardTemplate">
       <div class="stage-slot">
@@ -572,7 +607,7 @@
 </dialog>
 
 <div class="toast" id="toast"></div>
-<div id="devBuildLabel" aria-label="開発検証版 Ver.11.8 BATTLE-RC33">Ver.11.8 · BATTLE-RC33</div>
+<div id="devBuildLabel" aria-label="開発検証版 Ver.11.8 BATTLE-RC34">Ver.11.8 · BATTLE-RC34</div>
 </main>
 <script src="js/battle-rules.js"></script>
 <script src="js/battle-stage.js"></script>

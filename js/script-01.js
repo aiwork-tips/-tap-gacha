@@ -1088,6 +1088,11 @@
   const partyBattle = homeEl('partyBattle');
   const partyDifficulty = homeEl('partyDifficulty');
   const partyStatsDialog = homeEl('partyStatsDialog');
+  const partySlotTemplate = homeEl('partySlotTemplate');
+  const partyCandidateTemplate = homeEl('partyCandidateTemplate');
+  const partyRosterScroll = homeEl('partyRosterScroll');
+  const partyRules = window.TapGachaBattle;
+  const partyRoles = ['前衛', '後衛・左', '後衛・右'];
   const partyStatNumber = new Intl.NumberFormat('ja-JP');
   const partyCompactStat = new Intl.NumberFormat('ja-JP',{notation:'compact',maximumFractionDigits:1});
   let partyStatsTrigger;
@@ -1142,19 +1147,25 @@
     partyDraft=normalizedParty(gameSave.partyIds,true);
     partySelectedSlot=0;
     partyFeedback();
-    homeEl('partyRosterScroll').scrollTop=0;
     renderParty();
+    partyRosterScroll.scrollTop=0;
   }
   function partyForBattle(){
     if(saveRecoveryBlocked)return null;
     const ids=normalizedParty(partyDraft);
-    if(!ids.length||!ids.every(window.TapGachaBattle.supports))return null;
+    if(!ids.length||!ids.every(partyRules.supports))return null;
     return ids.map(id=>({id,level:collection[id].level||1}));
   }
   function openPartyStats(character,trigger){
-    const stats=window.TapGachaBattle.characterStats(character.id,collection[character.id]?.level);
+    const stats=partyRules.characterStats(character.id,collection[character.id]?.level);
     if(!stats||partyStatsDialog.open)return;
+    const {sprite,color}=partyRules.characterArt(character.id);
+    homeEl('partyStatsSprite').src=sprite;
+    partyStatsDialog.style.setProperty('--party-character-color',color);
     homeEl('partyStatsName').textContent=character.name;
+    const rarity=homeEl('partyStatsRarity');
+    rarity.textContent='★'.repeat(character.rarity);
+    rarity.setAttribute('aria-label',`レア度 ${character.rarity}`);
     homeEl('partyStatsLevel').textContent=partyStatNumber.format(stats.level);
     homeEl('partyStatsHp').textContent=partyStatNumber.format(stats.maxHp);
     homeEl('partyStatsAttack').textContent=partyStatNumber.format(stats.attack);
@@ -1200,85 +1211,96 @@
       event.stopPropagation();
     },true);
   }
+
+  function partyDisplayStat(value){
+    if(value<10000)return partyStatNumber.format(value);
+    if(value>=1e15)return `${Math.round(value/1e12)}兆`;
+    return partyCompactStat.format(value);
+  }
+  function updatePartySelection(){
+    for(const [index,button] of [...partySlots.children].entries()){
+      button.setAttribute('aria-pressed',String(index===partySelectedSlot&&!button.disabled));
+    }
+    const target=partyDraft[partySelectedSlot];
+    for(const card of partyRoster.children){
+      const candidate=card.querySelector('.party-candidate');
+      const id=candidate.dataset.partyCharacter;
+      card.classList.toggle('party-candidate-target',id===target);
+      if(!candidate.disabled)candidate.setAttribute('aria-label',`${candidate.querySelector('.party-candidate-name').textContent}・${partyRoles[partySelectedSlot]}に編成`);
+    }
+    const ownedCount=partyRoster.childElementCount;
+    homeEl('partyHint').textContent=saveRecoveryBlocked?'セーブの確認が必要です':ownedCount===0?'召喚門から仲間を迎えましょう':
+      ownedCount<=3?'仲間を迎えると、ここで入れ替えられます':`${partyRoles[partySelectedSlot]}を選択中 · 下のキャラをタップで交代`;
+  }
+  function renderPartySlot(character,index,activeSlots){
+    const button=partySlotTemplate.content.firstElementChild.cloneNode(true);
+    button.dataset.partySlot=String(index);
+    button.disabled=index>=activeSlots;
+    const role=partyRoles[index];
+    button.querySelector('.party-slot-marker').textContent=role;
+    button.querySelector('.party-slot-name').textContent=character?.name??'空き枠';
+    const image=button.querySelector('.party-slot-art');
+    const stats=character&&partyRules.characterStats(character.id,collection[character.id]?.level);
+    const art=character&&partyRules.characterArt(character.id);
+    if(character){
+      image.src=art?.sprite??character.image;
+      if(art)button.style.setProperty('--party-character-color',art.color);
+      button.querySelector('.party-slot-empty').hidden=true;
+    }else image.hidden=true;
+
+    const level=button.querySelector('.party-slot-level');
+    const summary=button.querySelector('.party-slot-stats');
+    let label=`${index+1}枠目 ${role}・${character?.name??'空き枠'}`;
+    level.hidden=summary.hidden=!stats;
+    if(stats){
+      level.textContent=`Lv ${partyDisplayStat(stats.level)}`;
+      summary.querySelector('.party-slot-hp').textContent=partyDisplayStat(stats.maxHp);
+      summary.querySelector('.party-slot-attack').textContent=partyDisplayStat(stats.attack);
+      for(const value of summary.querySelectorAll('strong'))value.classList.toggle('party-wide-stat',value.textContent.length>=5);
+      label+=`・Lv${partyStatNumber.format(stats.level)}・最大HP${partyStatNumber.format(stats.maxHp)}・攻撃力${partyStatNumber.format(stats.attack)}`;
+    }
+    button.setAttribute('aria-label',label);
+    button.addEventListener('click',()=>{
+      partySelectedSlot=index;
+      partyFeedback();
+      updatePartySelection();
+    });
+    return button;
+  }
+  function renderPartyCandidate(character){
+    const position=partyDraft.indexOf(character.id);
+    const card=partyCandidateTemplate.content.firstElementChild.cloneNode(true);
+    const button=card.querySelector('.party-candidate');
+    button.dataset.partyCharacter=character.id;
+    card.dataset.formed=String(position!==-1);
+    button.disabled=position!==-1||saveRecoveryBlocked;
+    button.setAttribute('aria-label',position!==-1?`${character.name}・${partyRoles[position]}に編成中`:character.name);
+    button.querySelector('img').src=character.image;
+    button.querySelector('.party-candidate-name').textContent=character.name;
+    button.addEventListener('click',()=>{
+      if(!rewardPreview||saveRecoveryBlocked||partyDraft.includes(character.id)||!collection[character.id]?.owned)return;
+      partyDraft[partySelectedSlot]=character.id;
+      partyFeedback();
+      renderParty();
+      const slot=partySlots.children[partySelectedSlot];
+      slot.classList.add('party-slot-arriving');
+      slot.focus({preventScroll:true});
+    });
+    const detail=card.querySelector('.party-candidate-detail');
+    detail.setAttribute('aria-label',`${character.name}のステータス詳細`);
+    detail.addEventListener('click',()=>openPartyStats(character,detail));
+    bindPartyLongPress(card,()=>openPartyStats(character,detail));
+    return card;
+  }
   function renderParty(){
     const owned=ownedPartyCharacters();
     const activeSlots=Math.min(3,owned.length);
-    partySlots.replaceChildren();
-    for(let index=0;index<3;index++){
-      const c=owned.find(c=>c.id===partyDraft[index]);
-      const button=document.createElement('button');
-      button.type='button';button.className='party-slot';
-      button.dataset.partySlot=String(index);
-      button.disabled=index>=activeSlots;
-      button.setAttribute('aria-pressed',String(index===partySelectedSlot&&index<activeSlots));
-      button.setAttribute('aria-label',`${index+1}枠目 ${c?c.name:'空き枠'}${index<activeSlots?'・入れ替え先を選択':''}`);
-      const marker=document.createElement('span');marker.className='party-slot-marker';
-      marker.textContent=`${index+1}枠${index===partySelectedSlot&&index<activeSlots?'・入替中':''}`;
-      if(c){
-        const img=document.createElement('img');img.className='party-slot-art';img.src=c.image;img.alt='';img.draggable=false;
-        button.appendChild(img);
-      }else{
-        const empty=document.createElement('span');empty.className='party-slot-empty';empty.textContent='＋';empty.setAttribute('aria-hidden','true');button.appendChild(empty);
-      }
-      const name=document.createElement('span');name.className='party-slot-name';name.textContent=c?c.name:'空き枠';
-      if(c?.id==='c009'){
-        const label=document.createElement('span');
-        label.append(document.createTextNode('紫電'),document.createElement('wbr'),document.createTextNode('アルカディオ'));
-        name.replaceChildren(label);
-      }
-      const caption=document.createElement('span');caption.className='party-slot-caption';
-      caption.appendChild(name);
-      const stats=c&&window.TapGachaBattle.characterStats(c.id,collection[c.id]?.level);
-      if(stats){
-        const summary=document.createElement('span');summary.className='party-slot-stats';
-        const short=value=>value<10000?String(value):partyCompactStat.format(value);
-        summary.textContent=`Lv${short(stats.level)} · HP${short(stats.maxHp)} · 攻撃${short(stats.attack)}`;
-        summary.title=`Lv${partyStatNumber.format(stats.level)} · HP${partyStatNumber.format(stats.maxHp)} · 攻撃${partyStatNumber.format(stats.attack)}`;
-        button.setAttribute('aria-label',`${button.getAttribute('aria-label')}・${summary.title}`);
-        caption.appendChild(summary);
-      }
-      button.append(marker,caption);
-      button.addEventListener('click',()=>{
-        if(button.disabled)return;
-        partySelectedSlot=index;partyFeedback();renderParty();
-        partySlots.children[index].focus({preventScroll:true});
-      });
-      partySlots.appendChild(button);
-    }
-    partyRoster.replaceChildren();
-    owned.forEach(c=>{
-      const position=partyDraft.indexOf(c.id);
-      const button=document.createElement('button');button.type='button';button.className='party-candidate';
-      button.dataset.partyCharacter=c.id;
-      button.dataset.partyFormed=String(position!==-1);
-      // Native disabled blocks pointer/keyboard activation; the handler also guards stale events.
-      button.disabled=position!==-1||saveRecoveryBlocked;
-      button.setAttribute('aria-label',`${c.name}・${position!==-1?`${position+1}枠目に編成中`:`${partySelectedSlot+1}枠目に編成`}`);
-      const img=document.createElement('img');img.src=c.image;img.alt='';img.draggable=false;img.loading='lazy';
-      const name=document.createElement('span');name.className='party-candidate-name';name.textContent=c.name;
-      const state=document.createElement('span');state.className='party-candidate-state';state.textContent=position!==-1?`編成中 ${position+1}`:'入れ替える';
-      button.append(img,name,state);
-      button.addEventListener('click',()=>{
-        if(!rewardPreview||saveRecoveryBlocked||partyDraft.includes(c.id)||!collection[c.id]?.owned)return;
-        partyDraft[partySelectedSlot]=c.id;
-        partyFeedback();renderParty();
-        partySlots.children[partySelectedSlot].focus({preventScroll:true});
-      });
-      const card=document.createElement('div');card.className='party-candidate-card';
-      const detail=document.createElement('button');detail.type='button';detail.className='party-candidate-detail';
-      detail.textContent='詳細';
-      detail.setAttribute('aria-label',`${c.name}のステータス詳細`);
-      detail.setAttribute('aria-haspopup','dialog');
-      detail.addEventListener('click',()=>openPartyStats(c,detail));
-      bindPartyLongPress(card,()=>openPartyStats(c,detail));
-      card.append(button,detail);
-      partyRoster.appendChild(card);
-    });
+    partySlots.replaceChildren(...partyRoles.map((_,index)=>renderPartySlot(owned.find(c=>c.id===partyDraft[index]),index,activeSlots)));
+    partyRoster.replaceChildren(...owned.map(renderPartyCandidate));
+    updatePartySelection();
     homeEl('partyCount').textContent=`${partyDraft.length} / 3体`;
     homeEl('partyOwnedCount').textContent=`所持 ${owned.length}体`;
     homeEl('partyEmpty').hidden=owned.length>0;
-    homeEl('partyHint').textContent=saveRecoveryBlocked?'セーブの確認が必要です':owned.length===0?'召喚門から仲間を迎えましょう':
-      owned.length<=3?'仲間を迎えると、ここで入れ替えられます':`${partySelectedSlot+1}枠目を選択中 · 下のキャラで入れ替え`;
     partyConfirm.disabled=!rewardPreview||saveRecoveryBlocked||partyDraft.length===0;
     const canLaunch=Boolean(partyForBattle());
     partyBattle.disabled=!rewardPreview;
@@ -1288,7 +1310,7 @@
   partyBattle.addEventListener('click',()=>{
     if(!rewardPreview||partyBattle.disabled)return;
     const members=partyForBattle();
-    const loading=battleStage.load(members||window.TapGachaBattle.sampleParty(),!members,partyDifficulty.value);
+    const loading=battleStage.load(members||partyRules.sampleParty(),!members,partyDifficulty.value);
     showScreen('battle');
     loading.then(ready=>{
       if(ready&&battleScreen.classList.contains('active'))homeEl('stageStart').focus({preventScroll:true});
