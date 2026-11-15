@@ -258,3 +258,42 @@
   font: 650 11px/1.3 system-ui;
   font-variant-numeric: tabular-nums;
 }
+
+/* Battle HUD draft: keep the ally meters and actions together below the field. */
+.stage-actor:not(.stage-enemy) .stage-field-hp { display: none; }
+.stage-party { height: 158px; }
+.stage-slot {
+  gap: 0;
+  border: 1px solid #ab8c56;
+  border-radius: 7px;
+  background: linear-gradient(#152b47, #081525);
+}
+.stage-slot:has(.stage-front:not([hidden])) { border-color: #e1be7e; }
+.stage-card { grid-template-rows: minmax(0, 1fr) 28px 15px 11px; padding: 4px 5px 3px; }
+.stage-card::after { background: none; }
+.stage-card img { background: radial-gradient(ellipse at 50% 40%, #2b4b69, #0b1a2b); border-radius: 4px; }
+.stage-card-hp {
+  align-self: end;
+  height: 12px;
+  margin: 0 2px 1px;
+  border: 0;
+  background: #263c49;
+  overflow: visible;
+}
+.stage-hp-number {
+  inset: auto 0 calc(100% + 1px);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.stage-card[data-hp='low'] .stage-card-hp::before { background: linear-gradient(90deg, #ce5342, #ffbd7b); }
+.stage-skill {
+  border: 0;
+  box-shadow: inset 0 1px #7c694a;
+  border-radius: 0 0 6px 6px;
+  background: linear-gradient(#142a48, #0b192d);
+  padding: 4px;
+}
+.stage-skill:not(:disabled) { background: linear-gradient(#1a4877, #102844); filter: none; }
+.stage-skill[data-state='ready'] small, .stage-skill[data-state='queued'] small { color: #ffe1a0; }
+.stage-skill[data-state='cooldown'] small { color: #d7e6f3; }
+@media (max-height: 640px) { .stage-party { height: 145px; } }

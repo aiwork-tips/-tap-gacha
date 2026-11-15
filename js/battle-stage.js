@@ -143,6 +143,7 @@
         };
         const label = mode === 'ready' ? '開始後に使用' : mode === 'paused' ? '一時停止' : labels[skillState];
         view.tile.dataset.defeated = String(ally.hp === 0);
+        view.tile.dataset.hp = percent(ally) <= 30 ? 'low' : 'normal';
         view.tile.dataset.shielded = String(ally.hp > 0 && (ally.shield > 0 || state.time < ally.wardUntil));
         const covering = ally.hp > 0 && state.time < ally.coverUntil;
         view.front.hidden = front !== ally && !covering;
@@ -153,6 +154,7 @@
         setText(view.hpText, percent(ally) + '%');
         view.skill.disabled = mode !== 'running' || !['ready', 'queued'].includes(skillState);
         view.skill.dataset.queued = String(skillState === 'queued');
+        view.skill.dataset.state = mode === 'running' ? skillState : '';
         view.skill.setAttribute('aria-label', ally.name + 'の' + ally.skill.name + ' · ' + label);
         setText(view.skillStatus, label);
       }
