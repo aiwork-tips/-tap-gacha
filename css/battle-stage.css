@@ -297,3 +297,74 @@
 .stage-skill[data-state='ready'] small, .stage-skill[data-state='queued'] small { color: #ffe1a0; }
 .stage-skill[data-state='cooldown'] small { color: #d7e6f3; }
 @media (max-height: 640px) { .stage-party { height: 145px; } }
+
+.stage-result-area { flex: none; }
+.stage-result-panel {
+  --result-accent: #d1b987;
+  padding: 9px 12px 10px;
+  border-top: 1px solid var(--result-accent);
+  border-radius: 0 0 5px 5px;
+  background: #111c28;
+  color: #f4efe1;
+}
+.stage-app[data-mode='defeat'] .stage-result-panel { --result-accent: #d7a9a0; }
+.stage-result-header {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #b1a89139;
+}
+.stage-result-header h2 {
+  margin: 0;
+  padding-left: 8px;
+  border-left: 2px solid var(--result-accent);
+  color: var(--result-accent);
+  font-size: 26px;
+  line-height: 1;
+  letter-spacing: .10em;
+}
+.stage-result-summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  font: 500 11px/1.15 system-ui;
+}
+.stage-result-summary div + div { padding-left: 12px; border-left: 1px solid #b1a89139; }
+.stage-result-summary dt { color: #bec7ce; }
+.stage-result-summary dd {
+  margin: 4px 0 0;
+  color: #f4efe1;
+  font-size: 15px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.stage-result-actions { display: flex; justify-content: flex-end; gap: 7px; padding-top: 8px; }
+.stage-result-actions button {
+  flex: 1;
+  border: 1px solid #8996a1;
+  border-radius: 3px;
+  background: transparent;
+  text-shadow: none;
+}
+.stage-result-actions #stageResultRetry {
+  border-color: #d1b987;
+  background: #d1b987;
+  color: #1b2028;
+}
+.stage-app:is([data-mode='victory'],[data-mode='defeat']) .stage-status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  min-height: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+.stage-app:is([data-mode='victory'],[data-mode='defeat']) .stage-controls { display: none; }
+.stage-app:is([data-mode='victory'],[data-mode='defeat']) .stage-back { display: none; }
+@media (max-height: 640px) {
+  .stage-app:is([data-mode='victory'],[data-mode='defeat']) .stage-field { min-height: 170px; }
+}

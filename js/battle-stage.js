@@ -21,6 +21,9 @@
     const partyCards = get('stageParty');
     const cardTemplate = get('stageCardTemplate');
     const status = get('stageStatus');
+    const result = get('stageResult');
+    const resultBack = get('stageResultBack');
+    resultBack.hidden = get('stageBack').hidden;
     const elapsed = get('stageElapsed');
     const startButton = get('stageStart');
     const enemyStats = get('stageEnemyStats');
@@ -112,6 +115,8 @@
 
     function render() {
       root.dataset.mode = mode;
+      const finished = mode === 'victory' || mode === 'defeat';
+      result.hidden = !finished;
       startButton.disabled = !battle || mode === 'loading' || mode === 'error' || mode === 'closed';
       resetButton.disabled = startButton.disabled;
       speedButton.disabled = startButton.disabled;
@@ -158,17 +163,25 @@
         view.skill.setAttribute('aria-label', ally.name + 'の' + ally.skill.name + ' · ' + label);
         setText(view.skillStatus, label);
       }
+      const survivorCount = finished ? state.allies.filter(ally => ally.hp > 0).length : 0;
+      const survivorSummary = survivorCount + ' / ' + state.allies.length + '体';
       const text = {
         loading: '戦闘の準備中…', ready: '戦闘開始を押してください',
         running: latestSkill || '通常攻撃は自動 · スキルはタップ',
         paused: '一時停止中', error: '画像を読み込めませんでした',
-        victory: '勝利 · 生存 ' + state.allies.filter(ally => ally.hp > 0).length + ' / ' + state.allies.length + '体',
+        victory: '勝利 · 生存 ' + survivorSummary,
         defeat: '敗北 · もう一度挑戦できます'
       };
       const buttons = { running: '一時停止', paused: '再開', victory: '再戦', defeat: '再戦' };
       setText(startButton, buttons[mode] || '戦闘開始');
       setText(status, text[mode] || '');
-      setText(elapsed, (Math.floor(state.time / 100) / 10).toFixed(1) + '秒');
+      const battleTime = (Math.floor(state.time / 100) / 10).toFixed(1) + '秒';
+      setText(elapsed, battleTime);
+      if (finished) {
+        setText(get('stageResultTitle'), mode === 'victory' ? '勝利' : '敗北');
+        setText(get('stageResultSurvivors'), survivorSummary);
+        setText(get('stageResultTime'), battleTime);
+      }
       get('stageTrialLabel').hidden = !trial;
     }
 
@@ -341,6 +354,8 @@
       runningAnimations.forEach(animation => animation.updatePlaybackRate(speed));
       render();
     });
+    resultBack.addEventListener('click', onBack);
+    get('stageResultRetry').addEventListener('click', () => reset(true));
     get('stageBack').addEventListener('click', onBack);
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) pause(false);
