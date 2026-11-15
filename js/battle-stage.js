@@ -12,8 +12,9 @@
   const formatNumber = new Intl.NumberFormat('ja-JP');
   const compactNumber = new Intl.NumberFormat('ja-JP', { notation: 'compact', maximumFractionDigits: 1 });
   const percent = unit => Math.min(100, Math.ceil(100 * unit.hp / unit.maxHp));
+  const autoAdvanceDelay = 1000;
 
-  function createController(root, onBack) {
+  function createController(root, onBack, onClear) {
     const get = id => root.querySelector('#' + id);
     const field = get('stageField');
     const actors = get('stageActors');
@@ -23,12 +24,15 @@
     const status = get('stageStatus');
     const result = get('stageResult');
     const resultBack = get('stageResultBack');
+    const resultAction = get('stageResultRetry');
+    const campaignResult = get('stageCampaignResult');
     resultBack.hidden = get('stageBack').hidden;
     const elapsed = get('stageElapsed');
     const startButton = get('stageStart');
     const enemyStats = get('stageEnemyStats');
     const resetButton = get('stageReset');
     const speedButton = get('stageSpeed');
+    const autoButton = get('stageAuto');
     const motion = matchMedia('(prefers-reduced-motion: reduce)');
     const runningAnimations = new Set();
     const actorViews = new Map();
@@ -41,10 +45,20 @@
     let lastUpdate = 0;
     let loadGeneration = 0;
     let latestSkill = '';
+    let stage = null;
+    let clear = null;
+    let auto = false;
+    let advanceTimer;
 
     function cancelFrame() {
       if (frame) cancelAnimationFrame(frame);
       frame = 0;
+    }
+
+    function stopAuto() {
+      clearTimeout(advanceTimer);
+      advanceTimer = undefined;
+      auto = false;
     }
 
     function clearEffects() {
@@ -102,6 +116,7 @@
         advanceClock(performance.now());
         if (mode !== 'running') return;
         playEffects(battle.requestSkill(ally.id));
+        finishBattle();
         render();
       });
       partyCards.append(slot);
@@ -120,6 +135,11 @@
       startButton.disabled = !battle || mode === 'loading' || mode === 'error' || mode === 'closed';
       resetButton.disabled = startButton.disabled;
       speedButton.disabled = startButton.disabled;
+      resetButton.hidden = stage !== null;
+      autoButton.hidden = stage === null;
+      autoButton.disabled = startButton.disabled;
+      autoButton.setAttribute('aria-pressed', String(auto));
+      setText(autoButton, auto ? 'AUTO ON' : 'AUTO');
       setText(speedButton, '×' + speed);
       speedButton.setAttribute('aria-label', '戦闘速度 ' + speed + '倍');
       if (!battle) return;
@@ -127,8 +147,9 @@
       const difficultyLabel = state.difficulty === 'training' ? '高難度' : '通常';
       const attack = battle.enemyAttack();
       const weakened = attack < state.enemy.attack && !state.result;
-      setText(enemyStats, difficultyLabel + ' · 敵HP ' + state.enemy.maxHp + ' · 攻 ' +
-        (weakened ? attack + ' ↓' : state.enemy.attack) +
+      const stagePrefix = stage === null ? '' : '第' + stage + 'ステージ · ';
+      setText(enemyStats, stagePrefix + difficultyLabel + ' · 敵HP ' + formatNumber.format(state.enemy.maxHp) + ' · 攻 ' +
+        (weakened ? formatNumber.format(attack) + ' ↓' : formatNumber.format(state.enemy.attack)) +
         (state.enemy.attackDelayed && !state.result ? ' · 遅延中' : '') +
         (state.time < state.enemy.curseUntil && !state.result ? ' · 呪い' : ''));
       const front = state.allies.find(ally => ally.hp > 0);
@@ -167,7 +188,7 @@
       const survivorSummary = survivorCount + ' / ' + state.allies.length + '体';
       const text = {
         loading: '戦闘の準備中…', ready: '戦闘開始を押してください',
-        running: latestSkill || '通常攻撃は自動 · スキルはタップ',
+        running: latestSkill || (auto ? 'AUTO連戦中 · スキルはタップ' : '通常攻撃は自動 · スキルはタップ'),
         paused: '一時停止中', error: '画像を読み込めませんでした',
         victory: '勝利 · 生存 ' + survivorSummary,
         defeat: '敗北 · もう一度挑戦できます'
@@ -181,6 +202,18 @@
         setText(get('stageResultTitle'), mode === 'victory' ? '勝利' : '敗北');
         setText(get('stageResultSurvivors'), survivorSummary);
         setText(get('stageResultTime'), battleTime);
+        const campaignVictory = stage !== null && mode === 'victory';
+        resultAction.hidden = campaignVictory && clear?.next === null;
+        setText(resultAction, campaignVictory
+          ? (clear ? (auto ? 'AUTO停止' : '次のステージへ') : '保存をやり直す')
+          : '再戦');
+        campaignResult.hidden = !campaignVictory;
+        if (campaignVictory) {
+          setText(campaignResult, clear
+            ? ('+' + formatNumber.format(clear.points) + ' PT獲得 · ' +
+                (clear.next === null ? '全ステージ突破' : '第' + clear.next + 'ステージ' + (auto ? 'へ進みます' : ' 解放')))
+            : '進行を保存できませんでした');
+        }
       }
       get('stageTrialLabel').hidden = !trial;
     }
@@ -257,8 +290,32 @@
       lastUpdate = Math.max(lastUpdate, now);
       const events = battle.advanceTo(battle.state.time + delta * speed);
       playEffects(events);
-      if (battle.state.result) mode = battle.state.result;
+      finishBattle();
       render();
+    }
+
+    function saveClear() {
+      clear = onClear(stage, battle.state.difficulty);
+      if (auto && clear?.next != null) {
+        advanceTimer = setTimeout(() => {
+          if (document.hidden) {
+            stopAuto();
+            render();
+            return;
+          }
+          replay(clear.next, true, true);
+        }, autoAdvanceDelay);
+      } else {
+        stopAuto();
+      }
+    }
+
+    function finishBattle() {
+      if (mode !== 'running' || !battle.state.result) return;
+      mode = battle.state.result;
+      cancelFrame();
+      if (stage !== null && mode === 'victory') saveClear();
+      else stopAuto();
     }
 
     function tick(now) {
@@ -291,8 +348,8 @@
       render();
     }
 
-    function load(members, isTrial = false, difficulty = 'normal') {
-      const nextBattle = rules.createBattle(members, difficulty);
+    function prepare(members, isTrial, difficulty, stageNumber) {
+      const nextBattle = rules.createBattle(members, difficulty, stageNumber ?? 1);
       const generation = ++loadGeneration;
       cancelFrame();
       clearEffects();
@@ -302,6 +359,8 @@
       cardViews.clear();
       battle = nextBattle;
       trial = isTrial;
+      stage = stageNumber;
+      clear = null;
       latestSkill = '';
       mode = 'loading';
       const images = [];
@@ -318,6 +377,7 @@
         return true;
       }, () => {
         if (generation === loadGeneration) {
+          stopAuto();
           mode = 'error';
           render();
         }
@@ -325,16 +385,34 @@
       });
     }
 
-    function reset(restart) {
-      if (!battle || resetButton.disabled) return;
+    function load(members, isTrial = false, difficulty = 'normal', stageNumber = null) {
+      stopAuto();
+      return prepare(members, isTrial, difficulty, stageNumber);
+    }
+
+    function replay(stageNumber = stage, restart = true, requiresAuto = false) {
+      if (!battle || mode === 'loading') return;
+      clearTimeout(advanceTimer);
+      advanceTimer = undefined;
       const members = battle.state.allies.map(({ id, level }) => ({ id, level }));
-      load(members, trial, battle.state.difficulty).then(ready => {
-        if (ready && restart) start();
+      prepare(members, trial, battle.state.difficulty, stageNumber).then(ready => {
+        if (ready && restart && (!requiresAuto || auto)) start();
       });
+    }
+
+    function resultClick() {
+      if (mode === 'defeat' || (mode === 'victory' && stage === null)) replay();
+      else if (mode === 'victory') {
+        if (!clear) saveClear();
+        else if (auto) stopAuto();
+        else if (clear.next !== null) replay(clear.next);
+        render();
+      }
     }
 
     function close() {
       loadGeneration++;
+      stopAuto();
       cancelFrame();
       clearEffects();
       battle = null;
@@ -344,10 +422,18 @@
 
     startButton.addEventListener('click', () => {
       if (mode === 'running') pause();
-      else if (mode === 'victory' || mode === 'defeat') reset(true);
+      else if (mode === 'victory' || mode === 'defeat') resultClick();
       else start();
     });
-    resetButton.addEventListener('click', () => reset(false));
+    resetButton.addEventListener('click', () => {
+      if (stage === null) replay(null, false);
+    });
+    autoButton.addEventListener('click', () => {
+      if (stage === null) return;
+      auto = !auto;
+      if (auto && mode === 'ready') start();
+      render();
+    });
     speedButton.addEventListener('click', () => {
       if (mode === 'running') advanceClock(performance.now());
       speed = speed === 1 ? 2 : 1;
@@ -355,12 +441,17 @@
       render();
     });
     resultBack.addEventListener('click', onBack);
-    get('stageResultRetry').addEventListener('click', () => reset(true));
+    resultAction.addEventListener('click', resultClick);
     get('stageBack').addEventListener('click', onBack);
+    function suspendBattle() {
+      stopAuto();
+      pause(false);
+      if (battle) render();
+    }
     document.addEventListener('visibilitychange', () => {
-      if (document.hidden) pause(false);
+      if (document.hidden) suspendBattle();
     });
-    window.addEventListener('pagehide', () => pause(false));
+    window.addEventListener('pagehide', suspendBattle);
     motion.addEventListener('change', () => {
       if (motion.matches) clearEffects();
     });

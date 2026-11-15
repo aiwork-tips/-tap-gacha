@@ -1106,8 +1106,29 @@
     () => {
       showScreen('party');
       partyBattle.focus({preventScroll:true});
-    }
+    },
+    recordCampaignClear
   );
+  function clearedCampaignStages(){
+    const count=gameSave.campaignClearedStages;
+    return Number.isSafeInteger(count)&&count>=0?count:0;
+  }
+  function recordCampaignClear(stage,difficulty){
+    if(!rewardPreview||stage!==clearedCampaignStages()+1||stage>partyRules.campaignStageCount)return null;
+    const previousCount=gameSave.campaignClearedStages;
+    const previousPoints=pt;
+    const points=difficulty==='training'?100:50;
+    gameSave.campaignClearedStages=stage;
+    pt+=points;
+    if(!saveUnified()){
+      pt=previousPoints;
+      gameSave.points=previousPoints;
+      if(previousCount===undefined)delete gameSave.campaignClearedStages;
+      else gameSave.campaignClearedStages=previousCount;
+      return null;
+    }
+    return {points,next:stage===partyRules.campaignStageCount?null:stage+1};
+  }
   let partyDraft = [];
   let partySelectedSlot = 0;
   let partyFeedbackTimer;
@@ -1306,14 +1327,19 @@
     homeEl('partyEmpty').hidden=owned.length>0;
     partyConfirm.disabled=!rewardPreview||saveRecoveryBlocked||partyDraft.length===0;
     const canLaunch=Boolean(partyForBattle());
-    partyBattle.disabled=!rewardPreview;
-    partyBattle.textContent=canLaunch?'戦闘へ':'お試し戦闘';
-    partyBattle.title=canLaunch?'選んだ仲間の育成レベルで戦闘へ':'アルム・鉄骸兵・クロウルのLv1編成で試す';
+    const next=clearedCampaignStages()+1;
+    const completed=canLaunch&&next>partyRules.campaignStageCount;
+    partyBattle.disabled=!rewardPreview||completed;
+    partyBattle.textContent=completed?'全ステージ突破':canLaunch?'第'+next+'ステージへ':'お試し戦闘';
+    partyBattle.title=canLaunch?partyBattle.textContent:'アルム・鉄骸兵・クロウルのLv1編成で試す';
+    partyDifficulty.disabled=completed;
   }
   partyBattle.addEventListener('click',()=>{
     if(!rewardPreview||partyBattle.disabled)return;
     const members=partyForBattle();
-    const loading=battleStage.load(members||partyRules.sampleParty(),!members,partyDifficulty.value);
+    const stage=members?clearedCampaignStages()+1:null;
+    if(stage>partyRules.campaignStageCount)return;
+    const loading=battleStage.load(members||partyRules.sampleParty(),!members,partyDifficulty.value,stage);
     showScreen('battle');
     loading.then(ready=>{
       if(ready&&battleScreen.classList.contains('active'))homeEl('stageStart').focus({preventScroll:true});

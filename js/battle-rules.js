@@ -86,6 +86,7 @@
     normal: Object.freeze({ maxHp: guardian.maxHp, attack: guardian.attack }),
     training: Object.freeze({ maxHp: 750, attack: 34 })
   });
+  const campaignStageCount = 30;
   const allyInterval = 2000;
   const enemyInterval = 2500;
   const animationWindow = 480;
@@ -119,8 +120,11 @@
     };
   }
 
-  function createBattle(party, difficulty = "normal") {
+  function createBattle(party, difficulty = "normal", stageNumber = 1) {
     if (!Object.hasOwn(difficulties, difficulty)) throw new RangeError("Unknown battle difficulty.");
+    if (!Number.isInteger(stageNumber) || stageNumber < 1 || stageNumber > campaignStageCount) {
+      throw new RangeError("Unknown campaign stage.");
+    }
     const ids = new Set(party.map(member => member.id));
     if (!party.length || party.length > 3 || ids.size !== party.length || ![...ids].every(supports)) {
       throw new RangeError('A battle needs one to three different supported allies.');
@@ -133,8 +137,10 @@
         shield: 0, shieldUntil: 0, wardUntil: 0, coverUntil: 0, skillReadyAt: 0
       };
     });
+    const baseline = difficulties[difficulty];
+    const maxHp = Math.round(baseline.maxHp * 1.22 ** (stageNumber - 1));
     const enemy = {
-      ...guardian, ...difficulties[difficulty], hp: difficulties[difficulty].maxHp,
+      ...guardian, maxHp, hp: maxHp, attack: Math.round(baseline.attack * 1.17 ** (stageNumber - 1)),
       shield: 0, attackDelayed: false, curseUntil: 0
     };
     const state = { allies, enemy, difficulty, time: 0, result: null, queuedSkill: null, rallyUntil: 0 };
@@ -338,5 +344,5 @@
     return { state, advanceTo, requestSkill, skillStatus, enemyAttack };
   }
 
-  globalThis.TapGachaBattle = Object.freeze({ supports, sampleParty, characterArt, characterStats, createBattle });
+  globalThis.TapGachaBattle = Object.freeze({ supports, sampleParty, characterArt, characterStats, createBattle, campaignStageCount });
 })();
