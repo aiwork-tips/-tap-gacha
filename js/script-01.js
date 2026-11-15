@@ -1097,6 +1097,9 @@
   const partyCompactStat = new Intl.NumberFormat('ja-JP',{notation:'compact',maximumFractionDigits:1});
   let partyStatsTrigger;
   partyStatsDialog.addEventListener('close',()=>partyStatsTrigger?.focus({preventScroll:true}));
+  // Programmatic dialog focus can stay focus-visible after a tap in Safari.
+  partyScreen.addEventListener('pointerdown',()=>partyScreen.setAttribute('data-party-pointer-focus',''));
+  partyScreen.addEventListener('keydown',()=>partyScreen.removeAttribute('data-party-pointer-focus'));
   const battleScreen = homeEl('battleStageScreen');
   const battleStage = window.TapGachaBattleStage.createController(
     battleScreen.querySelector('.stage-app'),
