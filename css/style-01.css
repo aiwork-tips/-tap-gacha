@@ -957,7 +957,7 @@ button{font:inherit;color:inherit}
   text-shadow:0 0 10px rgba(82,202,255,.45),0 2px 4px rgba(0,0,0,.75);
 }
 .gacha-wallet{
-  justify-self:end;min-width:108px;height:42px;padding:5px 9px;
+  justify-self:end;width:108px;height:42px;padding:5px 9px;
   border-radius:7px 18px 7px 18px;
   border:1px solid rgba(249,220,141,.82);
   background:linear-gradient(180deg,rgba(13,63,103,.88),rgba(5,28,50,.94));
@@ -966,7 +966,7 @@ button{font:inherit;color:inherit}
 }
 .gacha-wallet small{font-size:7px;opacity:.84}
 .gacha-wallet strong{
-  width:100%;font-family:"Times New Roman",serif;color:#fff0b3;
+  width:100%;white-space:nowrap;font-family:"Times New Roman",serif;color:#fff0b3;
   font-size:19px;line-height:1;text-align:right;
   font-variant-numeric:tabular-nums lining-nums;
 }

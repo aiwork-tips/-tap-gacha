@@ -940,8 +940,7 @@
 
   // --- Home favorite + dynamic HUD. Only owned characters can be favorites. ---
   const homeEl = id => document.getElementById(id);
-  function fitHomeNumber(id,value){
-    const el=homeEl(id);
+  function fitHudNumber(el,value){
     const full=fmt(value);
     el.style.removeProperty('font-size');
     el.textContent=full;
@@ -970,9 +969,9 @@
     }
   }
   function refreshHomeNumbers(){
-    fitHomeNumber('homePT',pt);
-    fitHomeNumber('homeTapPower',tapPower);
-    fitHomeNumber('homeKeys',gameSave.keys||0);
+    fitHudNumber(homeEl('homePT'),pt);
+    fitHudNumber(homeEl('homeTapPower'),tapPower);
+    fitHudNumber(homeEl('homeKeys'),gameSave.keys||0);
   }
   function ownedCharacterById(id){
     return GACHA_CHARACTERS.find(c=>c.id===id && collection[id]?.owned) || null;
@@ -1673,7 +1672,7 @@
   }
 
   function renderGachaWallet(){
-    if(gachaPTEl) gachaPTEl.textContent = fmt(pt);
+    if(gachaPTEl) fitHudNumber(gachaPTEl,pt);
   }
 
   function renderOwnedCount(){
@@ -1953,6 +1952,7 @@
   window.addEventListener('resize',()=>requestAnimationFrame(()=>{
     fitAll();
     if(home.classList.contains('active'))refreshHomeNumbers();
+    if(gacha.classList.contains('active'))renderGachaWallet();
   }));
   window.addEventListener('pagehide',()=>saveUnified());
   document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')saveUnified();});
