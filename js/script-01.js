@@ -496,6 +496,9 @@
   function refreshTapPower(){
     tapPower=computeTapPower();
     gameSave.tapPower=tapPower;
+    renderTapPower();
+  }
+  function renderTapPower(){
     powerEl.textContent=fmt(tapPower);
     if(characterScreen.classList.contains('active')) fitHudNumber(charEl('charTapPower'),tapPower);
     requestAnimationFrame(fitAll);
@@ -1683,10 +1686,6 @@
   }
 
 
-  function saveCollection(){
-    saveUnified();
-  }
-
   function renderGachaWallet(){
     if(gachaPTEl) fitHudNumber(gachaPTEl,pt);
   }
@@ -1765,7 +1764,6 @@
       results.push({...c, isNew, shardGain:isNew ? 0 : 1,
         ownedCount:nextCount, shardTotal:nextShards});
     });
-    saveCollection();
     return results;
   }
 
@@ -1846,27 +1844,48 @@
 
   function performGacha(pulls){
     const cost = pulls; // v1: 1回=1PT
+    if(saveRecoveryBlocked){
+      showToast('セーブ保護中のため召喚できません');
+      return;
+    }
     if(pt < cost){
       showToast('PTが足りません');
       return;
     }
 
     ensureQuestState();
+    const previousPt=pt;
+    const previousPower=tapPower;
+    const previousCollection=collection;
+    const previousCharacters=gameSave.characters;
+    const previousStats=gameSave.stats;
+    collection={...collection};
     pt -= cost;
-    saveUnified();
-    ptEl.textContent = fmt(pt);
-    renderGachaWallet();
 
     const raw = createRawDraws(pulls);
     const results = applyCollection(raw);
-    refreshTapPower();
-    saveUnified();
+    tapPower=computeTapPower();
     const star3Count = results.filter(r => r.rarity === 3).length;
     const hasStar3 = star3Count > 0;
 
-    gameSave.stats.gachaPulls = Math.max(0,Number(gameSave.stats.gachaPulls||0)) + pulls;
-    gameSave.stats.star3Pulls = Math.max(0,Number(gameSave.stats.star3Pulls||0)) + star3Count;
-    saveUnified();
+    gameSave.stats={
+      ...previousStats,
+      gachaPulls:Math.max(0,Number(previousStats.gachaPulls||0))+pulls,
+      star3Pulls:Math.max(0,Number(previousStats.star3Pulls||0))+star3Count
+    };
+    if(!saveUnified()){
+      pt=gameSave.points=previousPt;
+      tapPower=gameSave.tapPower=previousPower;
+      collection=previousCollection;
+      gameSave.characters=previousCharacters;
+      gameSave.stats=previousStats;
+      showToast('保存できなかったため召喚を中止しました');
+      return;
+    }
+
+    ptEl.textContent = fmt(pt);
+    renderGachaWallet();
+    renderTapPower();
 
     if(pulls <= 10) renderSmallResults(results);
     else renderSummary(results,pulls);
