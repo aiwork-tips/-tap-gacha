@@ -134,12 +134,13 @@
       root.dataset.mode = mode;
       const finished = mode === 'victory' || mode === 'defeat';
       result.hidden = !finished;
-      startButton.disabled = !battle || mode === 'loading' || mode === 'error' || mode === 'closed';
-      resetButton.disabled = startButton.disabled;
-      speedButton.disabled = startButton.disabled;
+      startButton.disabled = !battle || mode === 'loading' || mode === 'closed';
+      const controlsDisabled = startButton.disabled || mode === 'error';
+      resetButton.disabled = controlsDisabled;
+      speedButton.disabled = controlsDisabled;
       resetButton.hidden = stage !== null;
       autoButton.hidden = stage === null;
-      autoButton.disabled = startButton.disabled;
+      autoButton.disabled = controlsDisabled;
       autoButton.setAttribute('aria-pressed', String(auto));
       setText(autoButton, auto ? 'AUTO ON' : 'AUTO');
       setText(speedButton, '×' + speed);
@@ -195,7 +196,7 @@
         victory: '勝利 · 生存 ' + survivorSummary,
         defeat: '敗北 · もう一度挑戦できます'
       };
-      const buttons = { running: '一時停止', paused: '再開', victory: '再戦', defeat: '再戦' };
+      const buttons = { running: '一時停止', paused: '再開', victory: '再戦', defeat: '再戦', error: '読み込みを再試行' };
       setText(startButton, buttons[mode] || '戦闘開始');
       setText(status, text[mode] || '');
       const battleTime = (Math.floor(state.time / 100) / 10).toFixed(1) + '秒';
@@ -430,6 +431,7 @@
     startButton.addEventListener('click', () => {
       if (mode === 'running') pause();
       else if (mode === 'victory' || mode === 'defeat') resultClick();
+      else if (mode === 'error') replay(stage, false);
       else start();
     });
     resetButton.addEventListener('click', () => {
