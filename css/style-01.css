@@ -2732,16 +2732,6 @@ button{font:inherit;color:inherit}
 
 /* === v11.3: HUD legibility + key call-to-action scale ===
    Presentation layer only. This does not modify rewards, data or navigation. */
-/* The existing art has separator ornaments printed into the WebP texture.
-   Place locally-color-matched patches *inside* the panels, leaving gilded edges and text alone.
-   Live values render on top of those patches. */
-#homeScreen .kit-power::after{
-  content:"";position:absolute;pointer-events:none;z-index:1;
-  left:13%;right:13%;top:58%;height:23%;
-  border-radius:5px;
-  background:linear-gradient(180deg,#05284e 0%,#07254a 55%,#062143 100%);
-  box-shadow:0 0 5px 2px rgba(6,33,68,.47);
-}
 #homeScreen #homeTapPower{
   z-index:3!important;left:13%!important;right:13%!important;
   top:57.2%!important;height:24%!important;
@@ -2774,16 +2764,6 @@ button{font:inherit;color:inherit}
   font-size:clamp(17px,5.0vw,25px)!important;line-height:1!important;
   font-weight:400!important;
 }
-/* Wallet stars are baked into both rows of the source art.
-   Cover just the tiny ornaments (not the outer gems), recovering clean numeric space. */
-#homeScreen .kit-wallet::before,#homeScreen .kit-wallet::after{
-  content:"";position:absolute;z-index:1;pointer-events:none;
-  left:78%;width:11.8%;height:16%;border-radius:4px;
-  background:linear-gradient(90deg,#052749 0%,#062548 60%,#052444 100%);
-  box-shadow:0 0 3px 2px rgba(5,36,72,.30);
-}
-#homeScreen .kit-wallet::before{top:42%}
-#homeScreen .kit-wallet::after{top:65.5%}
 /* Keep two clean, generously sized numeric zones next to the labels. */
 #homeScreen .kit-wallet .kit-pt-label,
 #homeScreen .kit-wallet .kit-keys-label{
