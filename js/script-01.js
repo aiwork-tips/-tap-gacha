@@ -383,15 +383,25 @@
   const fmt = n => Number(n).toLocaleString('ja-JP');
   const compactHudNumber = new Intl.NumberFormat('ja-JP', {notation:'compact', maximumFractionDigits:1});
   const scientificHudNumber = new Intl.NumberFormat('ja-JP', {notation:'scientific', maximumFractionDigits:1});
+  function shortHudNumber(value){
+    if(value<100000)return fmt(value);
+    const compact=compactHudNumber.format(value);
+    return compact.length<=7?compact:scientificHudNumber.format(value);
+  }
+  function writeHudText(el,text,full=text){
+    el.textContent=text;
+    if(text===full)el.removeAttribute('title');
+    else el.title=full;
+  }
 
-  function fitText(el,max,min){
-    if(!el) return;
-    let s = max;
-    el.style.fontSize = s + 'px';
-    while(s > min && (el.scrollWidth > el.clientWidth || el.scrollHeight > el.clientHeight)){
-      s -= 1;
-      el.style.fontSize = s + 'px';
-    }
+
+  function fitText(el,min){
+    el.style.removeProperty('font-size');
+    const width=el.clientWidth;
+    if(!width||el.scrollWidth<=width)return;
+    const size=parseFloat(getComputedStyle(el).fontSize);
+    const fitted=Math.max(min,Math.floor(size*width/el.scrollWidth*10)/10);
+    el.style.setProperty('font-size',fitted+'px','important');
   }
   const homeLabel = document.querySelector('.v15-home-label');
   const powerLabel = document.querySelector('.v15-top-label');
@@ -438,7 +448,7 @@
       fitTapNumber(ptEl,pt,172,38,26);
       fitTapNumber(keysEl,gameSave.keys||0,82,30,24);
     }
-    fitSvg(comboEl,225,80,30);
+    if(tap.classList.contains('active'))fitTapNumber(comboEl,combo,225,80,30);
     fitSvg(progressLabel,110,24,16);
     let labelW = 96;
     try{ labelW = progressLabel.getComputedTextLength() || 96; }catch(e){}
@@ -487,7 +497,7 @@
     tapPower=computeTapPower();
     gameSave.tapPower=tapPower;
     powerEl.textContent=fmt(tapPower);
-    if(characterScreen.classList.contains('active')) charEl('charTapPower').textContent=fmt(tapPower);
+    if(characterScreen.classList.contains('active')) fitHudNumber(charEl('charTapPower'),tapPower);
     requestAnimationFrame(fitAll);
   }
   const rosterFilter=charEl('charRosterFilter');
@@ -508,10 +518,10 @@
     const ownedCount=`${owned} / ${GACHA_CHARACTERS.length}`;
     charEl('charOwned').textContent=ownedCount;
     charEl('charRosterCount').textContent=ownedCount;
-    charEl('charTotalLevels').textContent=fmt(totalLevels());
-    charEl('charTapPower').textContent=fmt(tapPower);
-    charEl('charPT').textContent=fmt(pt);
-    charEl('charKeys').textContent=fmt(gameSave.keys||0);
+    fitHudNumber(charEl('charTotalLevels'),totalLevels());
+    fitHudNumber(charEl('charTapPower'),tapPower);
+    fitHudNumber(charEl('charPT'),pt);
+    writeHudText(charEl('charKeys'),shortHudNumber(gameSave.keys||0),fmt(gameSave.keys||0));
     if(!selectedCharId || !GACHA_CHARACTERS.some(c=>c.id===selectedCharId)){
       selectedCharId=GACHA_CHARACTERS.find(c=>collection[c.id]?.owned)?.id || GACHA_CHARACTERS[0].id;
     }
@@ -523,7 +533,7 @@
     charEl('characterGrid').innerHTML=visible.map(c=>{
       const rec=currentRecord(c.id), owned=!!rec.owned;
       const state=trainingState(rec);
-      const label=state==='max'?'MAX':owned?'Lv'+fmt(rec.level||1):trainingStateLabels.locked;
+      const label=state==='max'?'MAX':owned?'Lv'+shortHudNumber(rec.level||1):trainingStateLabels.locked;
       const mark=state==='ready'?'<span aria-hidden="true">↑</span>':state==='capped'
         ? '<svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M5 7V5a3 3 0 0 1 6 0v2h2v7H3V7zm2 0h2V5a1 1 0 0 0-2 0z"/></svg>' : '';
       return `<button type="button" class="char-tile char-gilt ${owned?'':'locked'} ${c.rarity===3?'r3':''} ${c.id===selectedCharId?'selected':''}" data-character-id="${c.id}" aria-label="${c.name}" aria-description="${label}、${trainingStateLabels[state]}">
@@ -647,12 +657,12 @@
   function renderTrainingAction(button,plan,state){
     const bulk=button===bulkTrainingButton;
     const enabled=plan.count>0&&!saveRecoveryBlocked;
-    const label=bulk?(enabled?`まとめて＋${fmt(plan.count)}`:'まとめて'):'＋1';
+    const label=bulk?(enabled?`まとめて＋${shortHudNumber(plan.count)}`:'まとめて'):'＋1';
     const reason=saveRecoveryBlocked?trainingStateLabels.protected:
       state==='locked'?'ガチャで獲得':trainingStateLabels[state];
     button.disabled=!enabled;
     button.querySelector('.char-button-ink').textContent=label;
-    button.querySelector('.char-action-note').textContent=enabled?`欠片 ${fmt(plan.cost)}`:reason;
+    button.querySelector('.char-action-note').textContent=enabled?`欠片 ${shortHudNumber(plan.cost)}`:reason;
     button.setAttribute('aria-label',enabled
       ? `レベルを${fmt(plan.count)}上げる。欠片${fmt(plan.cost)}個${bulk?'':'。長押しで連続育成'}`
       : `${label}。 ${reason}`);
@@ -670,12 +680,15 @@
     charEl('portraitStars').textContent=stars;
     charEl('selectedName').textContent=c.name;
     charEl('selectedTags').textContent=`${c.element}属性  · ${c.tagline}`;
-    charEl('selectedLevel').textContent=owned?`Lv ${lv} / ${cap}`:'未所持';
+    writeHudText(charEl('selectedLevel'),owned?`Lv ${lv<100000?lv:shortHudNumber(lv)} / ${cap<100000?cap:shortHudNumber(cap)}`:'未所持',
+      owned?`Lv ${lv} / ${cap}`:'未所持');
     const state=trainingState(rec);
     const capBadge=charEl('charCapBadge');
     capBadge.hidden=state!=='capped'&&state!=='max';
     capBadge.textContent=state==='max'?'MAX':'レベル上限';
-    charEl('selectedShardCount').textContent=owned?`欠片 ${fmt(shards)} / ${need}`:'ガチャで獲得';
+    fitText(charEl('selectedLevel'),11);
+    writeHudText(charEl('selectedShardCount'),owned?`欠片 ${shortHudNumber(shards)} / ${need}`:'ガチャで獲得',
+      owned?`欠片 ${fmt(shards)} / ${need}`:'ガチャで獲得');
     charEl('charShardFill').style.width=owned?Math.min(100,shards/need*100)+'%':'0%';
     renderTrainingAction(trainingButton,trainingPlan(rec,1),state);
     renderTrainingAction(bulkTrainingButton,trainingPlan(rec,Infinity),state);
@@ -688,9 +701,9 @@
     const keyNote=breakBtn.querySelector('.char-action-note');
     keyNote.classList.toggle('char-key-shortfall',keysShort);
     if(keysShort){
-      keyNote.textContent=`鍵 ${fmt(heldKeys)} / ${fmt(keysNeeded)}（あと${fmt(keysNeeded-heldKeys)}個）`;
+      keyNote.textContent=`鍵 ${shortHudNumber(heldKeys)} / ${shortHudNumber(keysNeeded)}（あと${shortHudNumber(keysNeeded-heldKeys)}個）`;
     }else{
-      keyNote.textContent=keysNeeded?`（鍵 ${fmt(keysNeeded)}個）`:'解放完了';
+      keyNote.textContent=keysNeeded?`（鍵 ${shortHudNumber(keysNeeded)}個）`:'解放完了';
     }
     charEl('charBuyKey').disabled=pt<5000;
     const fbtn=charEl('charFavoriteButton');
@@ -865,9 +878,9 @@
     else if(shopScreen.classList.contains('active'))renderShopReward();
   });
   function renderShop(){
-    document.getElementById('shopPT').textContent=fmt(pt);
-    document.getElementById('shopKeys').textContent=fmt(gameSave.keys||0);
-    document.getElementById('shopCardKeys').textContent=fmt(gameSave.keys||0);
+    fitHudNumber(document.getElementById('shopPT'),pt);
+    fitHudNumber(homeEl('shopKeys'),gameSave.keys||0);
+    writeHudText(homeEl('shopCardKeys'),shortHudNumber(gameSave.keys||0),fmt(gameSave.keys||0));
     const canBuy=pt>=KEY_PRICE && !saveRecoveryBlocked;
     document.getElementById('shopBuyKey').disabled=!canBuy;
     const notice=document.getElementById('shopNotice');
@@ -1245,9 +1258,12 @@
     const rarity=homeEl('partyStatsRarity');
     rarity.textContent='★'.repeat(character.rarity);
     rarity.setAttribute('aria-label',`レア度 ${character.rarity}`);
-    homeEl('partyStatsLevel').textContent=partyStatNumber.format(stats.level);
-    homeEl('partyStatsHp').textContent=partyStatNumber.format(stats.maxHp);
-    homeEl('partyStatsAttack').textContent=partyStatNumber.format(stats.attack);
+    writeHudText(homeEl('partyStatsLevel'),stats.level<1e7?partyStatNumber.format(stats.level):partyDisplayStat(stats.level),
+      partyStatNumber.format(stats.level));
+    writeHudText(homeEl('partyStatsHp'),stats.maxHp<1e7?partyStatNumber.format(stats.maxHp):partyDisplayStat(stats.maxHp),
+      partyStatNumber.format(stats.maxHp));
+    writeHudText(homeEl('partyStatsAttack'),stats.attack<1e7?partyStatNumber.format(stats.attack):partyDisplayStat(stats.attack),
+      partyStatNumber.format(stats.attack));
     partyStatsTrigger=trigger;
     partyStatsDialog.showModal();
   }
@@ -1495,7 +1511,7 @@
     syncQuestArtwork();
     ensureQuestState();
     const items=QUEST_ITEMS[questTab]||[];
-    document.getElementById('questPT').textContent=fmt(pt);
+    fitHudNumber(document.getElementById('questPT'),pt);
     document.getElementById('questClaimed').textContent=`${items.filter(it=>gameSave.quests[questTab]?.claimed?.[it.id]).length} / ${items.length}`;
     const captions={daily:'毎日 0:00（日本時間）に更新',weekly:'毎週 月曜 0:00（日本時間）に更新',milestone:'累計記録・受取は各1回まで',limited:'期間限定の依頼は準備中です'};
     document.getElementById('questRefresh').textContent=captions[questTab];
@@ -1649,7 +1665,7 @@
 
     const node = document.createElement('div');
     node.className = 'pt-float ' + tone;
-    node.textContent = '+' + fmt(tapPower) + ' PT';
+    node.textContent = '+' + shortHudNumber(tapPower) + ' PT';
     node.style.left = x + '%';
     node.style.top = y + '%';
     tap.appendChild(node);
@@ -1953,6 +1969,14 @@
     fitAll();
     if(home.classList.contains('active'))refreshHomeNumbers();
     if(gacha.classList.contains('active'))renderGachaWallet();
+    const activeWallet=document.querySelector('.screen.active :is(#charPT,#shopPT,#questPT)');
+    if(activeWallet)fitHudNumber(activeWallet,pt);
+    if(characterScreen.classList.contains('active')){
+      fitHudNumber(charEl('charTotalLevels'),totalLevels());
+      fitHudNumber(charEl('charTapPower'),tapPower);
+      fitText(charEl('selectedLevel'),11);
+    }
+    if(shopScreen.classList.contains('active'))fitHudNumber(homeEl('shopKeys'),gameSave.keys||0);
   }));
   window.addEventListener('pagehide',()=>saveUnified());
   document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')saveUnified();});

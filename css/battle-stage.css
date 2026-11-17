@@ -412,3 +412,5 @@
 @media (max-height: 640px) {
   .stage-app:is([data-mode='victory'],[data-mode='defeat']) .stage-field { min-height: 170px; }
 }
+
+.stage-stats[data-wide] { font-size: 8px; }

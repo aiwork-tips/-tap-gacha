@@ -11,6 +11,7 @@
     healAll: '全体回復', rally: '攻撃強化', curse: '呪い', execute: '大技', ward: '無効化', cover: 'かばう' };
   const formatNumber = new Intl.NumberFormat('ja-JP');
   const compactNumber = new Intl.NumberFormat('ja-JP', { notation: 'compact', maximumFractionDigits: 1 });
+  const battleNumber = value => value >= 1e15 ? Math.round(value / 1e12) + '兆' : compactNumber.format(value);
   const percent = unit => Math.min(100, Math.ceil(100 * unit.hp / unit.maxHp));
   const autoAdvanceDelay = 1000;
 
@@ -103,10 +104,11 @@
       const skill = slot.querySelector('button');
       const skillStatus = slot.querySelector('small');
       image.src = ally.portrait;
-      slot.querySelector('.stage-level').textContent = 'Lv' + compactNumber.format(ally.level);
+      slot.querySelector('.stage-level').textContent = 'Lv' + battleNumber(ally.level);
       slot.querySelector('.stage-name').textContent = ally.name;
       slot.querySelector('.stage-stats').textContent =
-        'HP ' + compactNumber.format(ally.maxHp) + ' · 攻 ' + compactNumber.format(ally.attack);
+        'HP ' + battleNumber(ally.maxHp) + ' · 攻 ' + battleNumber(ally.attack);
+      slot.querySelector('.stage-stats').toggleAttribute('data-wide', ally.maxHp >= 1e12 || ally.attack >= 1e12);
       slot.querySelector('.stage-stats').title =
         '最大HP ' + formatNumber.format(ally.maxHp) + ' / 攻撃力 ' + formatNumber.format(ally.attack);
       hp.setAttribute('aria-label', ally.name + 'のHP');
@@ -257,14 +259,15 @@
         popup.style.left = target.left + target.width / 2 - scene.left + (index % 3 - 1) * 15 + 'px';
         popup.style.top = target.top + target.height * 0.28 - scene.top + 'px';
         popup.style.setProperty('--impact-color', participants.find(unit => unit.id === event.from).color);
+        const amount = event.amount >= 100000 ? battleNumber(event.amount) : event.amount;
         popup.textContent = event.warded ? '無効'
           : event.kind === 'rally' ? '攻撃強化'
           : event.kind === 'ward' ? '結界'
           : event.kind === 'cover' ? 'かばう'
-          : event.periodic ? '炎 −' + event.amount
-          : event.kind === 'shield' ? '盾 +' + event.amount
-          : event.kind === 'heal' ? '+' + event.amount
-          : event.amount ? '−' + event.amount : '防御';
+          : event.periodic ? '炎 −' + amount
+          : event.kind === 'shield' ? '盾 +' + amount
+          : event.kind === 'heal' ? '+' + amount
+          : event.amount ? '−' + amount : '防御';
         effects.append(popup);
         animate(popup, [
           { opacity: 0, transform: 'translate(-50%, 4px) scale(.8)' },

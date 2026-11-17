@@ -20,6 +20,12 @@ html body #questScreen #questPT, html body #questScreen #questClaimed{
 }
 html body #tapScreen .v15-number{translate:none!important}
 
+#characterScreen .char-top-pt{grid-template-columns:minmax(0,1fr)}
+#characterScreen #charPT{width:100%;white-space:nowrap}
+#shopScreen .shop-wallet,
+#questScreen .quest-counters{grid-template-columns:repeat(2,minmax(0,1fr))}
+#shopScreen #shopPT{white-space:nowrap}
+
 /* 2) ホームの小さすぎるラベルを読める大きさに */
 html body #homeScreen .kit-wallet .kit-pt-label,
 html body #homeScreen .kit-wallet .kit-keys-label{font-size:9px!important}
@@ -47,3 +53,7 @@ html body #app:has(#homeScreen.active) #devBuildLabel{
   color:rgba(232,244,255,.9)!important;background:rgba(5,23,41,.5)!important;
   z-index:30!important;
 }
+
+#characterScreen .char-stat-copy{grid-template-columns:minmax(0,1fr);text-align:center}
+#characterScreen :is(#charTotalLevels,#charTapPower){width:100%}
+#shopScreen #shopKeys{white-space:nowrap}
