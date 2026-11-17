@@ -41,8 +41,8 @@ html body #shopScreen .shop-version,
 html body #questScreen .quest-version{display:none!important}
 html body #app:has(#homeScreen.active) #devBuildLabel{
   top:calc(22.6% + 3px)!important;bottom:auto!important;
-  right:3%!important;left:auto!important;width:27%;
-  text-align:center;padding:1px 0!important;
+  right:3%!important;left:auto!important;min-width:27%;width:max-content;max-width:94%;
+  text-align:center;padding:1px 4px!important;
   font:600 8px/1.2 -apple-system,BlinkMacSystemFont,"Hiragino Sans",sans-serif!important;
   color:rgba(232,244,255,.9)!important;background:rgba(5,23,41,.5)!important;
   z-index:30!important;

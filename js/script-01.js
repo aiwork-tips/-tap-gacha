@@ -922,6 +922,42 @@
 
   // --- Home favorite + dynamic HUD. Only owned characters can be favorites. ---
   const homeEl = id => document.getElementById(id);
+  const compactHomeNumber = new Intl.NumberFormat('ja-JP', {notation:'compact', maximumFractionDigits:1});
+  const scientificHomeNumber = new Intl.NumberFormat('ja-JP', {notation:'scientific', maximumFractionDigits:1});
+  function fitHomeNumber(id,value){
+    const el=homeEl(id);
+    const full=fmt(value);
+    el.style.removeProperty('font-size');
+    el.textContent=full;
+    el.removeAttribute('title');
+    const available=el.clientWidth;
+    if(!available) return;
+
+    const range=document.createRange();
+    const textWidth=()=>{
+      range.selectNodeContents(el);
+      return range.getBoundingClientRect().width;
+    };
+    const width=textWidth();
+    if(width<=available) return;
+    const fontSize=parseFloat(getComputedStyle(el).fontSize);
+    const fitted=Math.floor(fontSize*available/width*10)/10;
+    if(fitted>=11){
+      el.style.setProperty('font-size',fitted+'px','important');
+      if(textWidth()<=available) return;
+    }
+
+    el.textContent=compactHomeNumber.format(value);
+    el.title=full;
+    if(textWidth()>available){
+      el.textContent=scientificHomeNumber.format(value);
+    }
+  }
+  function refreshHomeNumbers(){
+    fitHomeNumber('homePT',pt);
+    fitHomeNumber('homeTapPower',tapPower);
+    fitHomeNumber('homeKeys',gameSave.keys||0);
+  }
   function ownedCharacterById(id){
     return GACHA_CHARACTERS.find(c=>c.id===id && collection[id]?.owned) || null;
   }
@@ -930,9 +966,7 @@
       GACHA_CHARACTERS.find(c=>collection[c.id]?.owned) || null;
   }
   function refreshHome(){
-    homeEl('homePT').textContent=fmt(pt);
-    homeEl('homeTapPower').textContent=fmt(tapPower);
-    homeEl('homeKeys').textContent=fmt(gameSave.keys||0);
+    refreshHomeNumbers();
     const rank = Number(gameSave.playerRank);
     homeEl('homeRank').textContent=(Number.isFinite(rank)&&rank>0)?fmt(rank):'—';
     const fav=shownHomeCharacter();
@@ -1900,7 +1934,10 @@
     if(combo % 10 === 0 && navigator.vibrate) navigator.vibrate(16);
   });
 
-  window.addEventListener('resize',()=>requestAnimationFrame(fitAll));
+  window.addEventListener('resize',()=>requestAnimationFrame(()=>{
+    fitAll();
+    if(home.classList.contains('active'))refreshHomeNumbers();
+  }));
   window.addEventListener('pagehide',()=>saveUnified());
   document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')saveUnified();});
 
