@@ -381,6 +381,8 @@
   const colors = ['blue','gold','white','blue','gold'];
 
   const fmt = n => Number(n).toLocaleString('ja-JP');
+  const compactHudNumber = new Intl.NumberFormat('ja-JP', {notation:'compact', maximumFractionDigits:1});
+  const scientificHudNumber = new Intl.NumberFormat('ja-JP', {notation:'scientific', maximumFractionDigits:1});
 
   function fitText(el,max,min){
     if(!el) return;
@@ -402,7 +404,7 @@
     if(!el) return;
     el.style.fontSize = base + 'px';
     let w = 0;
-    try{ w = el.getComputedTextLength(); }catch(e){ return; }
+    try{ w = el.getComputedTextLength(); }catch(e){ return 0; }
     let size = base;
     if(w > maxW && w > 0){
       size = Math.max(min, Math.floor(base * maxW / w * 10) / 10);
@@ -413,13 +415,29 @@
       const k = Number(el.dataset.k || 0.331);
       el.setAttribute('y', String(Math.round((Number(el.dataset.cy) + k * size) * 10) / 10));
     }
+    return size===base ? w : el.getComputedTextLength();
+  }
+  function fitTapNumber(el,value,maxW,base,min,container=el,unit=''){
+    const full=fmt(value);
+    if(el.textContent!==full) el.textContent=full;
+    container.removeAttribute('aria-label');
+    if(fitSvg(container,maxW,base,min)<=maxW) return;
+
+    el.textContent=compactHudNumber.format(value);
+    container.setAttribute('aria-label',full+unit);
+    if(fitSvg(container,maxW,base,min)>maxW){
+      el.textContent=scientificHudNumber.format(value);
+      fitSvg(container,maxW,base,18);
+    }
   }
   function fitAll(){
     fitSvg(homeLabel,176,25,16);
     fitSvg(powerLabel,236,25,16);
-    fitSvg(powerBox,240,46,22);
-    fitSvg(ptEl,172,38,18);
-    fitSvg(keysEl,82,30,16);
+    if(tap.classList.contains('active')){
+      fitTapNumber(powerEl,tapPower,240,46,28,powerBox,' PT');
+      fitTapNumber(ptEl,pt,172,38,26);
+      fitTapNumber(keysEl,gameSave.keys||0,82,30,24);
+    }
     fitSvg(comboEl,225,80,30);
     fitSvg(progressLabel,110,24,16);
     let labelW = 96;
@@ -922,8 +940,6 @@
 
   // --- Home favorite + dynamic HUD. Only owned characters can be favorites. ---
   const homeEl = id => document.getElementById(id);
-  const compactHomeNumber = new Intl.NumberFormat('ja-JP', {notation:'compact', maximumFractionDigits:1});
-  const scientificHomeNumber = new Intl.NumberFormat('ja-JP', {notation:'scientific', maximumFractionDigits:1});
   function fitHomeNumber(id,value){
     const el=homeEl(id);
     const full=fmt(value);
@@ -947,10 +963,10 @@
       if(textWidth()<=available) return;
     }
 
-    el.textContent=compactHomeNumber.format(value);
+    el.textContent=compactHudNumber.format(value);
     el.title=full;
     if(textWidth()>available){
-      el.textContent=scientificHomeNumber.format(value);
+      el.textContent=scientificHudNumber.format(value);
     }
   }
   function refreshHomeNumbers(){
