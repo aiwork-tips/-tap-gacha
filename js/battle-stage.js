@@ -335,7 +335,11 @@
     function pause(advance = true) {
       if (mode !== 'running') return;
       if (advance) advanceClock(performance.now());
-      if (mode !== 'running') return;
+      if (mode !== 'running') {
+        stopAuto();
+        render();
+        return;
+      }
       mode = 'paused';
       cancelFrame();
       runningAnimations.forEach(animation => animation.pause());
