@@ -15,7 +15,7 @@
 #characterScreen .char-portrait{border:3px ridge #f2d18c!important;box-shadow:0 0 0 2px #174d8e,0 0 13px #5cc9ff80!important;border-radius:13px!important}
 #characterScreen .char-info{gap:4px!important}
 #characterScreen .char-rarity{color:#ffe7a2!important;text-shadow:0 0 5px #efba51}
-#characterScreen .char-name{font-family:Georgia,'Yu Mincho',serif!important;font-size:clamp(14px,3.7vw,19px)!important;color:#fff5d6!important}
+#characterScreen .char-name{font-family:"Times New Roman",'Yu Mincho',serif!important;font-size:clamp(14px,3.7vw,19px)!important;color:#fff5d6!important}
 #characterScreen .char-level{font-size:clamp(19px,5.1vw,27px)!important;text-shadow:0 2px 3px #061b43}
 #characterScreen .char-shard-track{height:9px!important;border:1px solid #e2ce9c!important;box-shadow:0 0 5px #2cd2ff}
 #characterScreen .char-action{border:2px ridge #e9c17d!important;border-radius:16px!important;background:linear-gradient(180deg,#087dd4,#09519e 50%,#052959)!important;color:#fff6d4!important;text-shadow:0 1px 2px #03132a;box-shadow:inset 0 0 9px #5fe0ff8a,0 0 6px #349dff5c!important}

@@ -83,7 +83,7 @@ button{font:inherit;color:inherit}
   width:100%;height:100%;
   display:flex;align-items:center;justify-content:center;
   white-space:nowrap;overflow:hidden;
-  font-family:Georgia,"Times New Roman",serif;
+  font-family:"Times New Roman",serif;
   font-variant-numeric:tabular-nums lining-nums;
   color:#fff1b8;font-weight:700;line-height:1
 }
@@ -98,7 +98,7 @@ button{font:inherit;color:inherit}
   width:100%;height:100%;
   display:flex;align-items:center;justify-content:flex-end;
   white-space:nowrap;overflow:hidden;
-  font-family:Georgia,"Times New Roman",serif;
+  font-family:"Times New Roman",serif;
   font-variant-numeric:tabular-nums lining-nums;
   color:#fff1b8;font-weight:700;line-height:1
 }
@@ -119,7 +119,7 @@ button{font:inherit;color:inherit}
 /* dynamic +PT */
 .pt-float{
   position:absolute;z-index:48;pointer-events:none;white-space:nowrap;
-  font-family:Georgia,"Times New Roman",serif;
+  font-family:"Times New Roman",serif;
   font-variant-numeric:tabular-nums lining-nums;
   font-size:clamp(23px,6.6vw,38px);font-weight:700;
   transform:translate(-50%,-50%) scale(.78);opacity:0;
@@ -165,7 +165,7 @@ button{font:inherit;color:inherit}
   top:29%;height:35%;
   display:flex;align-items:center;justify-content:center;
   overflow:hidden;white-space:nowrap;text-align:center;
-  font-family:Georgia,"Times New Roman",serif;
+  font-family:"Times New Roman",serif;
   font-variant-numeric:tabular-nums lining-nums;
   font-feature-settings:"tnum" 1,"lnum" 1;
   color:#fff1b8;font-weight:500;line-height:1;
@@ -177,7 +177,7 @@ button{font:inherit;color:inherit}
   top:67%;height:14%;
   display:flex;align-items:center;justify-content:center;
   overflow:hidden;white-space:nowrap;
-  font-family:Georgia,"Times New Roman",serif;
+  font-family:"Times New Roman",serif;
   font-size:10px;font-weight:700;letter-spacing:.05em;
   color:#fff0ba;text-shadow:0 2px 3px rgba(0,0,0,.62)
 }
@@ -228,7 +228,7 @@ button{font:inherit;color:inherit}
   width:100%;height:27px;
   display:flex;align-items:center;justify-content:center;
   overflow:hidden;white-space:nowrap;text-align:center;
-  font-family:Georgia,"Times New Roman",serif;
+  font-family:"Times New Roman",serif;
   font-variant-numeric:tabular-nums lining-nums;
   font-feature-settings:"tnum" 1,"lnum" 1;
   color:#fff4cb;font-weight:700;line-height:1;
@@ -267,7 +267,7 @@ button{font:inherit;color:inherit}
 .chest-img.open{opacity:0}
 .chest-threshold{
   position:absolute;left:0;right:0;bottom:1px;text-align:center;
-  font-family:Georgia,"Times New Roman",serif;
+  font-family:"Times New Roman",serif;
   font-size:9px;color:#fff0bc;font-weight:700;
   text-shadow:0 2px 3px rgba(0,0,0,.62)
 }
@@ -308,7 +308,7 @@ button{font:inherit;color:inherit}
 .bonus-number{
   width:82%;height:35px;display:flex;align-items:center;justify-content:center;
   overflow:hidden;white-space:nowrap;
-  font-family:Georgia,"Times New Roman",serif;
+  font-family:"Times New Roman",serif;
   font-variant-numeric:tabular-nums lining-nums;
   color:#fff0b8;font-weight:500;line-height:1;
   text-shadow:0 2px 3px rgba(0,0,0,.62)
@@ -854,13 +854,13 @@ button{font:inherit;color:inherit}
 .v15-label{
   fill:#fff;
   font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue","Hiragino Sans","Yu Gothic",sans-serif;
-  font-weight:700;text-anchor:middle;dominant-baseline:central;
+  font-weight:700;text-anchor:middle;dominant-baseline:alphabetic;
   paint-order:stroke fill;stroke:rgba(0,0,0,.52);stroke-width:2px;stroke-linejoin:round;
 }
 .v15-number{
   fill:#fff0b2;
-  font-family:"Times New Roman",Arial,sans-serif;
-  font-weight:600;text-anchor:middle;dominant-baseline:central;
+  font-family:"Times New Roman","Hiragino Mincho ProN","Yu Mincho",serif;
+  font-weight:700;text-anchor:middle;dominant-baseline:alphabetic;
   font-variant-numeric:lining-nums tabular-nums;
   font-feature-settings:"lnum" 1,"tnum" 1;
   paint-order:stroke fill;stroke:rgba(0,0,0,.52);stroke-width:2px;stroke-linejoin:round;
@@ -895,7 +895,7 @@ button{font:inherit;color:inherit}
 .v15-progress-fill{fill:#74e6ff;filter:drop-shadow(0 0 4px rgba(92,223,255,.8))}
 .v15-bonus-label{font-size:26px}
 .v15-bonus-number{font-size:38px}
-.v15-threshold{font-size:24px;fill:#fff0bd}
+.v15-threshold{font-size:25px;fill:#fff0bd}
 .v15-chest-shadow{fill:rgba(0,10,28,.88);filter:drop-shadow(0 0 5px rgba(77,188,236,.25))}
 .v15-chest-img{
   pointer-events:none;filter:drop-shadow(0 4px 4px rgba(0,0,0,.5));
@@ -1118,7 +1118,7 @@ button{font:inherit;color:inherit}
 .summary-title h3{
   margin:0;
   color:#fff1c7;
-  font:800 clamp(16px,4.6vw,22px)/1.2 Georgia,"Yu Mincho",serif;
+  font:800 clamp(16px,4.6vw,22px)/1.2 "Times New Roman","Yu Mincho",serif;
 }
 .summary-title span{font-size:11px;white-space:nowrap}
 .summary-head{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}
@@ -1137,7 +1137,7 @@ button{font:inherit;color:inherit}
 .summary-rarity.star3 span{color:#ffdc82}
 .summary-rarity b{
   color:#fff0bd;
-  font:800 clamp(16px,4.5vw,22px)/1.15 Georgia,serif;
+  font:800 clamp(16px,4.5vw,22px)/1.15 "Times New Roman",serif;
   font-variant-numeric:tabular-nums;
 }
 .summary-list{
@@ -1207,7 +1207,7 @@ button{font:inherit;color:inherit}
   white-space:nowrap;
 }
 .s-count b{
-  font:800 clamp(18px,5.1vw,25px)/1 Georgia,serif;
+  font:800 clamp(18px,5.1vw,25px)/1 "Times New Roman",serif;
   font-variant-numeric:tabular-nums;
 }
 .s-count small{font-size:10px}
@@ -1412,19 +1412,19 @@ button{font:inherit;color:inherit}
 .character-area{position:absolute;top:1.2%;bottom:13.4%;left:3%;right:3%;display:flex;flex-direction:column;gap:9px;color:#eaf9ff}
 .char-top{flex:none;height:6.8%;display:flex;align-items:center;justify-content:space-between;gap:8px}
 .char-home{flex:none;color:#fff1b9;background:linear-gradient(#126090,#071e3c);border:1px solid #e4c47e;border-radius:11px;padding:10px 12px;font-weight:800}
-.char-header-title{font:700 clamp(21px,5.6vw,30px) Georgia,"Yu Mincho",serif;color:#ffe8a8;text-shadow:0 2px 8px #051a38}
+.char-header-title{font:700 clamp(21px,5.6vw,30px) "Times New Roman","Yu Mincho",serif;color:#ffe8a8;text-shadow:0 2px 8px #051a38}
 .char-top-pt{background:#0b3158df;border:1px solid #c6a66d;border-radius:9px;padding:5px 8px;text-align:right;font-size:9px}
-.char-top-pt b{display:block;font:700 clamp(16px,4.2vw,22px) Georgia,serif;color:#ffedb8}
+.char-top-pt b{display:block;font:700 clamp(16px,4.2vw,22px) "Times New Roman",serif;color:#ffedb8}
 .char-stats{flex:none;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
 .char-stat{border:1px solid #91d8f36b;background:#07294adf;border-radius:10px;padding:8px 5px;text-align:center;font-size:10px}
-.char-stat strong{display:block;font:700 20px Georgia,serif;color:#ffe6a1;margin-top:3px}
+.char-stat strong{display:block;font:700 20px "Times New Roman",serif;color:#ffe6a1;margin-top:3px}
 .char-detail{flex:none;border:1px solid #e0bc78bd;background:linear-gradient(130deg,#0e4268ed,#071a3be8);box-shadow:inset 0 0 22px #41b6fd21;border-radius:17px;padding:11px;display:grid;grid-template-columns:37% minmax(0,1fr);gap:10px;min-height:0;max-height:38%}
 .char-portrait{width:100%;aspect-ratio:3/4;max-height:215px;object-fit:cover;object-position:center 20%;border-radius:12px;border:1px solid #e3c17f;box-shadow:0 5px 16px #00152acc}
 .char-info{min-width:0;display:flex;flex-direction:column;gap:5px;justify-content:center}
 .char-rarity{font-size:15px;color:#ffdf8f;letter-spacing:1px}
 .char-name{font-size:clamp(13px,3.6vw,19px);font-weight:900;overflow-wrap:anywhere}
 .char-tags{font-size:10px;color:#b8e9fb}
-.char-level{font:700 clamp(17px,4.3vw,25px) Georgia,serif;color:#ffdfa1}
+.char-level{font:700 clamp(17px,4.3vw,25px) "Times New Roman",serif;color:#ffdfa1}
 .char-shards{font-size:11px}
 .char-shard-track{height:7px;background:#051629;border-radius:10px;overflow:hidden;border:1px solid #c6ab6380}
 .char-shard-fill{height:100%;background:linear-gradient(90deg,#48c6f5,#c4f8ff);transition:width .2s}
@@ -1474,7 +1474,7 @@ button{font:inherit;color:inherit}
 .char-rarity{font-size:15px!important}
 .char-name{font-size:clamp(12px,3.4vw,19px)!important;overflow-wrap:anywhere}
 .char-tags{font-size:clamp(8px,2.1vw,11px)!important;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;white-space:normal;}
-.char-level{font-family:Georgia,'Times New Roman',serif!important;font-size:clamp(19px,4.8vw,26px)!important;font-variant-numeric:lining-nums tabular-nums;font-feature-settings:'lnum' 1,'tnum' 1;white-space:nowrap}
+.char-level{font-family:"Times New Roman",serif!important;font-size:clamp(19px,4.8vw,26px)!important;font-variant-numeric:lining-nums tabular-nums;font-feature-settings:'lnum' 1,'tnum' 1;white-space:nowrap}
 .char-shards{font-size:clamp(9px,2.4vw,12px)!important;font-variant-numeric:lining-nums tabular-nums;white-space:nowrap}
 .char-shard-track{height:8px!important;align-self:center}
 .char-action{height:100%;min-height:0;padding:4px 2px!important;line-height:1.2!important;align-self:stretch}
@@ -1533,7 +1533,7 @@ button{font:inherit;color:inherit}
 .char-rarity{font-size:clamp(12px,3.1vw,15px)!important}
 .char-name{font-size:clamp(12px,3.4vw,18px)!important;white-space:normal;overflow-wrap:anywhere}
 .char-tags{font-size:clamp(8px,2.0vw,10px)!important;line-height:1.2!important;display:-webkit-box!important;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2}
-.char-level{font-family:Georgia,'Times New Roman',serif!important;font-size:clamp(17px,4.5vw,26px)!important;white-space:nowrap!important;font-variant-numeric:lining-nums tabular-nums}
+.char-level{font-family:"Times New Roman",serif!important;font-size:clamp(17px,4.5vw,26px)!important;white-space:nowrap!important;font-variant-numeric:lining-nums tabular-nums}
 .char-shards{font-size:clamp(9px,2.5vw,12px)!important;font-variant-numeric:lining-nums tabular-nums;white-space:nowrap!important}
 .char-shard-track{width:100%;height:7px!important;min-height:7px;align-self:center;overflow:hidden}
 .char-action{
@@ -1565,11 +1565,11 @@ button{font:inherit;color:inherit}
 .dynamic-home-hud{position:absolute;z-index:22;top:0;left:0;right:0;height:9.3%;display:grid;grid-template-columns:22% 39% 39%;gap:3px;padding:6px 7px 4px;background:linear-gradient(180deg,rgba(1,15,35,.95),rgba(3,32,68,.98));border-bottom:2px solid rgba(253,213,128,.78);box-shadow:0 4px 16px rgba(0,5,18,.65);font-variant-numeric:lining-nums tabular-nums}
 .dynamic-home-hud>div{min-width:0;border:1px solid #e3c37d;border-radius:12px 5px 12px 5px;background:linear-gradient(165deg,#12507bb0,#07172fe0);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2px 5px;gap:0;box-shadow:inset 0 0 9px rgba(73,194,255,.20)}
 .dynamic-home-hud small,.dynamic-home-wallet span{font-size:clamp(8px,2vw,11px);color:#d8f5ff;white-space:nowrap}
-.dynamic-home-hud strong{display:block;font-family:Georgia,'Times New Roman',serif;font-size:clamp(18px,5.25vw,31px);line-height:1.13;color:#fff0b7;max-width:100%;white-space:nowrap;text-align:center;overflow:hidden;text-overflow:clip}
+.dynamic-home-hud strong{display:block;font-family:"Times New Roman",serif;font-size:clamp(18px,5.25vw,31px);line-height:1.13;color:#fff0b7;max-width:100%;white-space:nowrap;text-align:center;overflow:hidden;text-overflow:clip}
 .dynamic-home-wallet>div{display:flex!important;align-items:center;justify-content:space-between;width:100%;gap:3px}
 .dynamic-home-wallet strong{font-size:clamp(15px,4vw,26px)!important;text-align:right!important}
 .dynamic-home-event{position:absolute;z-index:13;left:3%;top:10%;width:52%;height:6%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(155deg,#174875e3,#091d47ee);border:1px solid #e5be7d;border-radius:9px;box-shadow:0 1px 11px #0610249a;color:#ffedc2;text-shadow:0 2px 5px #001329}
-.dynamic-home-event span{font-family:Georgia,'Yu Mincho',serif;font-size:clamp(14px,4vw,20px);font-weight:800}.dynamic-home-event small{font-size:9px;color:#d3f0ff}
+.dynamic-home-event span{font-family:"Times New Roman",'Yu Mincho',serif;font-size:clamp(14px,4vw,20px);font-weight:800}.dynamic-home-event small{font-size:9px;color:#d3f0ff}
 .dynamic-home-favorite{position:absolute;z-index:14;top:19%;bottom:27%;left:24%;right:24%;display:flex;flex-direction:column;align-items:stretch;gap:4px;padding:8px 8px 7px;border:2px solid #ebc57e;border-radius:20px 8px 20px 8px;background:linear-gradient(150deg,rgba(10,58,107,.98),rgba(2,18,46,.98));box-shadow:0 0 28px rgba(71,180,255,.37),inset 0 0 21px rgba(85,183,238,.13);overflow:hidden}
 .home-fav-heading{flex:none;text-align:center;font-size:clamp(10px,2.65vw,14px);font-weight:900;color:#ffebad;white-space:nowrap;overflow:hidden}
 .home-fav-picture{position:relative;min-height:0;flex:1;display:flex;border:1px solid #f5cf89;border-radius:10px;overflow:hidden;background:radial-gradient(ellipse at center,#19659a 0%,#061d43 88%)}
@@ -1581,7 +1581,7 @@ button{font:inherit;color:inherit}
 .home-change-favorite{border:1px solid #e6c57c;border-radius:11px;padding:5px 2px;min-height:26px;color:#fff0b5;font-size:clamp(9px,2.7vw,12px);font-weight:900;background:linear-gradient(#1677b4,#0a396a)}
 #homeScreen .home-hit:not(.core){display:none}
 #homeScreen #goTap{z-index:19;top:74.5%;left:31%;width:38%;height:8.2%;border:2px solid #e4c17a;border-radius:13px;background:linear-gradient(160deg,#145e9ceb,#072850f8);display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 0 13px #35befe67}
-#homeScreen #goTap span{font-family:Georgia,'Yu Mincho',serif;font-size:clamp(14px,3.5vw,19px);font-weight:900;color:#fff0b6}
+#homeScreen #goTap span{font-family:"Times New Roman",'Yu Mincho',serif;font-size:clamp(14px,3.5vw,19px);font-weight:900;color:#fff0b6}
 #homeScreen #goTap small{font-size:clamp(7px,1.8vw,10px);white-space:nowrap;color:#e8faff}
 .home-action{position:absolute;z-index:18;width:22%;height:9.5%}
 .home-action.left{left:1.1%}.home-action.right{right:1.1%}
@@ -1626,7 +1626,7 @@ button{font:inherit;color:inherit}
 #homeScreen .dynamic-home-rank{background-image:url('../assets/a68902de4e4ef1da3dd4.png')!important;}
 #homeScreen .dynamic-home-power{background-image:url('../assets/7318f7599fe7eeb764f1.png')!important;}
 #homeScreen .dynamic-home-wallet{background-image:url('../assets/28032d5f53f5d246dcd8.png')!important;}
-#homeScreen .dynamic-home-rank>small{position:absolute;top:33%;left:44%;right:10%;text-align:center;font-family:Georgia,serif;font-size:clamp(8px,2.5vw,11px);color:#fff3cf}
+#homeScreen .dynamic-home-rank>small{position:absolute;top:33%;left:44%;right:10%;text-align:center;font-family:"Times New Roman",serif;font-size:clamp(8px,2.5vw,11px);color:#fff3cf}
 #homeScreen .dynamic-home-rank>strong{position:absolute;top:50%;left:44%;right:10%;height:34%;display:flex;justify-content:center;align-items:center;line-height:1;font-size:clamp(19px,5.7vw,30px);}
 #homeScreen .home-rank-avatar{position:absolute;width:29%;height:48%;left:10%;top:28%;object-fit:cover;border-radius:50%;border:1px solid #ffdfa0;box-shadow:0 0 6px #9ad9ff;}
 #homeScreen .dynamic-home-power>small:first-child{position:absolute;top:29%;left:18%;right:18%;font-size:clamp(8px,2.6vw,11px);text-align:center;color:#fff4cc}
@@ -1670,21 +1670,21 @@ button{font:inherit;color:inherit}
 #homeScreen .dynamic-home-hud>div:before{left:-3px}#homeScreen .dynamic-home-hud>div:after{right:-3px}
 #homeScreen .dynamic-home-rank{display:grid!important;grid-template-columns:42% 58%;grid-template-rows:40% 60%;align-items:center;justify-items:center;}
 #homeScreen .home-rank-avatar{position:relative!important;top:auto!important;left:auto!important;grid-column:1;grid-row:1/3;width:88%!important;height:auto!important;aspect-ratio:1;object-fit:cover;border-radius:50%;border:2px solid #f4d79d;box-shadow:0 0 8px #6edfff}
-#homeScreen .dynamic-home-rank>small{position:relative!important;top:auto!important;left:auto!important;right:auto!important;grid-column:2;grid-row:1;font:700 clamp(8px,2.3vw,11px)/1 Georgia,serif;white-space:nowrap}
-#homeScreen .dynamic-home-rank>strong{position:relative!important;top:auto!important;left:auto!important;right:auto!important;height:auto!important;grid-column:2;grid-row:2;width:100%;font:700 clamp(18px,5vw,28px)/1 Georgia,serif;color:#ffefb8;}
+#homeScreen .dynamic-home-rank>small{position:relative!important;top:auto!important;left:auto!important;right:auto!important;grid-column:2;grid-row:1;font:700 clamp(8px,2.3vw,11px)/1 "Times New Roman",serif;white-space:nowrap}
+#homeScreen .dynamic-home-rank>strong{position:relative!important;top:auto!important;left:auto!important;right:auto!important;height:auto!important;grid-column:2;grid-row:2;width:100%;font:700 clamp(18px,5vw,28px)/1 "Times New Roman",serif;color:#ffefb8;}
 #homeScreen .dynamic-home-power{display:flex!important;flex-direction:column;align-items:center;justify-content:center;gap:1px;}
 #homeScreen .dynamic-home-power>small:first-child,#homeScreen .dynamic-home-power>small:last-child,#homeScreen .dynamic-home-power>strong{position:static!important;display:block!important;width:100%!important;height:auto!important;left:auto!important;right:auto!important;top:auto!important;flex:none;text-align:center;line-height:1.04}
-#homeScreen .dynamic-home-power>small:first-child{font:700 clamp(8px,2.7vw,13px)/1 Georgia,serif;color:#ffedbf}
-#homeScreen .dynamic-home-power>strong{font:700 clamp(20px,6.4vw,38px)/1 Georgia,serif;color:#fff2cb;text-shadow:0 0 12px #16a4e989;white-space:nowrap;overflow:hidden;}
+#homeScreen .dynamic-home-power>small:first-child{font:700 clamp(8px,2.7vw,13px)/1 "Times New Roman",serif;color:#ffedbf}
+#homeScreen .dynamic-home-power>strong{font:700 clamp(20px,6.4vw,38px)/1 "Times New Roman",serif;color:#fff2cb;text-shadow:0 0 12px #16a4e989;white-space:nowrap;overflow:hidden;}
 #homeScreen .dynamic-home-power>small:last-child{font:600 clamp(7px,1.8vw,10px)/1 sans-serif;color:#b9eaff}
 #homeScreen .dynamic-home-wallet{display:flex!important;flex-direction:column;align-items:stretch;justify-content:space-evenly;gap:0}
 #homeScreen .dynamic-home-wallet>div{position:static!important;display:grid!important;grid-template-columns:44% 56%;height:auto!important;min-height:42%;width:100%!important;left:auto!important;right:auto!important;gap:1px!important;align-items:center;justify-items:stretch;padding:1px 4px;border-bottom:1px solid #b9d4db55;}
 #homeScreen .dynamic-home-wallet>div:last-child{border-bottom:0}
 #homeScreen .dynamic-home-wallet span{font:700 clamp(8px,2vw,11px)/1.1 sans-serif;color:#e5f4ff;white-space:nowrap}
-#homeScreen .dynamic-home-wallet strong{font:700 clamp(14px,4.2vw,25px)/1 Georgia,serif!important;white-space:nowrap;text-align:right;overflow:hidden;color:#ffebbc}
+#homeScreen .dynamic-home-wallet strong{font:700 clamp(14px,4.2vw,25px)/1 "Times New Roman",serif!important;white-space:nowrap;text-align:right;overflow:hidden;color:#ffebbc}
 #homeScreen .dynamic-home-event{z-index:14;top:10.3%;left:2.5%;width:53%;height:9%;border:2px solid #d5b471;border-radius:16px 7px 16px 7px;background:linear-gradient(120deg,#07234adf,#0b5494bb 58%,#05224bdc),radial-gradient(circle,#daf8ff,#174c7b);box-shadow:inset 0 0 13px #5ac6f96b,0 4px 9px #10376550;}
 #homeScreen .dynamic-home-event:before{content:'❀';position:absolute;right:6%;top:2%;font-size:clamp(19px,5vw,36px);color:#f5cce8;text-shadow:0 0 8px #fff7ef}
-#homeScreen .dynamic-home-event span{font-family:Georgia,'Yu Mincho',serif;font-size:clamp(13px,3.8vw,22px);letter-spacing:.04em;line-height:1.2}
+#homeScreen .dynamic-home-event span{font-family:"Times New Roman",'Yu Mincho',serif;font-size:clamp(13px,3.8vw,22px);letter-spacing:.04em;line-height:1.2}
 #homeScreen .dynamic-home-event small{font-size:clamp(7px,1.8vw,10px);color:#e5f5ff}
 #homeScreen .dynamic-home-transfer{position:absolute;z-index:7;top:11%;right:6%;width:20%;height:8%;display:flex;flex-direction:column;justify-content:center;align-items:center;color:#eaf8ff;text-shadow:0 1px 5px #003c6a;pointer-events:none}
 #homeScreen .dynamic-home-transfer span{font-size:clamp(21px,7vw,38px);color:#ccf9ff;text-shadow:0 0 8px #18bcff,0 0 17px #137eff}
@@ -1708,14 +1708,14 @@ button{font:inherit;color:inherit}
 #homeScreen .home-action.summon-action,#homeScreen .home-action.train-action{top:32.5%}
 #homeScreen .home-action.library-action,#homeScreen .home-action.shop-action{top:52.0%}
 #homeScreen .home-action.mission-action,#homeScreen .home-action.gift-action{top:73.0%}
-#homeScreen .home-action button{width:100%;height:100%;position:relative;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:1px;padding:3px 1px;color:#fff3cd;font:900 clamp(10px,3vw,15px)/1.05 Georgia,'Yu Mincho',serif;text-shadow:0 2px 5px #002447;border:2px solid #e6c175;border-radius:33% 7% 33% 7% / 24% 17% 24% 17%;background:linear-gradient(160deg,#0e598bdc,#032953f9 60%,#061e3ee6);box-shadow:inset 0 0 12px #7ed4ee46,0 2px 10px #07294b9d;}
+#homeScreen .home-action button{width:100%;height:100%;position:relative;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:1px;padding:3px 1px;color:#fff3cd;font:900 clamp(10px,3vw,15px)/1.05 "Times New Roman",'Yu Mincho',serif;text-shadow:0 2px 5px #002447;border:2px solid #e6c175;border-radius:33% 7% 33% 7% / 24% 17% 24% 17%;background:linear-gradient(160deg,#0e598bdc,#032953f9 60%,#061e3ee6);box-shadow:inset 0 0 12px #7ed4ee46,0 2px 10px #07294b9d;}
 #homeScreen .home-action button:before{content:'✦';position:absolute;left:1px;top:-11px;font-size:17px;color:#ffe2a0;text-shadow:0 0 8px #cde9ff}
 #homeScreen .home-action button:after{content:'✦';position:absolute;right:1px;bottom:-10px;font-size:16px;color:#ffe2a0;text-shadow:0 0 8px #cde9ff}
 #homeScreen .home-action button b{display:block;font-size:clamp(15px,4vw,20px);line-height:1;color:#9de7ff;text-shadow:0 0 9px #55baff;}
 #homeScreen .home-action small{display:block;color:#d9f5ff;font:500 clamp(7px,2vw,10px)/1.2 sans-serif;white-space:nowrap}
 #homeScreen #goTap{position:absolute;z-index:19;top:78%!important;left:30%!important;width:40%!important;height:7.5%!important;display:flex!important;flex-direction:column;justify-content:center;align-items:center;gap:2px;background:linear-gradient(170deg,#155994f5,#042e5af5 70%,#021b40ee)!important;border:2px solid #f4c981!important;border-radius:35% 7% 35% 7% / 25% 16% 25% 16%!important;box-shadow:0 0 11px #65d9ffc6,inset 0 0 15px #30aaff86!important;}
 #homeScreen #goTap:before,#homeScreen #goTap:after{content:'✦';position:absolute;top:-8px;font-size:19px;color:#ffdb86;text-shadow:0 0 8px #7bedff}#homeScreen #goTap:before{left:0}#homeScreen #goTap:after{right:0}
-#homeScreen #goTap span{font:900 clamp(14px,4.5vw,22px)/1.1 Georgia,'Yu Mincho',serif!important;color:#fff2c7!important;text-shadow:0 2px 4px #001b43!important}
+#homeScreen #goTap span{font:900 clamp(14px,4.5vw,22px)/1.1 "Times New Roman",'Yu Mincho',serif!important;color:#fff2c7!important;text-shadow:0 2px 4px #001b43!important}
 #homeScreen #goTap small{font:500 clamp(7px,2vw,10px)/1.1 sans-serif!important;color:#d8f6ff!important;text-shadow:none!important}
 #homeScreen .home-nav{z-index:31!important}
 @media(max-height:700px){#homeScreen .dynamic-home-event{top:10%;height:8%}#homeScreen .dynamic-home-favorite{top:20%;bottom:28%}#homeScreen .home-action.mission-action,#homeScreen .home-action.gift-action{top:73%}}
@@ -1799,16 +1799,16 @@ button{font:inherit;color:inherit}
 #homeScreen .dynamic-home-hud>div{border:0!important;border-radius:0!important;box-shadow:none!important;padding:5px 7px!important;background-color:transparent!important;background-repeat:no-repeat!important;background-size:100% 100%!important;background-position:center!important}
 #homeScreen .dynamic-home-rank{background-image:url('../assets/4fce1c8b0637f075aa90.webp')!important;display:grid!important;grid-template-columns:37% 63%!important;grid-template-rows:42% 58%!important;column-gap:0!important;padding:11px 5px!important;}
 #homeScreen .home-rank-avatar{position:relative!important;top:auto!important;left:auto!important;grid-column:1!important;grid-row:1 / span 2!important;width:100%!important;height:auto!important;max-height:85%!important;object-fit:contain!important;align-self:center;border-radius:50%;border:1px solid #e9cc86!important;}
-#homeScreen .dynamic-home-rank small{grid-column:2!important;grid-row:1!important;font:700 clamp(8px,2.6vw,11px)/1 Georgia,serif!important;color:#ffe6a5!important;align-self:end!important;text-align:center!important;}
-#homeScreen .dynamic-home-rank strong{grid-column:2!important;grid-row:2!important;align-self:start!important;font:700 clamp(16px,5.0vw,27px)/1.1 Georgia,serif!important;color:#fff0b9!important;}
+#homeScreen .dynamic-home-rank small{grid-column:2!important;grid-row:1!important;font:700 clamp(8px,2.6vw,11px)/1 "Times New Roman",serif!important;color:#ffe6a5!important;align-self:end!important;text-align:center!important;}
+#homeScreen .dynamic-home-rank strong{grid-column:2!important;grid-row:2!important;align-self:start!important;font:700 clamp(16px,5.0vw,27px)/1.1 "Times New Roman",serif!important;color:#fff0b9!important;}
 #homeScreen .dynamic-home-power{background-image:url('../assets/24a9a64deef7e59aab5c.webp')!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;padding:13px 16px!important;gap:0!important;}
-#homeScreen .dynamic-home-power>small:first-child{font:700 clamp(9px,2.9vw,14px)/1.05 Georgia,serif!important;color:#fff2c6!important;}
-#homeScreen .dynamic-home-power>strong{font:700 clamp(19px,6vw,35px)/1.05 Georgia,serif!important;color:#ffefbf!important;}
+#homeScreen .dynamic-home-power>small:first-child{font:700 clamp(9px,2.9vw,14px)/1.05 "Times New Roman",serif!important;color:#fff2c6!important;}
+#homeScreen .dynamic-home-power>strong{font:700 clamp(19px,6vw,35px)/1.05 "Times New Roman",serif!important;color:#ffefbf!important;}
 #homeScreen .dynamic-home-power>small:last-child{font:700 clamp(7px,1.9vw,10px)/1.05 serif!important;color:#ccefff!important;}
 #homeScreen .dynamic-home-wallet{background-image:url('../assets/c1578361e2bc89ebbffc.webp')!important;display:flex!important;flex-direction:column!important;justify-content:center!important;padding:11px 13px 12px 20px!important;gap:0!important;}
 #homeScreen .dynamic-home-wallet>div{display:grid!important;grid-template-columns:50% 50%!important;min-height:37%!important;align-items:center!important;border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important;}
 #homeScreen .dynamic-home-wallet span{font:700 clamp(7px,2vw,11px)/1.1 sans-serif!important;color:#ecf9ff!important;}
-#homeScreen .dynamic-home-wallet strong{font:700 clamp(13px,4.4vw,26px)/1.1 Georgia,serif!important;color:#ffefb9!important;text-align:right!important;}
+#homeScreen .dynamic-home-wallet strong{font:700 clamp(13px,4.4vw,26px)/1.1 "Times New Roman",serif!important;color:#ffefb9!important;text-align:right!important;}
 /* Original side-menu artwork is retained. HTML buttons are invisible hotspots. */
 #homeScreen .home-action{z-index:24!important;width:24%!important;height:13%!important;pointer-events:auto!important;}
 #homeScreen .home-action.left{left:0!important}#homeScreen .home-action.right{right:0!important}
@@ -1911,16 +1911,16 @@ button{font:inherit;color:inherit}
  box-shadow:0 0 0 2px #142e50,0 0 0 3px #cf9d53,0 0 10px #4fd9ff7a!important;
 }
 #homeScreen .dynamic-home-rank small{grid-column:2!important;grid-row:1!important;align-self:end!important;font-size:clamp(9px,2.7vw,12px)!important;letter-spacing:.035em}
-#homeScreen .dynamic-home-rank strong{grid-column:2!important;grid-row:2!important;align-self:start!important;font:700 clamp(18px,5.3vw,26px)/1.04 Georgia,serif!important}
+#homeScreen .dynamic-home-rank strong{grid-column:2!important;grid-row:2!important;align-self:start!important;font:700 clamp(18px,5.3vw,26px)/1.04 "Times New Roman",serif!important}
 #homeScreen .dynamic-home-power{display:flex!important;flex-direction:column!important;justify-content:center!important;padding-top:8px!important;padding-bottom:3px!important}
-#homeScreen .dynamic-home-power>small:first-child{font:700 clamp(9px,2.5vw,11px)/1.1 Georgia,serif!important}
-#homeScreen .dynamic-home-power>strong{font:700 clamp(24px,7.3vw,38px)/1 Georgia,serif!important;letter-spacing:.01em!important}
+#homeScreen .dynamic-home-power>small:first-child{font:700 clamp(9px,2.5vw,11px)/1.1 "Times New Roman",serif!important}
+#homeScreen .dynamic-home-power>strong{font:700 clamp(24px,7.3vw,38px)/1 "Times New Roman",serif!important;letter-spacing:.01em!important}
 #homeScreen .dynamic-home-power>small:last-child{font-size:clamp(8px,2.2vw,10px)!important}
 #homeScreen .dynamic-home-wallet{display:flex!important;flex-direction:column!important;align-items:stretch!important;justify-content:center!important;padding:5px 3px 5px 9px!important;gap:0!important}
 #homeScreen .dynamic-home-wallet>div{width:100%!important;height:48%!important;min-height:0!important;display:grid!important;grid-template-columns:minmax(0,53%) minmax(0,47%)!important;align-items:center!important;gap:1px!important;margin:0!important;border:0!important;background:none!important;box-shadow:none!important;padding:0 3px!important}
 #homeScreen .dynamic-home-wallet>div:first-child{border-bottom:1px solid #cbaa647d!important}
 #homeScreen .dynamic-home-wallet span{font:700 clamp(8px,2.24vw,11px)/1 sans-serif!important;text-shadow:0 2px 3px #000!important;white-space:nowrap!important;letter-spacing:-.04em}
-#homeScreen .dynamic-home-wallet strong{justify-self:end!important;text-align:right!important;font:700 clamp(15px,4.65vw,27px)/1 Georgia,serif!important;letter-spacing:-.02em!important}
+#homeScreen .dynamic-home-wallet strong{justify-self:end!important;text-align:right!important;font:700 clamp(15px,4.65vw,27px)/1 "Times New Roman",serif!important;letter-spacing:-.02em!important}
 /* Home event stays painted once; new dummy label hidden. */
 #homeScreen .dynamic-home-event,#homeScreen .dynamic-home-transfer{display:none!important}
 /* A luminous gilded character mirror: physically anchors the portrait in the room. */
@@ -2051,17 +2051,17 @@ button{font:inherit;color:inherit}
 #homeScreen .v5-avatar-ring img{display:block!important;width:100%;height:100%;object-fit:contain;}
 #homeScreen .v5-avatar-ring img[hidden]{display:none!important}
 #homeScreen .v5-rank-copy{min-width:0;display:flex;flex:1;flex-direction:column;align-items:center;justify-content:center;gap:0;}
-#homeScreen .v5-rank-copy span{font:700 clamp(9px,2.6vw,12px)/1.25 Georgia,serif;white-space:nowrap}
-#homeScreen .v5-rank-copy strong{font:700 clamp(18px,5.5vw,27px)/1.1 Georgia,serif;max-width:100%;white-space:nowrap;color:#fff1bd}
+#homeScreen .v5-rank-copy span{font:700 clamp(9px,2.6vw,12px)/1.25 "Times New Roman",serif;white-space:nowrap}
+#homeScreen .v5-rank-copy strong{font:700 clamp(18px,5.5vw,27px)/1.1 "Times New Roman",serif;max-width:100%;white-space:nowrap;color:#fff1bd}
 #homeScreen .v5-hud-power{display:flex;flex-direction:column;align-items:center;justify-content:center;}
-#homeScreen .v5-hud-power span{font:700 clamp(10px,2.8vw,13px)/1.2 Georgia,serif;}
-#homeScreen .v5-hud-power strong{font:700 clamp(23px,7.3vw,38px)/1 Georgia,serif;letter-spacing:.015em;color:#fff1bd;white-space:nowrap;max-width:100%;overflow:hidden;font-variant-numeric:tabular-nums;}
-#homeScreen .v5-hud-power small{font:700 clamp(8px,2.1vw,10px)/1.15 Georgia,serif;color:#d4f3ff;}
+#homeScreen .v5-hud-power span{font:700 clamp(10px,2.8vw,13px)/1.2 "Times New Roman",serif;}
+#homeScreen .v5-hud-power strong{font:700 clamp(23px,7.3vw,38px)/1 "Times New Roman",serif;letter-spacing:.015em;color:#fff1bd;white-space:nowrap;max-width:100%;overflow:hidden;font-variant-numeric:tabular-nums;}
+#homeScreen .v5-hud-power small{font:700 clamp(8px,2.1vw,10px)/1.15 "Times New Roman",serif;color:#d4f3ff;}
 #homeScreen .v5-hud-wallet{display:flex;flex-direction:column;justify-content:center;padding-left:8px;}
 #homeScreen .v5-hud-wallet>div{width:100%;height:47%;min-height:0;display:grid;grid-template-columns:minmax(0,54%) minmax(0,46%);align-items:center;gap:0;}
 #homeScreen .v5-hud-wallet>div:first-child{border-bottom:1px solid #d4bc797c;}
 #homeScreen .v5-hud-wallet span{min-width:0;font:700 clamp(8px,2.3vw,11px)/1 sans-serif;letter-spacing:-.055em;white-space:nowrap;}
-#homeScreen .v5-hud-wallet strong{font:700 clamp(16px,4.7vw,25px)/1 Georgia,serif;text-align:right;color:#ffefbb;overflow:hidden;white-space:nowrap;font-variant-numeric:tabular-nums;}
+#homeScreen .v5-hud-wallet strong{font:700 clamp(16px,4.7vw,25px)/1 "Times New Roman",serif;text-align:right;color:#ffefbb;overflow:hidden;white-space:nowrap;font-variant-numeric:tabular-nums;}
 #homeScreen .dynamic-home-favorite{bottom:40%!important}
 #homeScreen .home-change-favorite{top:1%!important;right:-8%!important;width:40%!important;}
 @media (max-height:650px){#homeScreen .dynamic-home-favorite{top:21.5%!important;bottom:40%!important}}
@@ -2255,7 +2255,7 @@ button{font:inherit;color:inherit}
  color:#ffedc1!important;text-shadow:0 2px 4px #011d3e,0 0 6px #5aaeff9b!important;
  box-shadow:0 0 0 3px #102d51b6,0 0 0 4px #dabc80c4,0 5px 10px #10233884,inset 0 0 9px #9de7ff70!important;
 }
-#homeScreen #goTap span{display:block;font:700 clamp(17px,5.5vw,29px)/1.1 Georgia,"Yu Mincho",serif;white-space:nowrap;}
+#homeScreen #goTap span{display:block;font:700 clamp(17px,5.5vw,29px)/1.1 "Times New Roman","Yu Mincho",serif;white-space:nowrap;}
 #homeScreen #goTap small{display:block;font-size:clamp(7px,2.2vw,10px);margin-top:3px;white-space:nowrap;color:#def6ff;}
 #homeScreen #goTap:before{content:'✦';position:absolute;left:-10px;top:33%;color:#e5f7ff;font-size:19px;text-shadow:0 0 8px #32b7ff;}
 #homeScreen #goTap:after{content:'✦';position:absolute;right:-10px;top:33%;color:#e5f7ff;font-size:19px;text-shadow:0 0 8px #32b7ff;}
@@ -2302,12 +2302,12 @@ button{font:inherit;color:inherit}
 #homeScreen .kit-top{position:absolute;left:0;right:0;top:0;z-index:80;height:12%;display:grid;grid-template-columns:29% 37% 34%;align-items:stretch;background:linear-gradient(180deg,#04162ebf,#082a4a88 78%,#061e3480);border-bottom:1px solid #dec88b9e;box-shadow:0 4px 10px #06132f3b;color:#fff2c8;pointer-events:none}
 #homeScreen .kit-top>div{position:relative;min-width:0;min-height:0}
 #homeScreen .kit-hud-art{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;pointer-events:none}
-#homeScreen .kit-top strong{position:absolute;z-index:2;white-space:nowrap;font-family:Georgia,'Yu Mincho',serif;color:#fff2c4;text-shadow:0 2px 3px #00172e,0 0 5px #0b366d;font-variant-numeric:tabular-nums}
+#homeScreen .kit-top strong{position:absolute;z-index:2;white-space:nowrap;font-family:"Times New Roman",'Yu Mincho',serif;color:#fff2c4;text-shadow:0 2px 3px #00172e,0 0 5px #0b366d;font-variant-numeric:tabular-nums}
 #homeScreen .kit-rank-avatar{position:absolute;left:8.7%;top:25%;height:47%;width:35%;border-radius:50%;object-fit:cover;z-index:2;filter:saturate(.85);border:1px solid #ffecc6;box-shadow:0 0 6px #67c9ff88}
 #homeScreen .kit-rank-avatar[hidden],#homeScreen .kit-rank-avatar:not([src]){display:none!important}
 #homeScreen .kit-rank-number{left:55%;right:13%;text-align:center;top:51%;font-size:clamp(17px,5.0vw,29px);line-height:1}
 #homeScreen #homeTapPower{left:10%;right:10%;top:46%;font-size:clamp(20px,6.4vw,34px);text-align:center;line-height:1}
-#homeScreen .kit-power-unit{position:absolute;top:72%;width:100%;text-align:center;z-index:2;font:700 clamp(7px,1.85vw,10px)/1 Georgia,serif;color:#d9efff;text-shadow:0 1px 3px #000}
+#homeScreen .kit-power-unit{position:absolute;top:72%;width:100%;text-align:center;z-index:2;font:700 clamp(7px,1.85vw,10px)/1 "Times New Roman",serif;color:#d9efff;text-shadow:0 1px 3px #000}
 #homeScreen .kit-wallet .kit-pt-label,#homeScreen .kit-wallet .kit-keys-label{position:absolute;z-index:2;left:22%;color:#e8f6ff;font:700 clamp(7px,2vw,11px)/1.2 'Yu Gothic',sans-serif;text-shadow:0 1px 3px #000}
 #homeScreen .kit-wallet .kit-pt-label{top:36%}#homeScreen .kit-wallet .kit-keys-label{top:64%}
 #homeScreen #homePT,#homeScreen #homeKeys{left:49%;right:10%;text-align:right;font-size:clamp(14px,4.5vw,26px);line-height:1}
@@ -2377,7 +2377,7 @@ button{font:inherit;color:inherit}
  box-shadow:0 0 0 3px #143759c9,0 0 9px #4aa6ed88!important;object-fit:cover!important;
 }
 #homeScreen .v9-rank-label,#homeScreen .v9-power-label{
- position:absolute;z-index:3;display:block;font-family:Georgia,'Yu Mincho',serif;
+ position:absolute;z-index:3;display:block;font-family:"Times New Roman",'Yu Mincho',serif;
  color:#fff1ca;text-shadow:0 1px 4px #00162c,0 0 6px #0d4a7a;
  line-height:1.05;white-space:nowrap;font-weight:700;
 }
@@ -2651,7 +2651,7 @@ button{font:inherit;color:inherit}
 #homeScreen #homeTapPower,
 #homeScreen #homePT,
 #homeScreen #homeKeys{
-  font-family:Georgia,"Times New Roman",serif!important;
+  font-family:"Times New Roman",serif!important;
   font-weight:400!important;
   font-variant-numeric:lining-nums tabular-nums!important;
   letter-spacing:-.035em!important;

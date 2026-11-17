@@ -131,7 +131,7 @@
   position: absolute;
   white-space: nowrap;
   color: #fff1c4;
-  font: 800 22px/1.15 Georgia, serif;
+  font: 800 22px/1.15 "Times New Roman",serif;
   text-shadow: 0 2px 2px #112444, 0 0 10px var(--impact-color), 1px 0 #112444, -1px 0 #112444;
 }
 .stage-impact-heal { color: #bbffc2; }

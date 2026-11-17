@@ -2,7 +2,7 @@
   --dex-brass: #b99a69;
   --dex-line: #b99a6966;
   --dex-cream: #f5e7cd;
-  --dex-serif: Georgia, "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif CJK JP", serif;
+  --dex-serif: "Times New Roman","Hiragino Mincho ProN", "Yu Mincho", "Noto Serif CJK JP", serif;
   --dex-frame: url("../assets/dex-gold-frame.webp");
   overflow: hidden;
   background: #07172e;
@@ -343,5 +343,5 @@
   z-index: 92;
   color: #fff7e3;
   background: #06192b60;
-  font: 700 8px / 1 Georgia, serif !important;
+  font: 700 8px / 1 "Times New Roman",serif !important;
 }

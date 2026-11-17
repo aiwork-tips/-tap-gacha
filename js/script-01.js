@@ -403,9 +403,15 @@
     el.style.fontSize = base + 'px';
     let w = 0;
     try{ w = el.getComputedTextLength(); }catch(e){ return; }
+    let size = base;
     if(w > maxW && w > 0){
-      const s = Math.max(min, Math.floor(base * maxW / w * 10) / 10);
-      el.style.fontSize = s + 'px';
+      size = Math.max(min, Math.floor(base * maxW / w * 10) / 10);
+      el.style.fontSize = size + 'px';
+    }
+    // UI-FIX: 縮小しても数字の見た目の中心がずれないよう、ベースラインを補正
+    if(el.dataset && el.dataset.cy){
+      const k = Number(el.dataset.k || 0.331);
+      el.setAttribute('y', String(Math.round((Number(el.dataset.cy) + k * size) * 10) / 10));
     }
   }
   function fitAll(){
@@ -414,7 +420,7 @@
     fitSvg(powerBox,240,46,22);
     fitSvg(ptEl,172,38,18);
     fitSvg(keysEl,82,30,16);
-    fitSvg(comboEl,250,80,30);
+    fitSvg(comboEl,225,80,30);
     fitSvg(progressLabel,110,24,16);
     let labelW = 96;
     try{ labelW = progressLabel.getComputedTextLength() || 96; }catch(e){}
@@ -1484,6 +1490,7 @@
   function openSharedMenu(name, pendingSuffix = ' は次工程で接続'){
     const target = sharedMenuRoutes[name];
     if(target) showScreen(target);
+    else if(name === 'その他') showToast('その他 は次工程で接続（' + (document.getElementById('devBuildLabel')||{}).textContent + '）');
     else showToast(name + pendingSuffix);
   }
 
@@ -1516,7 +1523,7 @@
       else beginParty();
     }else partyFeedback();
     if(!toQuest)closeQuestReward();
-    document.getElementById('devBuildLabel').style.display=toQuest||toBattle?'none':'';
+    document.getElementById('devBuildLabel').style.display=toHome?'':'none';
     if(toQuest)renderQuest();
     if(toShop) renderShop();
     else clearTimeout(shopRewardResetTimer);
@@ -1558,8 +1565,11 @@
     const span = target-prev;
     const percent = (target===1000 && combo>=1000) ? 100 : Math.min(100,(within/span)*100);
 
-    progressNow.textContent = fmt(combo);
-    progressTarget.textContent = fmt(target);
+    // UI-FIX: 全宝箱の条件達成後は「1,782/1,000」ではなく MAX と表示
+    const allReached = combo >= targets[targets.length-1];
+    progressNow.textContent = allReached ? 'MAX' : fmt(combo);
+    progressNow.nextElementSibling.textContent = allReached ? '' : '/';
+    progressTarget.textContent = allReached ? '' : fmt(target);
     progressFill.setAttribute('width', String(226 * percent / 100));
     requestAnimationFrame(fitAll);
   }

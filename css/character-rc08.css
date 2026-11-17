@@ -3,7 +3,7 @@
   --char-gold: #e4b962;
   --char-cream: #fff1c7;
   --char-ice: #84edff;
-  --char-serif: Georgia, "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif CJK JP", serif;
+  --char-serif: "Times New Roman","Hiragino Mincho ProN", "Yu Mincho", "Noto Serif CJK JP", serif;
   --char-control-face: radial-gradient(ellipse at 50% 115%, #1d70aa, transparent 71%),
     linear-gradient(165deg, #28648e, #0c3562 42%, #061b38 57%);
   --char-control-bevel: inset 0 1px #ffedb3a6, inset 0 -2px #ac744b9e,
@@ -637,7 +637,7 @@
   z-index: 92;
   color: #fff7e3;
   background: #06192b60;
-  font: 700 8px / 1 Georgia, serif !important;
+  font: 700 8px / 1 "Times New Roman",serif !important;
 }
 @media (max-height: 620px) {
   #characterScreen .char-info { gap: 2px !important; padding-top: 0 !important; }

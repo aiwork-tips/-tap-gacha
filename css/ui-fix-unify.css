@@ -1,0 +1,49 @@
+:root{
+  --uifix-num:"Times New Roman","Hiragino Mincho ProN","Yu Mincho",serif;
+  --uifix-num-color:#fff0b2;
+}
+/* 1) 主要な数字はすべて同じ書体・太さ・色（タップ画面と同じ） */
+html body #homeScreen #homePT, html body #homeScreen #homeKeys,
+html body #homeScreen #homeTapPower, html body #homeScreen .kit-rank-number,
+html body #gachaScreen #gachaPT,
+html body #characterScreen #charPT, html body #characterScreen #charOwned,
+html body #characterScreen #charTotalLevels, html body #characterScreen #charTapPower,
+html body #dexScreen #dexOwnedCount,
+html body #shopScreen #shopPT, html body #shopScreen #shopKeys,
+html body #questScreen #questPT, html body #questScreen #questClaimed{
+  font-family:var(--uifix-num)!important;
+  font-weight:700!important;
+  color:var(--uifix-num-color)!important;
+  font-variant-numeric:lining-nums tabular-nums!important;
+  font-feature-settings:"lnum" 1,"tnum" 1!important;
+  letter-spacing:0!important;
+}
+html body #tapScreen .v15-number{translate:none!important}
+
+/* 2) ホームの小さすぎるラベルを読める大きさに */
+html body #homeScreen .kit-wallet .kit-pt-label,
+html body #homeScreen .kit-wallet .kit-keys-label{font-size:9px!important}
+html body #homeScreen .kit-event small{font-size:9px!important}
+html body #homeScreen #goTap.kit-awakening>.v117-copy small{font-size:8.5px!important}
+html body #gachaScreen .gacha-draw>span{font-size:9px!important}
+
+/* 3) 転移門：小見出しが枠の下にはみ出さないよう、内側の青い面の中央に固定 */
+html body #homeScreen .kit-transfer>span{
+  position:absolute!important;left:0;right:0;top:52.5%;
+  transform:translateY(-50%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  line-height:1.05!important;
+}
+html body #homeScreen .kit-transfer small{font-size:8.5px!important;line-height:1.05!important;margin-top:1px}
+
+/* 4) 開発版ラベル：ホーム画面だけ、転移門の下の空いた場所に1つだけ表示 */
+html body #shopScreen .shop-version,
+html body #questScreen .quest-version{display:none!important}
+html body #app:has(#homeScreen.active) #devBuildLabel{
+  top:calc(22.6% + 3px)!important;bottom:auto!important;
+  right:3%!important;left:auto!important;width:27%;
+  text-align:center;padding:1px 0!important;
+  font:600 8px/1.2 -apple-system,BlinkMacSystemFont,"Hiragino Sans",sans-serif!important;
+  color:rgba(232,244,255,.9)!important;background:rgba(5,23,41,.5)!important;
+  z-index:30!important;
+}
