@@ -14,6 +14,8 @@
   const battleNumber = value => value >= 1e15 ? Math.round(value / 1e12) + '兆' : compactNumber.format(value);
   const percent = unit => Math.min(100, Math.ceil(100 * unit.hp / unit.maxHp));
   const autoAdvanceDelay = 1000;
+  const imageLoadTimeout = 12000;
+  const skillNoticeDuration = 3000;
 
   function createController(root, onBack, onClear) {
     const get = id => root.querySelector('#' + id);
@@ -45,7 +47,9 @@
     let frame = 0;
     let lastUpdate = 0;
     let loadGeneration = 0;
-    let latestSkill = '';
+    let suspensionCount = 0;
+    let cancelLoad;
+    let latestSkill = null;
     let stage = null;
     let clear = null;
     let auto = false;
@@ -189,9 +193,10 @@
       }
       const survivorCount = finished ? state.allies.filter(ally => ally.hp > 0).length : 0;
       const survivorSummary = survivorCount + ' / ' + state.allies.length + '体';
+      const skillNotice = latestSkill && state.time < latestSkill.until ? latestSkill.text : '';
       const text = {
         loading: '戦闘の準備中…', ready: '戦闘開始を押してください',
-        running: latestSkill || (auto ? 'AUTO連戦中 · スキルはタップ' : '通常攻撃は自動 · スキルはタップ'),
+        running: skillNotice || (auto ? 'AUTO連戦中 · スキルはタップ' : '通常攻撃は自動 · スキルはタップ'),
         paused: '一時停止中', error: '画像を読み込めませんでした',
         victory: '勝利 · 生存 ' + survivorSummary,
         defeat: '敗北 · もう一度挑戦できます'
@@ -234,7 +239,7 @@
 
     function playEffects(events) {
       if (!events.length) return;
-      const spell = events.findLast(event => event.skill);
+      const spell = events.findLast(event => event.skill && !event.periodic);
       if (spell) {
         const caster = battle.state.allies.find(ally => ally.id === spell.from);
         const messages = {
@@ -245,7 +250,7 @@
           curse: '被スキルダメージ＋15％（6秒）', execute: '敵のHP30％以下で威力上昇',
           ward: '味方全員が被弾1回無効（4秒）', cover: '自己回復＋次の通常攻撃をかばう'
         };
-        latestSkill = caster.skill.name + ' · ' + messages[caster.skill.kind];
+        latestSkill = { text: caster.skill.name + ' · ' + messages[caster.skill.kind], until: spell.time + skillNoticeDuration };
       }
       if (motion.matches) return;
       const scene = field.getBoundingClientRect();
@@ -359,6 +364,7 @@
     function prepare(members, isTrial, difficulty, stageNumber) {
       const nextBattle = rules.createBattle(members, difficulty, stageNumber ?? 1);
       const generation = ++loadGeneration;
+      cancelLoad?.();
       cancelFrame();
       clearEffects();
       actors.replaceChildren();
@@ -369,7 +375,7 @@
       trial = isTrial;
       stage = stageNumber;
       clear = null;
-      latestSkill = '';
+      latestSkill = null;
       mode = 'loading';
       const images = [];
       battle.state.allies.forEach((ally, index) => {
@@ -378,18 +384,20 @@
       });
       images.push(actor(battle.state.enemy, 76, 72, true));
       render();
-      return Promise.all(images.map(image => image.decode())).then(() => {
+      let timeoutId;
+      const timedOut = new Promise(resolve => {
+        cancelLoad = () => resolve(false);
+        timeoutId = setTimeout(cancelLoad, imageLoadTimeout);
+      });
+      const decoded = Promise.all(images.map(image => image.decode())).then(() => true, () => false);
+      return Promise.race([decoded, timedOut]).then(ready => {
+        clearTimeout(timeoutId);
         if (generation !== loadGeneration) return false;
-        mode = 'ready';
+        cancelLoad = undefined;
+        if (!ready) stopAuto();
+        mode = ready ? 'ready' : 'error';
         render();
-        return true;
-      }, () => {
-        if (generation === loadGeneration) {
-          stopAuto();
-          mode = 'error';
-          render();
-        }
-        return false;
+        return ready;
       });
     }
 
@@ -402,9 +410,10 @@
       if (!battle || mode === 'loading') return;
       clearTimeout(advanceTimer);
       advanceTimer = undefined;
+      const previousSuspensions = suspensionCount;
       const members = battle.state.allies.map(({ id, level }) => ({ id, level }));
       prepare(members, trial, battle.state.difficulty, stageNumber).then(ready => {
-        if (ready && restart && (!requiresAuto || auto)) start();
+        if (ready && restart && previousSuspensions === suspensionCount && (!requiresAuto || auto)) start();
       });
     }
 
@@ -420,6 +429,8 @@
 
     function close() {
       loadGeneration++;
+      cancelLoad?.();
+      cancelLoad = undefined;
       stopAuto();
       cancelFrame();
       clearEffects();
@@ -440,7 +451,7 @@
     autoButton.addEventListener('click', () => {
       if (stage === null) return;
       auto = !auto;
-      if (auto && mode === 'ready') start();
+      if (auto) start();
       render();
     });
     speedButton.addEventListener('click', () => {
@@ -453,6 +464,7 @@
     resultAction.addEventListener('click', resultClick);
     get('stageBack').addEventListener('click', onBack);
     function suspendBattle() {
+      suspensionCount++;
       stopAuto();
       pause(false);
       if (battle) render();
