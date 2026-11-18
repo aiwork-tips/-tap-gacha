@@ -534,6 +534,13 @@
   font: 650 12px/1.2 var(--party-sans);
 }
 
+#partyScreen .party-clear-reward {
+  margin: 4px 0 0;
+  color: #ffe7b5;
+  text-align: center;
+  font: 650 11px/1.25 var(--party-sans);
+}
+
 #partyScreen .party-result {
   position: absolute;
   z-index: 5;

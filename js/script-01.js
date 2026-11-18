@@ -1158,6 +1158,9 @@
   const partyConfirm = homeEl('partyConfirm');
   const partyBattle = homeEl('partyBattle');
   const partyDifficulty = homeEl('partyDifficulty');
+  const partyClearReward = homeEl('partyClearReward');
+  const campaignClearRewards = Object.freeze({normal:50,training:100});
+  partyDifficulty.value=gameSave.campaignDifficulty==='training'?'training':'normal';
   const partyStatsDialog = homeEl('partyStatsDialog');
   const partySlotTemplate = homeEl('partySlotTemplate');
   const partyCandidateTemplate = homeEl('partyCandidateTemplate');
@@ -1188,7 +1191,7 @@
     if(!rewardPreview||stage!==clearedCampaignStages()+1||stage>partyRules.campaignStageCount)return null;
     const previousCount=gameSave.campaignClearedStages;
     const previousPoints=pt;
-    const points=difficulty==='training'?100:50;
+    const points=campaignClearRewards[difficulty];
     gameSave.campaignClearedStages=stage;
     pt+=points;
     if(!saveUnified()){
@@ -1407,7 +1410,29 @@
     partyBattle.textContent=completed?'全ステージ突破':canLaunch?'第'+next+'ステージへ':'お試し戦闘';
     partyBattle.title=canLaunch?partyBattle.textContent:'アルム・鉄骸兵・クロウルのLv1編成で試す';
     partyDifficulty.disabled=completed;
+    partyClearReward.hidden=!canLaunch||completed;
+    renderPartyClearReward();
   }
+  function renderPartyClearReward(){
+    partyClearReward.textContent=`クリア報酬 ${campaignClearRewards[partyDifficulty.value]} PT`;
+  }
+  partyDifficulty.addEventListener('change',()=>{
+    const difficulty=partyDifficulty.value;
+    const previous=gameSave.campaignDifficulty;
+    if(!Object.hasOwn(campaignClearRewards,difficulty)){
+      partyDifficulty.value=previous==='training'?'training':'normal';
+      return;
+    }
+    if(saveRecoveryBlocked)return;
+    gameSave.campaignDifficulty=difficulty;
+    if(!saveUnified()){
+      if(previous===undefined)delete gameSave.campaignDifficulty;
+      else gameSave.campaignDifficulty=previous;
+      partyDifficulty.value=previous==='training'?'training':'normal';
+      partyFeedback('難度を保存できませんでした。');
+    }else partyFeedback();
+    renderPartyClearReward();
+  });
   partyBattle.addEventListener('click',()=>{
     if(!rewardPreview||partyBattle.disabled)return;
     const members=partyForBattle();
