@@ -86,14 +86,25 @@
       bar.className = 'stage-field-hp';
       bar.setAttribute('aria-hidden', 'true');
       node.append(sprite, bar);
+      let shieldMeter;
       if (enemy) {
         const caption = document.createElement('span');
         caption.className = 'stage-enemy-caption';
         caption.textContent = unit.name;
         node.append(caption);
+        if (unit.openingShield > 0) {
+          shieldMeter = document.createElement('span');
+          shieldMeter.className = 'stage-boss-shield';
+          shieldMeter.setAttribute('role', 'meter');
+          shieldMeter.setAttribute('aria-label', 'ボスのシールド');
+          shieldMeter.setAttribute('aria-valuemin', '0');
+          shieldMeter.setAttribute('aria-valuemax', unit.openingShield);
+          shieldMeter.append(document.createElement('span'));
+          node.append(shieldMeter);
+        }
       }
       actors.append(node);
-      actorViews.set(unit.id, { node, sprite });
+      actorViews.set(unit.id, { node, sprite, shieldMeter });
       return sprite;
     }
 
@@ -161,10 +172,16 @@
         (state.time < state.enemy.curseUntil && !state.result ? ' · 呪い' : ''));
       const front = state.allies.find(ally => ally.hp > 0);
       for (const unit of [...state.allies, state.enemy]) {
-        const { node } = actorViews.get(unit.id);
+        const { node, shieldMeter } = actorViews.get(unit.id);
         node.style.setProperty('--stage-hp', percent(unit) + '%');
         node.dataset.defeated = String(unit.hp === 0);
         node.dataset.shielded = String(unit.hp > 0 && (unit.shield > 0 || state.time < unit.wardUntil));
+        if (shieldMeter) {
+          shieldMeter.hidden = unit.shield === 0;
+          shieldMeter.setAttribute('aria-valuenow', unit.shield);
+          shieldMeter.style.setProperty('--stage-shield', 100 * unit.shield / unit.openingShield + '%');
+          setText(shieldMeter.firstElementChild, '盾 ' + formatNumber.format(unit.shield));
+        }
       }
       for (const ally of state.allies) {
         const view = cardViews.get(ally.id);
@@ -270,6 +287,7 @@
           : event.kind === 'rally' ? '攻撃強化'
           : event.kind === 'ward' ? '結界'
           : event.kind === 'cover' ? 'かばう'
+          : event.blocked > 0 && event.amount === 0 && event.to === battle.state.enemy.id ? '盾 −' + event.blocked
           : event.periodic ? '炎 −' + amount
           : event.kind === 'shield' ? '盾 +' + amount
           : event.kind === 'heal' ? '+' + amount

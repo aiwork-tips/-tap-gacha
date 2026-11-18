@@ -82,6 +82,11 @@
     id: 'guardian', name: '水晶の守護者', maxHp: 360, attack: 26,
     sprite: 'assets/rc25-guardian.webp', color: '#72e4ff'
   };
+  const armoredGuardian = {
+    ...guardian, name: '重装の守護者',
+    sprite: 'assets/rc46-armored-guardian.webp', color: '#8ddcfa',
+    shieldRatio: 0.3
+  };
   const difficulties = Object.freeze({
     normal: Object.freeze({ maxHp: guardian.maxHp, attack: guardian.attack }),
     training: Object.freeze({ maxHp: 750, attack: 34 })
@@ -141,9 +146,11 @@
     });
     const baseline = difficulties[difficulty];
     const maxHp = Math.round(baseline.maxHp * stageHpGrowth ** (stageNumber - 1));
+    const enemyProfile = stageNumber === 10 ? armoredGuardian : guardian;
+    const openingShield = Math.round(maxHp * (enemyProfile.shieldRatio ?? 0));
     const enemy = {
-      ...guardian, maxHp, hp: maxHp, attack: Math.round(baseline.attack * stageAttackGrowth ** (stageNumber - 1)),
-      shield: 0, attackDelayed: false, curseUntil: 0
+      ...enemyProfile, maxHp, hp: maxHp, attack: Math.round(baseline.attack * stageAttackGrowth ** (stageNumber - 1)),
+      openingShield, shield: openingShield, attackDelayed: false, curseUntil: 0
     };
     const state = { allies, enemy, difficulty, time: 0, result: null, queuedSkill: null, rallyUntil: 0 };
     let nextAllyAttack = allyInterval;

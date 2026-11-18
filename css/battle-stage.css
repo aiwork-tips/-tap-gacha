@@ -126,6 +126,29 @@
 }
 .stage-enemy .stage-field-hp { left: 18%; right: 18%; height: 6px; }
 .stage-enemy .stage-field-hp::before { background: linear-gradient(90deg, #dc5451, #ffb47d); }
+.stage-boss-shield {
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  bottom: -20px;
+  height: 12px;
+  overflow: hidden;
+  border-radius: 4px;
+  background: #102540;
+  box-shadow: 0 0 0 1px #5e9cb2;
+  text-align: center;
+  color: #effcff;
+  font: 750 9px/12px system-ui;
+  text-shadow: 0 1px 2px #04182c;
+}
+.stage-boss-shield::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--stage-shield);
+  background: linear-gradient(90deg, #257dad, #62c9e9);
+}
+.stage-boss-shield > span { position: relative; }
 .stage-effects { z-index: 4; overflow: hidden; }
 .stage-impact {
   position: absolute;
