@@ -87,6 +87,8 @@
     training: Object.freeze({ maxHp: 750, attack: 34 })
   });
   const campaignStageCount = 30;
+  const stageHpGrowth = 1.14;
+  const stageAttackGrowth = 1.11;
   const allyInterval = 2000;
   const enemyInterval = 2500;
   const animationWindow = 480;
@@ -138,9 +140,9 @@
       };
     });
     const baseline = difficulties[difficulty];
-    const maxHp = Math.round(baseline.maxHp * 1.22 ** (stageNumber - 1));
+    const maxHp = Math.round(baseline.maxHp * stageHpGrowth ** (stageNumber - 1));
     const enemy = {
-      ...guardian, maxHp, hp: maxHp, attack: Math.round(baseline.attack * 1.17 ** (stageNumber - 1)),
+      ...guardian, maxHp, hp: maxHp, attack: Math.round(baseline.attack * stageAttackGrowth ** (stageNumber - 1)),
       shield: 0, attackDelayed: false, curseUntil: 0
     };
     const state = { allies, enemy, difficulty, time: 0, result: null, queuedSkill: null, rallyUntil: 0 };
