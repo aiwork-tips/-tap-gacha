@@ -666,7 +666,7 @@
   z-index: 3;
 }
 
-#partyScreen .party-stats-art { height: clamp(178px, 48dvh, 315px); }
+#partyScreen .party-stats-art { height: clamp(130px, 36dvh, 295px); }
 #partyScreen .party-stats-art::before {
   bottom: 16px;
   width: 99%;
@@ -785,3 +785,6 @@
   #partyScreen .party-slot-arriving img,
   #partyScreen .party-stats-dialog[open] img { animation: none; transition: none; }
 }
+
+#partyScreen #partyStatsSkill { margin: 6px 4px; }
+#partyScreen #partyStatsSkill p { margin-top: 4px; }

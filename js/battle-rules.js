@@ -144,6 +144,33 @@
     return ['c002', 'c001', 'c003'].map(id => ({ id, level: 1 }));
   }
 
+  function characterSkill(id) {
+    if (!supports(id)) return null;
+    const skill = characters[id].skill;
+    const seconds = ms => ms / 1000 + '秒';
+    const percent = ratio => Math.round(ratio * 100) + '%';
+    const power = '攻撃力×' + skill.multiplier;
+    const hit = power + 'のダメージ。';
+    const duration = seconds(skill.duration);
+    let description;
+    switch (skill.kind) {
+      case 'heal': description = '残りHPの割合が最も低い味方1体を' + power + '回復。'; break;
+      case 'healAll': description = '戦闘不能の味方を除き、味方全体を' + power + '回復。'; break;
+      case 'shield': description = duration + '間、味方全体に使用者の最大HPの' + percent(skill.multiplier) + '分の盾を付与。'; break;
+      case 'hit': description = hit; break;
+      case 'combo': description = '合計' + power + 'のダメージを' + skill.hits + '連撃で与える。'; break;
+      case 'weaken': description = hit + duration + '間、敵の攻撃力を' + percent(skill.reduction) + '下げる。'; break;
+      case 'burn': description = hit + 'その後、' + seconds(burnInterval) + 'ごとに攻撃力×' + skill.tickMultiplier + 'の燃焼ダメージを' + skill.ticks + '回与える。'; break;
+      case 'delay': description = hit + '敵の次の攻撃を' + seconds(skill.delay) + '遅らせる。'; break;
+      case 'rally': description = duration + '間、味方全体の通常攻撃を' + percent(skill.multiplier - 1) + '強化。'; break;
+      case 'curse': description = hit + duration + '間、敵が受けるスキル・燃焼ダメージを' + percent(skill.vulnerability - 1) + '増やす。'; break;
+      case 'execute': description = hit + '敵の残りHPが' + percent(skill.threshold) + '以下なら攻撃力×' + skill.lowHpMultiplier + '。'; break;
+      case 'ward': description = duration + '間、味方それぞれの被弾を1回無効にする。'; break;
+      case 'cover': description = '自分のHPを' + power + '回復。' + duration + '以内の敵の次の攻撃をかばう。'; break;
+    }
+    return { name: skill.name, description, cooldown: seconds(skill.cooldown) };
+  }
+
   function characterStats(id, rawLevel) {
     if (!supports(id)) return null;
     const profile = characters[id];
@@ -411,5 +438,5 @@
     return { state, advanceTo, requestSkill, skillStatus, enemyAttack, enemyAttackPower, enemyEnraged, thunderWarning };
   }
 
-  globalThis.TapGachaBattle = Object.freeze({ supports, sampleParty, characterArt, characterStats, createBattle, stagesPerChapter, chapterForStage, campaignEncounter });
+  globalThis.TapGachaBattle = Object.freeze({ supports, sampleParty, characterArt, characterStats, characterSkill, createBattle, stagesPerChapter, chapterForStage, campaignEncounter });
 })();

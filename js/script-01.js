@@ -1099,6 +1099,14 @@
     if(btn.classList.contains('kit-transfer') && rewardPreview)showScreen('party');
     else showToast(btn.dataset.homePlanned+' は次工程で接続');
   }));
+  function renderCharacterSkill(panel,id){
+    const skill=window.TapGachaBattle.characterSkill(id);
+    panel.hidden=!skill;
+    if(!skill)return;
+    panel.querySelector('strong').textContent=skill.name;
+    panel.querySelector('span').textContent='再使用 '+skill.cooldown;
+    panel.querySelector('p').textContent=skill.description;
+  }
   charEl('charDetailButton').addEventListener('click',()=>{
     const character=GACHA_CHARACTERS.find(c=>c.id===selectedCharId) || GACHA_CHARACTERS[0];
     const record=currentRecord(character.id);
@@ -1110,10 +1118,11 @@
     charEl('charDetailStats').hidden=!stats;
     charEl('charDetailHP').textContent=stats?fmt(stats.maxHp):'';
     charEl('charDetailAttack').textContent=stats?fmt(stats.attack):'';
+    renderCharacterSkill(charEl('charDetailSkill'),stats?character.id:null);
     charEl('charDetailLore').textContent=record.owned?character.lore:'このキャラを召喚すると、記録が解放されます。';
     const dialog=charEl('charDetailDialog');
     dialog.showModal();
-    dialog.querySelector('.profile-lore').scrollTop=0;
+    dialog.querySelector('.profile-detail-body').scrollTop=0;
   });
 
   // Keep login claims inside the same isolated save as the reward preview.
@@ -1360,6 +1369,7 @@
       partyStatNumber.format(stats.maxHp));
     writeHudText(homeEl('partyStatsAttack'),stats.attack<1e7?partyStatNumber.format(stats.attack):partyDisplayStat(stats.attack),
       partyStatNumber.format(stats.attack));
+    renderCharacterSkill(homeEl('partyStatsSkill'),character.id);
     partyStatsTrigger=trigger;
     partyStatsDialog.showModal();
   }

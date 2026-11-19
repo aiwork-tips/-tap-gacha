@@ -724,3 +724,19 @@ dialog.profile-dialog {
 #homeFavoriteChoices button[aria-pressed="true"] { outline: 2px solid #ffe098; outline-offset: -2px; }
 #homeFavoritePickerStatus { font-size: 13px; text-align: center; }
 #homeFavoritePickerStatus:empty { display: none; }
+
+.profile-detail-body { min-height: 0; overflow-y: auto; display: grid; gap: 8px; }
+.profile-detail-body .profile-lore { overflow-y: visible; }
+.character-skill-info {
+  padding: 8px 10px;
+  border: 1px solid #bda06d75;
+  border-radius: 6px;
+  background: #081526cc;
+  text-align: left;
+  font: 500 12px/1.5 system-ui, sans-serif;
+  color: #edf3fb;
+}
+.character-skill-info > div { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 2px 8px; align-items: baseline; }
+.character-skill-info strong { color: #ffe098; font-size: 14px; }
+.character-skill-info span { color: #b8dff8; }
+.character-skill-info p { margin: 4px 0 0; }
