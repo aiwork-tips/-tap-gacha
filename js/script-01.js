@@ -475,6 +475,18 @@
   let selectedCharId = null;
   let trainingFromDefeat = false;
   const charEl = id => document.getElementById(id);
+  const shardsPerKey = 50;
+  const breakDialog = charEl('charBreakDialog');
+  const breakButton = charEl('charLimitBreak');
+  function limitBreakOptions(rec) {
+    const cap=trainingCap(rec);
+    const needed=limitBreakKeyCost(cap);
+    if(!rec.owned||!needed||Number(rec.level||1)<cap)return [];
+    const held=Math.min(needed,Math.max(0,Math.floor(Number(gameSave.keys)||0)));
+    return (held ? [held,0] : [0])
+      .map(keys=>({keys,shards:(needed-keys)*shardsPerKey}))
+      .filter(option=>Number.isSafeInteger(option.shards));
+  }
   const levelCost = level => {
     if(level <= 10) return 3;
     if(level <= 30) return 5;
@@ -696,19 +708,15 @@
     charEl('charShardFill').style.width=owned?Math.min(100,shards/need*100)+'%':'0%';
     renderTrainingAction(trainingButton,trainingPlan(rec,1),state);
     renderTrainingAction(bulkTrainingButton,trainingPlan(rec,Infinity),state);
-    const breakBtn=charEl('charLimitBreak');
     const keysNeeded=limitBreakKeyCost(cap);
-    const heldKeys=Number(gameSave.keys||0);
     const atCap=owned&&lv>=cap;
-    const keysShort=atCap&&heldKeys<keysNeeded;
-    breakBtn.disabled=!atCap||keysNeeded===0||keysShort||saveRecoveryBlocked;
-    const keyNote=breakBtn.querySelector('.char-action-note');
-    keyNote.classList.toggle('char-key-shortfall',keysShort);
-    if(keysShort){
-      keyNote.textContent=`鍵 ${shortHudNumber(heldKeys)} / ${shortHudNumber(keysNeeded)}（あと${shortHudNumber(keysNeeded-heldKeys)}個）`;
-    }else{
-      keyNote.textContent=keysNeeded?`（鍵 ${shortHudNumber(keysNeeded)}個）`:'解放完了';
-    }
+    const cheapest=limitBreakOptions(rec)[0];
+    const short=cheapest&&shards<cheapest.shards;
+    breakButton.disabled=!cheapest||short||saveRecoveryBlocked;
+    const keyNote=breakButton.querySelector('.char-action-note');
+    keyNote.classList.toggle('char-key-shortfall',Boolean(short));
+    keyNote.textContent=!keysNeeded?'解放完了':!atCap?`Lv ${shortHudNumber(cap)} で解放`
+      :short?`欠片あと ${shortHudNumber(cheapest.shards-shards)}個`:'支払いを選択';
     charEl('charBuyKey').disabled=pt<5000;
     const fbtn=charEl('charFavoriteButton');
     const isFav=owned && gameSave.favoriteCharacterId===c.id;
@@ -799,38 +807,62 @@
   trainingButton.addEventListener('pointerleave',e=>{
     if(e.pointerType==='mouse')stopTrainingHold();
   });
-  function limitBreakCharacter(){
+  function limitBreakCharacter(id, cap, choice){
     stopTrainingHold();
     if(saveRecoveryBlocked){showToast('セーブ保護中です');return;}
-    const rec=currentRecord(selectedCharId);
-    if(!rec.owned)return;
-    const cap=trainingCap(rec);
-    const needed=limitBreakKeyCost(cap);
-    if(!needed||Number(rec.level||1)<cap){showToast('上限に到達していません');return;}
+    const rec=currentRecord(id);
     const previousKeys=Number(gameSave.keys||0);
-    if(previousKeys<needed){showToast('鍵が足りません');return;}
+    const previousShards=Math.max(0,Number(rec.shards)||0);
+    if(selectedCharId!==id||trainingCap(rec)!==cap||previousShards<choice.shards||
+      !limitBreakOptions(rec).some(option=>option.keys===choice.keys&&option.shards===choice.shards)){
+      breakDialog.close();
+      renderCharacters();
+      showToast('支払い条件が変わりました');
+      return;
+    }
     const nextCap=cap+TRAINING_CAP_STEP;
-    gameSave.keys=previousKeys-needed;
-    collection[selectedCharId]={...rec,cap:nextCap,keysUsed:Number(rec.keysUsed||0)+needed};
+    gameSave.keys=previousKeys-choice.keys;
+    collection[id]={...rec,cap:nextCap,shards:previousShards-choice.shards,keysUsed:Number(rec.keysUsed||0)+choice.keys};
     if(!saveUnified()){
-      collection[selectedCharId]=rec;
+      collection[id]=rec;
       gameSave.characters=normalizeRosterIds(collection);
       gameSave.keys=previousKeys;
+      breakDialog.close();
       renderCharacters();
       showToast('保存できないため上限解放を中止しました');
       return;
     }
+    breakDialog.close();
     keysEl.textContent=fmt(gameSave.keys);
     renderCharacters();
     showToast(`レベル上限 ${nextCap} 解放！`);
   }
+  breakButton.addEventListener('click',()=>{
+    const id=selectedCharId;
+    const rec=currentRecord(id);
+    const cap=trainingCap(rec);
+    const shards=Math.max(0,Number(rec.shards)||0);
+    charEl('charBreakTarget').textContent=`${charEl('selectedName').textContent} · Lv ${fmt(cap)} → ${fmt(cap+TRAINING_CAP_STEP)}`;
+    charEl('charBreakWallet').textContent=`所持 鍵${fmt(gameSave.keys||0)}本 ／ 欠片${fmt(shards)}個`;
+    charEl('charBreakChoices').replaceChildren(...limitBreakOptions(rec).map(option=>{
+      const button=document.createElement('button');
+      button.type='button';
+      const costs=[];
+      if(option.keys)costs.push(`鍵${fmt(option.keys)}本`);
+      if(option.shards)costs.push(`欠片${fmt(option.shards)}個`);
+      button.textContent=costs.join(' ＋ ')+'で解放';
+      button.disabled=shards<option.shards;
+      button.addEventListener('click',()=>limitBreakCharacter(id,cap,option));
+      return button;
+    }));
+    breakDialog.showModal();
+  });
   charEl('charBackHome').addEventListener('click',()=>{
     if(trainingFromDefeat){
       showScreen('party', {keepPartyDraft:true});
       partyBattle.focus({preventScroll:true});
     }else showScreen('home');
   });
-  charEl('charLimitBreak').addEventListener('click',limitBreakCharacter);
   // DEV-03: both the training quick-purchase button and the Exchange use one safe transaction.
   const KEY_PRICE = 5000;
   const shopRewardAmount = document.getElementById('shopRewardAmount');

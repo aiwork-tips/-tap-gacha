@@ -7,7 +7,7 @@
 <meta content="#071827" name="theme-color"/>
 <meta content="yes" name="apple-mobile-web-app-capable"/>
 <meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
-<title>Ver.11.8 BATTLE-RC49 · タップ育成ガチャ -覚醒-</title>
+<title>Ver.11.8 BATTLE-RC50 · タップ育成ガチャ -覚醒-</title>
 <link rel="preload" as="image" href="assets/rc38-victory-panel.webp">
 <link rel="preload" as="image" href="assets/rc38-victory-crest.webp">
 <!-- Unified Save Rev.3: tapgacha_save_v3 / legacy gV2 preserved read-only -->
@@ -264,7 +264,7 @@
     </div>
     <div class="char-buy char-gilt">
       <span class="char-keys-copy" aria-label="所持している上限解放の鍵"><img src="assets/97ef2de12f25b2d73f7b.webp" alt="">鍵 <strong id="charKeys">3</strong> 個</span>
-      <button type="button" class="char-action char-art-frame" id="charLimitBreak">
+      <button type="button" class="char-action char-art-frame" id="charLimitBreak" aria-haspopup="dialog">
         <span class="char-button-ink">上限解放</span>
         <small class="char-action-note"></small>
       </button>
@@ -279,6 +279,13 @@
         </span>
       </button>
     </div>
+    <dialog id="charBreakDialog" aria-labelledby="charBreakTitle">
+      <h3 id="charBreakTitle">上限解放</h3>
+      <p id="charBreakTarget"></p>
+      <p id="charBreakWallet"></p>
+      <div id="charBreakChoices"></div>
+      <form method="dialog"><button type="submit" autofocus>キャンセル</button></form>
+    </dialog>
     <div class="char-roster char-gilt">
       <header class="char-list-caption">
         <button type="button" id="charRosterToggle" class="char-roster-toggle" aria-pressed="false" aria-controls="charRosterScroll" aria-label="キャラ一覧を広く表示する">
@@ -431,7 +438,7 @@
       <div class="shop-bridge"><button type="button" class="shop-to-character" id="shopGoCharacter">キャラ育成へ →</button></div>
       <div class="shop-future">現在購入できるのは「上限解放の鍵」のみです。<br>新アイテムの価格・効果は後日決定します。</div>
     </div>
-    <span class="shop-version">Ver.11.8 · BATTLE-RC49</span>
+    <span class="shop-version">Ver.11.8 · BATTLE-RC50</span>
   </div>
 </section>
 
@@ -441,7 +448,7 @@
 <section class="screen" id="questScreen" aria-label="依頼掲示板">
   <img id="questBackdrop" class="quest-backdrop" alt="" aria-hidden="true" />
   <div class="quest-scrim"></div>
-  <span class="quest-version">Ver.11.8 · BATTLE-RC49</span>
+  <span class="quest-version">Ver.11.8 · BATTLE-RC50</span>
   <div class="quest-shell">
     <header class="quest-top">
       <div class="quest-head"><button id="questBackHome" type="button" class="quest-home">⌂ ホーム</button><h1 class="quest-title">依頼掲示板</h1></div>
@@ -592,7 +599,7 @@
     </div>
     <footer class="stage-note">
       <span id="stageTrialLabel" hidden>お試し編成 · Lv1</span>
-      <span>Ver.11.8 · BATTLE-RC49</span>
+      <span>Ver.11.8 · BATTLE-RC50</span>
     </footer>
     <template id="stageCardTemplate">
       <div class="stage-slot">
@@ -642,7 +649,7 @@
 </dialog>
 
 <div class="toast" id="toast"></div>
-<div id="devBuildLabel" aria-label="開発検証版 Ver.11.8 BATTLE-RC49">Ver.11.8 · BATTLE-RC49</div>
+<div id="devBuildLabel" aria-label="開発検証版 Ver.11.8 BATTLE-RC50">Ver.11.8 · BATTLE-RC50</div>
 </main>
 <script src="js/battle-rules.js"></script>
 <script src="js/battle-stage.js"></script>
