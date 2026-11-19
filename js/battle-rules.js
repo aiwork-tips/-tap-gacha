@@ -87,6 +87,12 @@
     sprite: 'assets/rc46-armored-guardian.webp', color: '#8ddcfa',
     shieldRatio: 0.3
   };
+  const thunderBeast = {
+    ...guardian, name: '雷鳴の魔獣',
+    sprite: 'assets/rc47-thunder-beast.webp', color: '#ffdc75',
+    thunder: { every: 3, warning: 2000, multiplier: 1.7 }
+  };
+  const stageEnemies = {10: armoredGuardian, 20: thunderBeast};
   const difficulties = Object.freeze({
     normal: Object.freeze({ maxHp: guardian.maxHp, attack: guardian.attack }),
     training: Object.freeze({ maxHp: 750, attack: 34 })
@@ -146,7 +152,7 @@
     });
     const baseline = difficulties[difficulty];
     const maxHp = Math.round(baseline.maxHp * stageHpGrowth ** (stageNumber - 1));
-    const enemyProfile = stageNumber === 10 ? armoredGuardian : guardian;
+    const enemyProfile = stageEnemies[stageNumber] ?? guardian;
     const openingShield = Math.round(maxHp * (enemyProfile.shieldRatio ?? 0));
     const enemy = {
       ...enemyProfile, maxHp, hp: maxHp, attack: Math.round(baseline.attack * stageAttackGrowth ** (stageNumber - 1)),
@@ -155,11 +161,23 @@
     const state = { allies, enemy, difficulty, time: 0, result: null, queuedSkill: null, rallyUntil: 0 };
     let nextAllyAttack = allyInterval;
     let nextEnemyAttack = enemyInterval;
+    let enemyAttacks = 0;
+    let enemyAttackDelay = 0;
     let animationUntil = 0;
     const weakenEffects = new Map();
     let burn = null;
     let rallyMultiplier = 1;
     let curseMultiplier = 1;
+
+    function thunderDue() {
+      return enemy.thunder && (enemyAttacks + 1) % enemy.thunder.every === 0;
+    }
+
+    function thunderWarning() {
+      const remaining = nextEnemyAttack - state.time;
+      return !state.result && thunderDue() && remaining <= enemy.thunder.warning + enemyAttackDelay
+        ? remaining : null;
+    }
 
     function healTarget() {
       return allies.reduce((target, ally) => {
@@ -274,6 +292,7 @@
               break;
             case 'delay':
               nextEnemyAttack += skill.delay;
+              enemyAttackDelay += skill.delay;
               enemy.attackDelayed = true;
               break;
           }
@@ -326,12 +345,17 @@
           markAnimation();
         }
         if (!state.result && nextEnemyAttack === next) {
+          const thunder = thunderDue();
           nextEnemyAttack += enemyInterval;
+          enemyAttacks++;
+          enemyAttackDelay = 0;
           enemy.attackDelayed = false;
           const front = allies.find(ally => ally.hp > 0);
           const coveringAlly = allies.find(ally => ally.hp > 0 && state.time < ally.coverUntil);
           if (coveringAlly) coveringAlly.coverUntil = 0;
-          attack(enemy, coveringAlly ?? front, enemyAttack(), false, events);
+          const damage = thunder ? Math.round(enemyAttack() * enemy.thunder.multiplier) : enemyAttack();
+          attack(enemy, coveringAlly ?? front, damage, false, events);
+          if (thunder) events.at(-1).thunder = true;
           markAnimation();
         }
       }
@@ -350,7 +374,7 @@
       return Math.round(enemy.attack * (1 - reduction));
     }
 
-    return { state, advanceTo, requestSkill, skillStatus, enemyAttack };
+    return { state, advanceTo, requestSkill, skillStatus, enemyAttack, thunderWarning };
   }
 
   globalThis.TapGachaBattle = Object.freeze({ supports, sampleParty, characterArt, characterStats, createBattle, campaignStageCount });

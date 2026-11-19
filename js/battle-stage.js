@@ -160,6 +160,8 @@
       setText(autoButton, auto ? 'AUTO ON' : 'AUTO');
       setText(speedButton, '×' + speed);
       speedButton.setAttribute('aria-label', '戦闘速度 ' + speed + '倍');
+      const thunder = mode === 'running' ? battle.thunderWarning() : null;
+      root.toggleAttribute('data-thunder-warning', thunder !== null);
       if (!battle) return;
       const state = battle.state;
       const difficultyLabel = state.difficulty === 'training' ? '高難度' : '通常';
@@ -213,7 +215,8 @@
       const skillNotice = latestSkill && state.time < latestSkill.until ? latestSkill.text : '';
       const text = {
         loading: '戦闘の準備中…', ready: '戦闘開始を押してください',
-        running: skillNotice || (auto ? 'AUTO連戦中 · スキルはタップ' : '通常攻撃は自動 · スキルはタップ'),
+        running: thunder !== null ? '雷撃まで あと' + Math.ceil(thunder / 1000) + '秒'
+          : skillNotice || (auto ? 'AUTO連戦中 · スキルはタップ' : '通常攻撃は自動 · スキルはタップ'),
         paused: '一時停止中', error: '画像を読み込めませんでした',
         victory: '勝利 · 生存 ' + survivorSummary,
         defeat: '敗北 · もう一度挑戦できます'
@@ -284,6 +287,7 @@
         popup.style.setProperty('--impact-color', participants.find(unit => unit.id === event.from).color);
         const amount = event.amount >= 100000 ? battleNumber(event.amount) : event.amount;
         popup.textContent = event.warded ? '無効'
+          : event.thunder ? (event.amount ? '雷撃 −' + amount : '雷撃を防御')
           : event.kind === 'rally' ? '攻撃強化'
           : event.kind === 'ward' ? '結界'
           : event.kind === 'cover' ? 'かばう'

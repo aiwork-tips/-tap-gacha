@@ -149,6 +149,13 @@
   background: linear-gradient(90deg, #257dad, #62c9e9);
 }
 .stage-boss-shield > span { position: relative; }
+.stage-app[data-thunder-warning] #stageStatus {
+  color: #ffe28a;
+  font-weight: 800;
+}
+.stage-app[data-thunder-warning] .stage-enemy img {
+  filter: drop-shadow(0 0 7px #ffd76b);
+}
 .stage-effects { z-index: 4; overflow: hidden; }
 .stage-impact {
   position: absolute;
