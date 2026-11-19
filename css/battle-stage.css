@@ -476,3 +476,45 @@
 }
 
 .stage-stats[data-wide] { font-size: 8px; }
+
+.stage-result-actions #stageResultLog { padding-inline: 3px; white-space: nowrap; }
+.stage-log-dialog {
+  box-sizing: border-box;
+  width: min(380px, calc(100% - 26px));
+  max-height: calc(100dvh - 26px);
+  padding: 15px;
+  border: 1px solid #d8b776;
+  border-radius: 10px;
+  background: linear-gradient(155deg, #183b5a, #0a192d 72%);
+  box-shadow: 0 12px 34px #000a, inset 0 0 0 3px #e2bc7929;
+  color: #fff2d5;
+  font-family: system-ui, sans-serif;
+}
+.stage-log-dialog[open] { display: flex; flex-direction: column; gap: 10px; }
+.stage-log-dialog::backdrop { background: #050c19d9; }
+.stage-log-dialog h2, .stage-log-dialog p { margin: 0; }
+.stage-log-dialog h2 { font: 700 22px/1.2 serif; }
+.stage-log-dialog p { color: #c8def3; font-size: 12px; }
+.stage-log-dialog ol {
+  min-height: 0;
+  max-height: 45dvh;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0 8px;
+  border: 1px solid #bda06d75;
+  border-radius: 6px;
+  background: #081526cc;
+  list-style: none;
+}
+.stage-log-dialog li {
+  display: grid;
+  grid-template-columns: 4.2em minmax(0, 1fr);
+  gap: 6px;
+  padding: 7px 0;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.stage-log-dialog li + li { border-top: 1px solid #bda06d42; }
+.stage-log-dialog li span:first-child { color: #b8dff8; font-variant-numeric: tabular-nums; }
+.stage-log-dialog form { text-align: center; }
+.stage-log-dialog form button { min-width: 84px; }

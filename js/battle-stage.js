@@ -41,6 +41,8 @@
     const resultBack = get('stageResultBack');
     const resultAction = get('stageResultRetry');
     const resultTrain = get('stageResultTrain');
+    const logDialog = get('stageLogDialog');
+    const battleLog = [];
     const campaignResult = get('stageCampaignResult');
     const defeatReview = get('stageDefeatReview');
     resultBack.hidden = get('stageBack').hidden;
@@ -64,6 +66,7 @@
     let suspensionCount = 0;
     let cancelLoad;
     let latestSkill = null;
+    let lastLoggedCast;
     let stage = null;
     let clear = null;
     let auto = false;
@@ -297,6 +300,7 @@
 
     function playEffects(events) {
       if (!events.length) return;
+      recordBattleEvents(events);
       const spell = events.findLast(event => event.skill && !event.periodic);
       if (spell) {
         const caster = battle.state.allies.find(ally => ally.id === spell.from);
@@ -352,6 +356,33 @@
           ], { delay, duration: 350, easing: 'ease-in-out' });
         }
       });
+    }
+
+    function recordBattleEvents(events) {
+      for (const event of events) {
+        if (!(event.skill && !event.periodic) && !event.thunder && !event.warded && !event.defeated) continue;
+        const { allies, enemy } = battle.state;
+        const caster = allies.find(ally => ally.id === event.from);
+        const target = event.to === enemy.id ? enemy : allies.find(ally => ally.id === event.to);
+        const add = text => battleLog.push({ time: event.time, text });
+        if (caster && event.skill && !event.periodic) {
+          const cast = caster.id + ':' + event.time;
+          if (lastLoggedCast !== cast) {
+            add(caster.name + '「' + caster.skill.name + '」を発動');
+            lastLoggedCast = cast;
+          }
+        }
+        if (event.thunder) {
+          const received = event.amount ? '（HP −' + formatNumber.format(event.amount) + '）' : '（防御）';
+          add(enemy.name + 'の雷撃 → ' + target.name + received);
+        } else if (event.warded) {
+          add(target.name + 'が結界で攻撃を無効化');
+        }
+        if (event.defeated) {
+          add(target.name + (target === enemy ? 'を撃破' : 'が戦闘不能'));
+        }
+      }
+      if (battleLog.length > 20) battleLog.splice(0, battleLog.length - 20);
     }
 
     function advanceClock(now) {
@@ -436,6 +467,8 @@
       stage = stageNumber;
       clear = null;
       latestSkill = null;
+      lastLoggedCast = undefined;
+      battleLog.length = 0;
       mode = 'loading';
       const images = [];
       battle.state.allies.forEach((ally, index) => {
@@ -494,6 +527,7 @@
       stopAuto();
       cancelFrame();
       clearEffects();
+      if (logDialog.open) logDialog.close();
       battle = null;
       mode = 'closed';
       render();
@@ -522,6 +556,26 @@
     });
     resultBack.addEventListener('click', onBack);
     resultAction.addEventListener('click', resultClick);
+    get('stageResultLog').addEventListener('click', () => {
+      if (mode !== 'victory' && mode !== 'defeat') return;
+      stopAuto();
+      render();
+      const label = stage === null ? 'お試し戦闘' : '第' + formatNumber.format(stage) + 'ステージ';
+      setText(get('stageLogContext'), label + ' · 最近の主な出来事');
+      const entries = battleLog.map(event => {
+        const entry = document.createElement('li');
+        const time = document.createElement('span');
+        time.textContent = (event.time / 1000).toFixed(1) + '秒';
+        const content = document.createElement('span');
+        content.textContent = event.text;
+        entry.append(time, content);
+        return entry;
+      });
+      const list = get('stageLogEvents');
+      list.replaceChildren(...entries);
+      logDialog.showModal();
+      list.scrollTop = list.scrollHeight;
+    });
     resultTrain.addEventListener('click', () => {
       if (!resultTrain.hidden && mode === 'defeat') onTrain(battle.state.allies[0].id);
     });

@@ -285,7 +285,8 @@
       const amount = Math.min(target.hp, power - blocked);
       target.hp -= amount;
       events.push({
-        kind: 'hit', from: attacker.id, to: target.id, amount, blocked, skill, periodic, warded, time: state.time
+        kind: 'hit', from: attacker.id, to: target.id, amount, blocked, skill, periodic, warded,
+        defeated: target.hp === 0, time: state.time
       });
       if (target.hp === 0 && state.queuedSkill?.id === target.id) state.queuedSkill = null;
       if (enemy.hp === 0) state.result = 'victory';
