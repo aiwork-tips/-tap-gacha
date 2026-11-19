@@ -1248,6 +1248,8 @@
   const partyClearReward = homeEl('partyClearReward');
   const partyRoute = homeEl('partyRoute');
   const partyEncounter = homeEl('partyEncounter');
+  const partyEncounterLabel = homeEl('partyEncounterLabel');
+  const partyEnemyDetails = homeEl('partyEnemyDetails');
   const partyProgress = homeEl('partyProgress');
   const partyProgressText = homeEl('partyProgressText');
   const campaignClearRewards = Object.freeze({normal:50,training:100});
@@ -1517,8 +1519,11 @@
     partyProgress.value=chapterCleared;
     partyProgressText.textContent=`第${fmt(chapter)}章 · ${chapterCleared} / ${partyRules.stagesPerChapter}`;
     const encounter=canLaunch&&!completed?partyRules.campaignEncounter(next):null;
-    partyEncounter.textContent=completed?'到達上限'
-      :encounter?(encounter.boss?'BOSS · ':'')+encounter.name:'お試し編成で出撃できます';
+    partyEncounterLabel.hidden=Boolean(encounter);
+    partyEncounterLabel.textContent=completed?'到達上限':'お試し編成で出撃できます';
+    partyEnemyDetails.hidden=!encounter;
+    partyEncounter.textContent=encounter?(encounter.boss?'BOSS · ':'')+encounter.name:'';
+    partyEnemyDetails.setAttribute('aria-label',encounter?encounter.name+'の詳細':'敵の詳細');
     partyRoute.toggleAttribute('data-boss',Boolean(encounter?.boss));
     partyRoute.toggleAttribute('data-complete',completed);
     partyClearReward.hidden=!canLaunch||completed;
@@ -1527,6 +1532,21 @@
   function renderPartyClearReward(){
     partyClearReward.textContent=`クリア報酬 ${campaignClearRewards[partyDifficulty.value]} PT`;
   }
+  partyEnemyDetails.addEventListener('click',()=>{
+    const stage=clearedCampaignStages()+1;
+    if(partyEnemyDetails.hidden||!Number.isSafeInteger(stage))return;
+    const difficulty=partyDifficulty.value;
+    const enemy=partyRules.campaignEnemyPreview(stage,difficulty);
+    homeEl('partyEnemySprite').src=enemy.sprite;
+    homeEl('partyEnemyName').textContent=enemy.name;
+    homeEl('partyEnemyMeta').textContent=`第${fmt(stage)}ステージ · ${difficulty==='training'?'高難度':'通常'}`;
+    homeEl('partyEnemyHP').textContent=fmt(enemy.maxHp);
+    homeEl('partyEnemyAttack').textContent=fmt(enemy.attack);
+    const trait=homeEl('partyEnemyTrait');
+    trait.hidden=!enemy.trait;
+    trait.querySelector('p').textContent=enemy.trait;
+    homeEl('partyEnemyDialog').showModal();
+  });
   partyDifficulty.addEventListener('change',()=>{
     const difficulty=partyDifficulty.value;
     const previous=gameSave.campaignDifficulty;

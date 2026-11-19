@@ -130,6 +130,28 @@
     return { name, boss: Boolean(briefing) };
   }
 
+  function campaignEnemy(stage, difficulty) {
+    const profile = enemyForStage(stage);
+    const baseline = difficulties[difficulty];
+    const maxHp = stageStat(baseline.maxHp, stageHpGrowth, stage, 1.4);
+    const attack = stageStat(baseline.attack, stageAttackGrowth, stage, 1.15);
+    const openingShield = Math.round(maxHp * (profile.shieldRatio ?? 0));
+    return { ...profile, maxHp, attack, openingShield };
+  }
+
+  function campaignEnemyPreview(stage, difficulty) {
+    const { name, sprite, maxHp, attack, openingShield, thunder, enrage } = campaignEnemy(stage, difficulty);
+    let trait = '';
+    if (openingShield) {
+      trait = '戦闘開始時に耐久 ' + openingShield.toLocaleString('ja-JP') + ' の盾を展開。盾が先にダメージを受ける。';
+    } else if (thunder) {
+      trait = '攻撃' + thunder.every + '回ごとに、威力' + thunder.multiplier + '倍の雷撃。発動の' + thunder.warning / 1000 + '秒前に予告が出る。';
+    } else if (enrage) {
+      trait = '残りHPが' + Math.round(enrage.threshold * 100) + '%以下で覚醒し、攻撃力が' + Math.round((enrage.multiplier - 1) * 100) + '%上がる。';
+    }
+    return { name, sprite, maxHp, attack, trait };
+  }
+
   function supports(id) {
     return typeof id === 'string' && Object.hasOwn(characters, id);
   }
@@ -202,14 +224,10 @@
         shield: 0, shieldUntil: 0, wardUntil: 0, coverUntil: 0, skillReadyAt: 0
       };
     });
-    const baseline = difficulties[difficulty];
-    const maxHp = stageStat(baseline.maxHp, stageHpGrowth, stageNumber, 1.4);
-    const enemyProfile = enemyForStage(stageNumber);
-    const openingShield = Math.round(maxHp * (enemyProfile.shieldRatio ?? 0));
+    const enemyProfile = campaignEnemy(stageNumber, difficulty);
     const enemy = {
-      ...enemyProfile, maxHp, hp: maxHp,
-      attack: stageStat(baseline.attack, stageAttackGrowth, stageNumber, 1.15),
-      openingShield, shield: openingShield, attackDelayed: false, curseUntil: 0
+      ...enemyProfile, hp: enemyProfile.maxHp,
+      shield: enemyProfile.openingShield, attackDelayed: false, curseUntil: 0
     };
     const state = { allies, enemy, difficulty, time: 0, result: null, queuedSkill: null, rallyUntil: 0 };
     let nextAllyAttack = allyInterval;
@@ -438,5 +456,5 @@
     return { state, advanceTo, requestSkill, skillStatus, enemyAttack, enemyAttackPower, enemyEnraged, thunderWarning };
   }
 
-  globalThis.TapGachaBattle = Object.freeze({ supports, sampleParty, characterArt, characterStats, characterSkill, createBattle, stagesPerChapter, chapterForStage, campaignEncounter });
+  globalThis.TapGachaBattle = Object.freeze({ supports, sampleParty, characterArt, characterStats, characterSkill, createBattle, stagesPerChapter, chapterForStage, campaignEncounter, campaignEnemyPreview });
 })();

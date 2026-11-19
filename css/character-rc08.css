@@ -710,10 +710,10 @@ dialog.profile-dialog {
 .profile-heading img { width: 66px; aspect-ratio: 1; object-fit: cover; border-radius: 6px; border: 1px solid #b39461; }
 #charDetailRarity { color: #ffe098; }
 #charDetailMeta { color: #d0e8fa; font-size: 13px; }
-#charDetailStats { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; text-align: center; }
-#charDetailStats div { padding: 6px 4px; background: #0815269c; border: 1px solid #bda06d75; border-radius: 5px; }
-#charDetailStats dt { font-size: 12px; color: #b8dff8; }
-#charDetailStats dd { font-size: clamp(16px,5vw,22px); font-weight: 750; overflow-wrap: anywhere; }
+:is(#charDetailStats, .enemy-preview-stats) { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; text-align: center; }
+:is(#charDetailStats, .enemy-preview-stats) div { padding: 6px 4px; background: #0815269c; border: 1px solid #bda06d75; border-radius: 5px; }
+:is(#charDetailStats, .enemy-preview-stats) dt { font-size: 12px; color: #b8dff8; }
+:is(#charDetailStats, .enemy-preview-stats) dd { font-size: clamp(16px,5vw,22px); font-weight: 750; overflow-wrap: anywhere; }
 .profile-lore { min-height: 0; overflow-y: auto; padding: 10px; border: 1px solid #bda06d75; border-radius: 6px; background: #08152680; }
 .profile-lore h4 { font-size: 13px; color: #ffe098; margin-bottom: 5px; }
 .profile-lore p { white-space: pre-wrap; color: #edf3fb; font-size: 13px; line-height: 1.65; }
