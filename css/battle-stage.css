@@ -91,6 +91,7 @@
   animation: stage-breathe calc(2.7s / var(--stage-speed, 1)) ease-in-out infinite;
 }
 .stage-enemy { width: 44%; height: 36%; max-height: 213px; }
+.stage-enemy.stage-enemy-wide { width: 48%; }
 .stage-enemy-caption {
   position: absolute;
   top: -25px;
@@ -155,6 +156,13 @@
 }
 .stage-app[data-thunder-warning] .stage-enemy img {
   filter: drop-shadow(0 0 7px #ffd76b);
+}
+.stage-app[data-enraged] #stageStatus {
+  color: #f3c6ff;
+  font-weight: 800;
+}
+.stage-app[data-enraged] .stage-enemy img {
+  filter: drop-shadow(0 0 8px #db79ff);
 }
 .stage-effects { z-index: 4; overflow: hidden; }
 .stage-impact {
@@ -384,6 +392,11 @@
   border-color: #d1b987;
   background: #d1b987;
   color: #1b2028;
+}
+.stage-app[data-mode='defeat'] .stage-result-actions #stageResultTrain {
+  border-color: #d1b987;
+  color: #ffe7b4;
+  background: #202c42;
 }
 .stage-result-actions #stageResultRetry:disabled { filter: saturate(.4); }
 .stage-campaign-result {

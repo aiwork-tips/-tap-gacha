@@ -473,6 +473,7 @@
     short:'欠片不足', protected:'セーブ保護中', locked:'未所持'
   };
   let selectedCharId = null;
+  let trainingFromDefeat = false;
   const charEl = id => document.getElementById(id);
   const levelCost = level => {
     if(level <= 10) return 3;
@@ -823,7 +824,12 @@
     renderCharacters();
     showToast(`レベル上限 ${nextCap} 解放！`);
   }
-  charEl('charBackHome').addEventListener('click',()=>showScreen('home'));
+  charEl('charBackHome').addEventListener('click',()=>{
+    if(trainingFromDefeat){
+      showScreen('party', {keepPartyDraft:true});
+      partyBattle.focus({preventScroll:true});
+    }else showScreen('home');
+  });
   charEl('charLimitBreak').addEventListener('click',limitBreakCharacter);
   // DEV-03: both the training quick-purchase button and the Exchange use one safe transaction.
   const KEY_PRICE = 5000;
@@ -1181,7 +1187,14 @@
       showScreen('party');
       partyBattle.focus({preventScroll:true});
     },
-    recordCampaignClear
+    recordCampaignClear,
+    leadId => {
+      selectedCharId=leadId;
+      if(rosterFilter.value==='locked')rosterFilter.value='owned';
+      trainingFromDefeat=true;
+      showScreen('character');
+      charEl('charBackHome').focus({preventScroll:true});
+    }
   );
   function clearedCampaignStages(){
     const count=gameSave.campaignClearedStages;
@@ -1587,7 +1600,7 @@
     else showToast(name + pendingSuffix);
   }
 
-  function showScreen(which){
+  function showScreen(which, {keepPartyDraft=false}={}){
     const toHome = which === 'home';
     const toTap = which === 'tap';
     const toGacha = which === 'gacha';
@@ -1600,7 +1613,10 @@
     const returningFromBattle = battleScreen.classList.contains('active');
     if(returningFromBattle&&!toBattle)battleStage.close();
 
-    if(!toCharacter)stopTrainingHold();
+    if(!toCharacter){
+      trainingFromDefeat=false;
+      stopTrainingHold();
+    }
     home.classList.toggle('active',toHome);
     tap.classList.toggle('active',toTap);
     gacha.classList.toggle('active',toGacha);
@@ -1612,7 +1628,7 @@
     battleScreen.classList.toggle('active',toBattle);
     battleScreen.inert=!toBattle;
     if(toParty){
-      if(returningFromBattle)renderParty();
+      if(returningFromBattle||keepPartyDraft)renderParty();
       else beginParty();
     }else partyFeedback();
     if(!toQuest)closeQuestReward();
@@ -1620,7 +1636,10 @@
     if(toQuest)renderQuest();
     if(toShop) renderShop();
     else clearTimeout(shopRewardResetTimer);
-    if(toCharacter) renderCharacters();
+    if(toCharacter){
+      charEl('charBackHomeLabel').textContent=trainingFromDefeat?'編成へ':'ホーム';
+      renderCharacters();
+    }
     if(toDex){
       showDexList();
       renderDexList();

@@ -17,7 +17,7 @@
   const imageLoadTimeout = 12000;
   const skillNoticeDuration = 3000;
 
-  function createController(root, onBack, onClear) {
+  function createController(root, onBack, onClear, onTrain) {
     const get = id => root.querySelector('#' + id);
     const field = get('stageField');
     const actors = get('stageActors');
@@ -28,6 +28,7 @@
     const result = get('stageResult');
     const resultBack = get('stageResultBack');
     const resultAction = get('stageResultRetry');
+    const resultTrain = get('stageResultTrain');
     const campaignResult = get('stageCampaignResult');
     resultBack.hidden = get('stageBack').hidden;
     const elapsed = get('stageElapsed');
@@ -88,6 +89,7 @@
       node.append(sprite, bar);
       let shieldMeter;
       if (enemy) {
+        node.classList.toggle('stage-enemy-wide', Boolean(unit.enrage));
         const caption = document.createElement('span');
         caption.className = 'stage-enemy-caption';
         caption.textContent = unit.name;
@@ -149,6 +151,7 @@
       root.dataset.mode = mode;
       const finished = mode === 'victory' || mode === 'defeat';
       result.hidden = !finished;
+      resultTrain.hidden = !(onTrain && stage !== null && mode === 'defeat');
       startButton.disabled = !battle || mode === 'loading' || mode === 'closed';
       const controlsDisabled = startButton.disabled || mode === 'error';
       resetButton.disabled = controlsDisabled;
@@ -162,14 +165,18 @@
       speedButton.setAttribute('aria-label', '戦闘速度 ' + speed + '倍');
       const thunder = mode === 'running' ? battle.thunderWarning() : null;
       root.toggleAttribute('data-thunder-warning', thunder !== null);
+      const enraged = Boolean(battle && !battle.state.result && battle.enemyEnraged());
+      root.toggleAttribute('data-enraged', enraged);
       if (!battle) return;
       const state = battle.state;
       const difficultyLabel = state.difficulty === 'training' ? '高難度' : '通常';
       const attack = battle.enemyAttack();
-      const weakened = attack < state.enemy.attack && !state.result;
+      const attackPower = Math.round(battle.enemyAttackPower());
+      const weakened = attack < attackPower && !state.result;
       const stagePrefix = stage === null ? '' : '第' + stage + 'ステージ · ';
       setText(enemyStats, stagePrefix + difficultyLabel + ' · 敵HP ' + formatNumber.format(state.enemy.maxHp) + ' · 攻 ' +
-        (weakened ? formatNumber.format(attack) + ' ↓' : formatNumber.format(state.enemy.attack)) +
+        (weakened ? formatNumber.format(attack) + ' ↓' : formatNumber.format(enraged ? attackPower : state.enemy.attack)) +
+        (enraged ? ' · 覚醒' : '') +
         (state.enemy.attackDelayed && !state.result ? ' · 遅延中' : '') +
         (state.time < state.enemy.curseUntil && !state.result ? ' · 呪い' : ''));
       const front = state.allies.find(ally => ally.hp > 0);
@@ -214,9 +221,10 @@
       const survivorSummary = survivorCount + ' / ' + state.allies.length + '体';
       const skillNotice = latestSkill && state.time < latestSkill.until ? latestSkill.text : '';
       const text = {
-        loading: '戦闘の準備中…', ready: '戦闘開始を押してください',
+        loading: '戦闘の準備中…', ready: state.enemy.briefing || '戦闘開始を押してください',
         running: thunder !== null ? '雷撃まで あと' + Math.ceil(thunder / 1000) + '秒'
-          : skillNotice || (auto ? 'AUTO連戦中 · スキルはタップ' : '通常攻撃は自動 · スキルはタップ'),
+          : skillNotice || (enraged ? state.enemy.name + 'が覚醒 · 攻撃力' + Math.round((state.enemy.enrage.multiplier - 1) * 100) + '%上昇'
+            : auto ? 'AUTO連戦中 · スキルはタップ' : '通常攻撃は自動 · スキルはタップ'),
         paused: '一時停止中', error: '画像を読み込めませんでした',
         victory: '勝利 · 生存 ' + survivorSummary,
         defeat: '敗北 · もう一度挑戦できます'
@@ -484,6 +492,9 @@
     });
     resultBack.addEventListener('click', onBack);
     resultAction.addEventListener('click', resultClick);
+    resultTrain.addEventListener('click', () => {
+      if (!resultTrain.hidden && mode === 'defeat') onTrain(battle.state.allies[0].id);
+    });
     get('stageBack').addEventListener('click', onBack);
     function suspendBattle() {
       suspensionCount++;

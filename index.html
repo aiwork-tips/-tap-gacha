@@ -7,7 +7,7 @@
 <meta content="#071827" name="theme-color"/>
 <meta content="yes" name="apple-mobile-web-app-capable"/>
 <meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
-<title>Ver.11.8 BATTLE-RC47 · タップ育成ガチャ -覚醒-</title>
+<title>Ver.11.8 BATTLE-RC48 · タップ育成ガチャ -覚醒-</title>
 <link rel="preload" as="image" href="assets/rc38-victory-panel.webp">
 <link rel="preload" as="image" href="assets/rc38-victory-crest.webp">
 <!-- Unified Save Rev.3: tapgacha_save_v3 / legacy gV2 preserved read-only -->
@@ -187,7 +187,7 @@
   <div class="character-area">
     <header class="char-top">
       <button type="button" class="char-home char-art-frame" id="charBackHome">
-        <span class="char-button-ink"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 11 12 2l10 9-2 2-2-2v9h-5v-6h-2v6H6v-9l-2 2z"/></svg>ホーム</span>
+        <span class="char-button-ink"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 11 12 2l10 9-2 2-2-2v9h-5v-6h-2v6H6v-9l-2 2z"/></svg><span id="charBackHomeLabel">ホーム</span></span>
       </button>
       <h2 class="char-header-title">キャラ育成</h2>
       <div class="char-top-pt char-art-frame"><span>所持PT</span><b id="charPT">0</b></div>
@@ -431,7 +431,7 @@
       <div class="shop-bridge"><button type="button" class="shop-to-character" id="shopGoCharacter">キャラ育成へ →</button></div>
       <div class="shop-future">現在購入できるのは「上限解放の鍵」のみです。<br>新アイテムの価格・効果は後日決定します。</div>
     </div>
-    <span class="shop-version">Ver.11.8 · BATTLE-RC47</span>
+    <span class="shop-version">Ver.11.8 · BATTLE-RC48</span>
   </div>
 </section>
 
@@ -441,7 +441,7 @@
 <section class="screen" id="questScreen" aria-label="依頼掲示板">
   <img id="questBackdrop" class="quest-backdrop" alt="" aria-hidden="true" />
   <div class="quest-scrim"></div>
-  <span class="quest-version">Ver.11.8 · BATTLE-RC47</span>
+  <span class="quest-version">Ver.11.8 · BATTLE-RC48</span>
   <div class="quest-shell">
     <header class="quest-top">
       <div class="quest-head"><button id="questBackHome" type="button" class="quest-home">⌂ ホーム</button><h1 class="quest-title">依頼掲示板</h1></div>
@@ -560,6 +560,7 @@
         <p id="stageCampaignResult" class="stage-campaign-result" role="status" hidden></p>
         <div class="stage-result-actions">
           <button type="button" class="stage-button" id="stageResultBack">編成へ</button>
+          <button type="button" class="stage-button" id="stageResultTrain" hidden>育成へ</button>
           <button type="button" class="stage-button" id="stageResultRetry">再戦</button>
         </div>
       </div>
@@ -577,7 +578,7 @@
     </div>
     <footer class="stage-note">
       <span id="stageTrialLabel" hidden>お試し編成 · Lv1</span>
-      <span>Ver.11.8 · BATTLE-RC47</span>
+      <span>Ver.11.8 · BATTLE-RC48</span>
     </footer>
     <template id="stageCardTemplate">
       <div class="stage-slot">
@@ -627,7 +628,7 @@
 </dialog>
 
 <div class="toast" id="toast"></div>
-<div id="devBuildLabel" aria-label="開発検証版 Ver.11.8 BATTLE-RC47">Ver.11.8 · BATTLE-RC47</div>
+<div id="devBuildLabel" aria-label="開発検証版 Ver.11.8 BATTLE-RC48">Ver.11.8 · BATTLE-RC48</div>
 </main>
 <script src="js/battle-rules.js"></script>
 <script src="js/battle-stage.js"></script>

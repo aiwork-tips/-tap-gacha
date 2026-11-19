@@ -85,14 +85,19 @@
   const armoredGuardian = {
     ...guardian, name: '重装の守護者',
     sprite: 'assets/rc46-armored-guardian.webp', color: '#8ddcfa',
-    shieldRatio: 0.3
+    shieldRatio: 0.3, briefing: '戦闘開始時にシールドを展開'
   };
   const thunderBeast = {
     ...guardian, name: '雷鳴の魔獣',
     sprite: 'assets/rc47-thunder-beast.webp', color: '#ffdc75',
-    thunder: { every: 3, warning: 2000, multiplier: 1.7 }
+    thunder: { every: 3, warning: 2000, multiplier: 1.7 }, briefing: '3回目の攻撃ごとに強力な雷撃'
   };
-  const stageEnemies = {10: armoredGuardian, 20: thunderBeast};
+  const mirrorDragon = {
+    ...guardian, name: '鏡晶竜',
+    sprite: 'assets/rc48-mirror-dragon.webp', color: '#e5b3ff',
+    enrage: { threshold: 0.5, multiplier: 1.25 }, briefing: '残りHP50%で覚醒し、攻撃力が上昇'
+  };
+  const stageEnemies = {10: armoredGuardian, 20: thunderBeast, 30: mirrorDragon};
   const difficulties = Object.freeze({
     normal: Object.freeze({ maxHp: guardian.maxHp, attack: guardian.attack }),
     training: Object.freeze({ maxHp: 750, attack: 34 })
@@ -366,15 +371,23 @@
       return events;
     }
 
+    function enemyEnraged() {
+      return Boolean(enemy.enrage && enemy.hp > 0 && enemy.hp <= enemy.maxHp * enemy.enrage.threshold);
+    }
+
+    function enemyAttackPower() {
+      return enemy.attack * (enemyEnraged() ? enemy.enrage.multiplier : 1);
+    }
+
     function enemyAttack() {
       let reduction = 0;
       for (const effect of weakenEffects.values()) {
         if (state.time < effect.until) reduction = Math.max(reduction, effect.reduction);
       }
-      return Math.round(enemy.attack * (1 - reduction));
+      return Math.round(enemyAttackPower() * (1 - reduction));
     }
 
-    return { state, advanceTo, requestSkill, skillStatus, enemyAttack, thunderWarning };
+    return { state, advanceTo, requestSkill, skillStatus, enemyAttack, enemyAttackPower, enemyEnraged, thunderWarning };
   }
 
   globalThis.TapGachaBattle = Object.freeze({ supports, sampleParty, characterArt, characterStats, createBattle, campaignStageCount });
