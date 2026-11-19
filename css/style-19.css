@@ -3,7 +3,7 @@
    Do not disable panning/pinch-zoom elsewhere. */
 #characterScreen .char-action,
 #characterScreen #charBuyKey,
-#characterScreen #charFavoriteButton,
+#characterScreen #charDetailButton,
 #characterScreen #charBackHome,
 #characterScreen .char-tile {
   touch-action: manipulation !important;
@@ -15,7 +15,7 @@
    Previous blanket padding-bottom adjustments moved the text boxes inconsistently. */
 #characterScreen .char-action,
 #characterScreen #charBuyKey,
-#characterScreen #charFavoriteButton,
+#characterScreen #charDetailButton,
 #characterScreen #charBackHome {
   position:relative;
   box-sizing:border-box !important;
@@ -58,7 +58,7 @@
   flex-shrink:0;
 }
 #characterScreen .char-home { --char-label-shift: 0px; }
-#characterScreen #charFavoriteButton {
+#characterScreen #charDetailButton {
   --char-label-shift: 0px;
   position:absolute !important;
   left:11px !important;

@@ -39,7 +39,7 @@
 #shopScreen .shop-back, #shopScreen .shop-filter,
 #shopScreen .shop-purchase, #shopScreen .shop-to-character,
 #characterScreen .char-home, #characterScreen .char-action,
-#characterScreen #charBuyKey, #characterScreen #charFavoriteButton,
+#characterScreen #charBuyKey, #characterScreen #charDetailButton,
 #gachaScreen .gacha-home {
   display:flex!important;
   justify-content:center!important;

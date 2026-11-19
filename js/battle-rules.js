@@ -102,7 +102,7 @@
     normal: Object.freeze({ maxHp: guardian.maxHp, attack: guardian.attack }),
     training: Object.freeze({ maxHp: 750, attack: 34 })
   });
-  const campaignStageCount = 30;
+  const stagesPerChapter = 30;
   const stageHpGrowth = 1.14;
   const stageAttackGrowth = 1.11;
   const allyInterval = 2000;
@@ -111,7 +111,18 @@
   const burnInterval = 1000;
 
   function enemyForStage(stage) {
-    return stageEnemies[stage] ?? guardian;
+    const chapterStage = (stage - 1) % stagesPerChapter + 1;
+    return stageEnemies[chapterStage] ?? guardian;
+  }
+
+  function chapterForStage(stage) {
+    return Math.floor((stage - 1) / stagesPerChapter) + 1;
+  }
+
+  function stageStat(base, initialGrowth, stage, laterPower) {
+    const initial = base * initialGrowth ** (Math.min(stage, stagesPerChapter) - 1);
+    const later = 1 + Math.max(0, stage - stagesPerChapter) / 24;
+    return Math.min(Number.MAX_SAFE_INTEGER, Math.round(initial * later ** laterPower));
   }
 
   function campaignEncounter(stage) {
@@ -149,7 +160,7 @@
 
   function createBattle(party, difficulty = "normal", stageNumber = 1) {
     if (!Object.hasOwn(difficulties, difficulty)) throw new RangeError("Unknown battle difficulty.");
-    if (!Number.isInteger(stageNumber) || stageNumber < 1 || stageNumber > campaignStageCount) {
+    if (!Number.isSafeInteger(stageNumber) || stageNumber < 1) {
       throw new RangeError("Unknown campaign stage.");
     }
     const ids = new Set(party.map(member => member.id));
@@ -165,11 +176,12 @@
       };
     });
     const baseline = difficulties[difficulty];
-    const maxHp = Math.round(baseline.maxHp * stageHpGrowth ** (stageNumber - 1));
+    const maxHp = stageStat(baseline.maxHp, stageHpGrowth, stageNumber, 1.4);
     const enemyProfile = enemyForStage(stageNumber);
     const openingShield = Math.round(maxHp * (enemyProfile.shieldRatio ?? 0));
     const enemy = {
-      ...enemyProfile, maxHp, hp: maxHp, attack: Math.round(baseline.attack * stageAttackGrowth ** (stageNumber - 1)),
+      ...enemyProfile, maxHp, hp: maxHp,
+      attack: stageStat(baseline.attack, stageAttackGrowth, stageNumber, 1.15),
       openingShield, shield: openingShield, attackDelayed: false, curseUntil: 0
     };
     const state = { allies, enemy, difficulty, time: 0, result: null, queuedSkill: null, rallyUntil: 0 };
@@ -399,5 +411,5 @@
     return { state, advanceTo, requestSkill, skillStatus, enemyAttack, enemyAttackPower, enemyEnraged, thunderWarning };
   }
 
-  globalThis.TapGachaBattle = Object.freeze({ supports, sampleParty, characterArt, characterStats, createBattle, campaignStageCount, campaignEncounter });
+  globalThis.TapGachaBattle = Object.freeze({ supports, sampleParty, characterArt, characterStats, createBattle, stagesPerChapter, chapterForStage, campaignEncounter });
 })();

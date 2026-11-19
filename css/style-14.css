@@ -26,7 +26,7 @@
 #characterScreen .char-shard-track{height:9px;border:1px solid #bde8ff;background:#05244b;box-shadow:0 0 7px #44d9ff}
 #characterScreen .char-action{border:2px solid #e5bc6b;background:linear-gradient(#157fc6,#065393 50%,#03295b);box-shadow:inset 0 0 0 1px #8fe4ff,0 0 9px #139dff7a;border-radius:22px;padding:8px 2px;line-height:1.15;font-size:clamp(10px,2.6vw,15px);min-height:35px}
 #characterScreen .char-action:disabled{opacity:.64;filter:grayscale(.55)}
-#characterScreen .char-favorite-button{border:2px solid #e5bd76!important;background:linear-gradient(#1269a2,#072f5b)!important;border-radius:20px!important;box-shadow:inset 0 0 0 1px #78d8ff!important}
+#characterScreen .char-detail-button{border:2px solid #e5bd76!important;background:linear-gradient(#1269a2,#072f5b)!important;border-radius:20px!important;box-shadow:inset 0 0 0 1px #78d8ff!important}
 #characterScreen .char-buy{background:linear-gradient(130deg,#0a4575f7,#061d44f7);border:2px solid #e5b76f;box-shadow:inset 0 0 0 1px #57b1e1;border-radius:18px;padding:7px 10px;min-height:45px}
 #characterScreen .char-buy button{background:linear-gradient(#c38a2e,#77501b);border:2px solid #ffe6a4;border-radius:18px;color:#fff5dc;box-shadow:inset 0 0 6px #fff5a966}
 #characterScreen .char-list-caption{background:linear-gradient(100deg,#092e5cf5,#05204af5);border:2px solid #dbb46d;border-radius:15px;padding:7px 10px;align-items:center;font-size:clamp(12px,3vw,16px);font-weight:800;min-height:39px}

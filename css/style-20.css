@@ -58,13 +58,13 @@
 }
 #characterScreen .char-action:disabled{filter:grayscale(.4)!important;opacity:.65!important}
 #characterScreen .char-action .char-button-ink{font-size:clamp(10px,2.75vw,12px)!important;line-height:1.12!important}
-#characterScreen #charFavoriteButton{
+#characterScreen #charDetailButton{
  left:7px!important;bottom:7px!important;width:calc(30% - 5px)!important;
  height:26px!important;min-height:26px!important;max-height:26px!important;
  font-size:clamp(8px,2.4vw,10px)!important;border-radius:6px!important;
  background:linear-gradient(#2177ad,#073a67)!important;
 }
-#characterScreen #charFavoriteButton .char-button-ink{font-size:clamp(8px,2.3vw,10px)!important}
+#characterScreen #charDetailButton .char-button-ink{font-size:clamp(8px,2.3vw,10px)!important}
 #characterScreen .char-buy{
  height:clamp(32px,4.7vh,40px)!important;min-height:0!important;box-sizing:border-box!important;
  padding:3px 7px!important;gap:5px!important;border:1px solid #d4b479!important;border-radius:9px!important;
@@ -94,7 +94,7 @@
 @media(max-width:350px){
  #characterScreen .character-area{left:2%!important;right:2%!important}
  #characterScreen .char-detail{grid-template-columns:28% minmax(0,1fr)!important;gap:6px!important;padding:6px!important}
- #characterScreen #charFavoriteButton{width:calc(28% - 4px)!important;left:6px!important;bottom:6px!important}
+ #characterScreen #charDetailButton{width:calc(28% - 4px)!important;left:6px!important;bottom:6px!important}
  #characterScreen .char-quantity-button{width:25px!important;height:23px!important;font-size:10px!important}
  #characterScreen .char-max-button{width:31px!important;font-size:8px!important}
  #characterScreen .char-shards-row .char-shards{font-size:9px!important}

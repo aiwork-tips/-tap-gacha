@@ -166,7 +166,8 @@
       result.hidden = !finished;
       const campaignVictory = stage !== null && mode === 'victory';
       const campaignComplete = campaignVictory && clear?.next === null;
-      root.toggleAttribute('data-campaign-complete', campaignComplete);
+      const chapterClear = campaignVictory && clear && stage % rules.stagesPerChapter === 0;
+      root.toggleAttribute('data-campaign-complete', Boolean(chapterClear || campaignComplete));
       resultTrain.hidden = !(onTrain && stage !== null && mode === 'defeat');
       startButton.disabled = !battle || mode === 'loading' || mode === 'closed';
       const controlsDisabled = startButton.disabled || mode === 'error';
@@ -257,7 +258,7 @@
       const battleTime = (Math.floor(state.time / 100) / 10).toFixed(1) + '秒';
       setText(elapsed, battleTime);
       if (finished) {
-        setText(get('stageResultTitle'), campaignComplete ? '攻略完了' : mode === 'victory' ? '勝利' : '敗北');
+        setText(get('stageResultTitle'), chapterClear ? '章突破' : mode === 'victory' ? '勝利' : '敗北');
         setText(get('stageResultSurvivors'), survivorSummary);
         setText(get('stageResultTime'), battleTime);
         resultAction.hidden = campaignComplete;
@@ -274,8 +275,9 @@
         if (campaignVictory) {
           setText(campaignResult, clear
             ? ('+' + formatNumber.format(clear.points) + ' PT獲得 · ' +
-                (campaignComplete ? '全ステージ突破 · ' + stage + ' / ' + rules.campaignStageCount
-                  : '第' + clear.next + 'ステージ' + (auto ? 'へ進みます' : ' 解放')))
+                (chapterClear ? '第' + formatNumber.format(rules.chapterForStage(stage)) + '章突破 · ' : '') +
+                (campaignComplete ? '到達上限'
+                  : '第' + formatNumber.format(clear.next) + 'ステージ' + (auto ? 'へ進みます' : ' 解放')))
             : '進行を保存できませんでした');
         }
       }

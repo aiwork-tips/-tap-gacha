@@ -62,7 +62,7 @@
 #shopScreen .shop-to-character,
 #characterScreen .char-action,
 #characterScreen #charBuyKey,
-#characterScreen #charFavoriteButton,
+#characterScreen #charDetailButton,
 #gachaScreen .gacha-home {
   box-sizing:border-box!important;
   display:flex!important;

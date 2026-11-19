@@ -7,7 +7,7 @@
 <meta content="#071827" name="theme-color"/>
 <meta content="yes" name="apple-mobile-web-app-capable"/>
 <meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
-<title>Ver.11.8 BATTLE-RC50 · タップ育成ガチャ -覚醒-</title>
+<title>Ver.11.8 BATTLE-RC52 · タップ育成ガチャ -覚醒-</title>
 <link rel="preload" as="image" href="assets/rc38-victory-panel.webp">
 <link rel="preload" as="image" href="assets/rc38-victory-crest.webp">
 <!-- Unified Save Rev.3: tapgacha_save_v3 / legacy gV2 preserved read-only -->
@@ -55,7 +55,7 @@
     <span id="homeFavoriteStatus" hidden>お気に入りキャラ</span><span id="homeFavoriteStars" hidden>★</span><strong id="homeFavoriteName" hidden>—</strong><small id="homeFavoriteLevel" hidden>Lv —</small>
     <div class="kit-character-picture"><img id="homeFavoriteImage" alt=""><div id="homeFavoriteEmpty">仲間を召喚しよう</div></div>
   </div>
-  <button type="button" id="homeChangeFavorite" class="kit-favorite-switch" aria-label="キャラ画面でお気に入りを変更"><img alt="" src="assets/4605aef87d4a48450ca4.webp"></button>
+  <button type="button" id="homeChangeFavorite" class="kit-favorite-switch" aria-label="ホームの表示キャラを選ぶ" aria-haspopup="dialog"><img alt="" src="assets/4605aef87d4a48450ca4.webp"></button>
   <button type="button" aria-label="召喚門・ガチャ" class="kit-facility kit-summon" data-home-go="gacha"><img alt="" draggable="false" src="assets/939543436d8829b3b8b9.webp"></button>
   <button type="button" aria-label="育成祭壇・キャラ育成" class="kit-facility kit-training" data-home-go="character"><img alt="" draggable="false" src="assets/080c7d241104b2224ba2.webp"></button>
   <button type="button" aria-label="記録書庫・図鑑" class="kit-facility kit-archive" data-home-go="dex"><img alt="" draggable="false" src="assets/8491a7369a1a2f8e5fc8.webp"></button>
@@ -234,8 +234,8 @@
           <path d="m68 2 2 4-2 4-2-4Z" fill="#f5fcff"/>
         </svg>
         <span id="portraitStars" class="char-portrait-stars" aria-hidden="true"></span>
-        <button type="button" id="charFavoriteButton" class="char-favorite-button" aria-label="このキャラをお気に入り設定する">
-          <span class="char-button-ink">☆ ホームに設定</span>
+        <button type="button" id="charDetailButton" class="char-detail-button" aria-label="キャラ詳細を開く" aria-haspopup="dialog">
+          <span class="char-button-ink">キャラ詳細</span>
         </button>
       </div>
       <div class="char-info">
@@ -316,6 +316,35 @@
 </section>
 
 
+
+<dialog class="profile-dialog" id="charDetailDialog" aria-labelledby="charDetailName">
+  <header class="profile-heading">
+    <img id="charDetailPortrait" alt="">
+    <div>
+      <p id="charDetailRarity"></p>
+      <h3 id="charDetailName"></h3>
+      <p id="charDetailMeta"></p>
+    </div>
+  </header>
+  <dl id="charDetailStats">
+    <div><dt>最大HP</dt><dd id="charDetailHP"></dd></div>
+    <div><dt>攻撃力</dt><dd id="charDetailAttack"></dd></div>
+  </dl>
+  <div class="profile-lore">
+    <h4>キャラ紹介</h4>
+    <p id="charDetailLore"></p>
+  </div>
+  <form method="dialog"><button type="submit" autofocus>閉じる</button></form>
+</dialog>
+<dialog class="profile-dialog" id="homeFavoriteDialog" aria-labelledby="homeFavoriteDialogTitle">
+  <h3 id="homeFavoriteDialogTitle">ホームの表示キャラ</h3>
+  <div id="homeFavoriteChoices"></div>
+  <p id="homeFavoritePickerStatus" role="status"></p>
+  <form method="dialog">
+    <button type="button" id="homeFavoriteReset">自動表示に戻す</button>
+    <button type="submit" autofocus>閉じる</button>
+  </form>
+</dialog>
 
 <section class="screen" id="dexScreen" aria-labelledby="dexTitle">
   <img class="dex-backdrop" src="assets/dex-archive.webp" alt="" decoding="async">
@@ -438,7 +467,7 @@
       <div class="shop-bridge"><button type="button" class="shop-to-character" id="shopGoCharacter">キャラ育成へ →</button></div>
       <div class="shop-future">現在購入できるのは「上限解放の鍵」のみです。<br>新アイテムの価格・効果は後日決定します。</div>
     </div>
-    <span class="shop-version">Ver.11.8 · BATTLE-RC50</span>
+    <span class="shop-version">Ver.11.8 · BATTLE-RC52</span>
   </div>
 </section>
 
@@ -448,7 +477,7 @@
 <section class="screen" id="questScreen" aria-label="依頼掲示板">
   <img id="questBackdrop" class="quest-backdrop" alt="" aria-hidden="true" />
   <div class="quest-scrim"></div>
-  <span class="quest-version">Ver.11.8 · BATTLE-RC50</span>
+  <span class="quest-version">Ver.11.8 · BATTLE-RC52</span>
   <div class="quest-shell">
     <header class="quest-top">
       <div class="quest-head"><button id="questBackHome" type="button" class="quest-home">⌂ ホーム</button><h1 class="quest-title">依頼掲示板</h1></div>
@@ -491,7 +520,7 @@
       <div class="party-route" id="partyRoute" hidden>
         <div class="party-route-progress">
           <span id="partyProgressText"></span>
-          <progress id="partyProgress" aria-label="水晶の回廊の攻略進行度"></progress>
+          <progress id="partyProgress" aria-label="現在の章の攻略進行度"></progress>
         </div>
         <div class="party-route-next">
           <strong id="partyEncounter"></strong>
@@ -599,7 +628,7 @@
     </div>
     <footer class="stage-note">
       <span id="stageTrialLabel" hidden>お試し編成 · Lv1</span>
-      <span>Ver.11.8 · BATTLE-RC50</span>
+      <span>Ver.11.8 · BATTLE-RC52</span>
     </footer>
     <template id="stageCardTemplate">
       <div class="stage-slot">
@@ -649,7 +678,7 @@
 </dialog>
 
 <div class="toast" id="toast"></div>
-<div id="devBuildLabel" aria-label="開発検証版 Ver.11.8 BATTLE-RC50">Ver.11.8 · BATTLE-RC50</div>
+<div id="devBuildLabel" aria-label="開発検証版 Ver.11.8 BATTLE-RC52">Ver.11.8 · BATTLE-RC52</div>
 </main>
 <script src="js/battle-rules.js"></script>
 <script src="js/battle-stage.js"></script>

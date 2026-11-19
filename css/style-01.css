@@ -1600,8 +1600,8 @@ button{font:inherit;color:inherit}
 .home-nav button,.gacha-bottom-nav button,.character-bottom-nav button{min-width:0!important;min-height:0!important;border:0!important;background:transparent!important;color:transparent!important;font-size:0!important;padding:0!important;margin:0!important;cursor:pointer!important;-webkit-tap-highlight-color:transparent!important}
 /* Favorite control is an overlay; original character text layout is not stretched. */
 .char-detail{position:relative!important}
-.char-favorite-button{position:absolute;z-index:3;bottom:11px;left:11px;width:calc(37% - 12px);min-height:29px;background:linear-gradient(#0c6097f2,#063257f5);border:1px solid #efce89;border-radius:9px;color:#fff0b9;font-size:clamp(8px,2.25vw,11px);font-weight:800;box-shadow:0 2px 7px #041a3988;cursor:pointer}
-.char-favorite-button.is-favorite{background:linear-gradient(#94712ebf,#493416e3);border-color:#ffe4a4;box-shadow:0 0 9px #fce1947a}
+.char-detail-button{position:absolute;z-index:3;bottom:11px;left:11px;width:calc(37% - 12px);min-height:29px;background:linear-gradient(#0c6097f2,#063257f5);border:1px solid #efce89;border-radius:9px;color:#fff0b9;font-size:clamp(8px,2.25vw,11px);font-weight:800;box-shadow:0 2px 7px #041a3988;cursor:pointer}
+.char-detail-button.is-favorite{background:linear-gradient(#94712ebf,#493416e3);border-color:#ffe4a4;box-shadow:0 0 9px #fce1947a}
 .char-tile .fav-pin{position:absolute;right:3px;top:3px;color:#ffe390;background:#071528dd;font-size:12px;border-radius:5px;padding:1px 3px}
 @media(max-height:670px){.dynamic-home-favorite{top:18%;bottom:26%;padding:5px}.dynamic-home-event{top:9.8%;height:5.5%}.home-action button{font-size:9px}.home-change-favorite{min-height:23px}}
 

@@ -93,8 +93,8 @@
   height: 1em;
   fill: currentColor;
 }
-#characterScreen #charFavoriteButton::before,
-#characterScreen #charFavoriteButton::after {
+#characterScreen #charDetailButton::before,
+#characterScreen #charDetailButton::after {
   content: "";
   position: absolute;
   top: 50%;
@@ -105,8 +105,8 @@
   background: linear-gradient(135deg, #e4ffff, #1e90d0 60%, #123b86);
   pointer-events: none;
 }
-#characterScreen #charFavoriteButton::before { left: 5px; }
-#characterScreen #charFavoriteButton::after { right: 5px; }
+#characterScreen #charDetailButton::before { left: 5px; }
+#characterScreen #charDetailButton::after { right: 5px; }
 #characterScreen .char-header-title {
   display: grid !important;
   place-items: center;
@@ -229,7 +229,7 @@
   font-size: clamp(10px, 3.1vw, 16px);
   text-align: center;
 }
-#characterScreen #charFavoriteButton {
+#characterScreen #charDetailButton {
   position: absolute !important;
   z-index: 3;
   left: 4px !important;
@@ -247,7 +247,7 @@
   box-shadow: var(--char-control-bevel) !important;
   color: var(--char-cream) !important;
 }
-#characterScreen #charFavoriteButton .char-button-ink {
+#characterScreen #charDetailButton .char-button-ink {
   font: 800 clamp(8px, 2.55vw, 13px) / 1.08 var(--char-serif) !important;
 }
 
@@ -676,3 +676,51 @@
   background: #101d30;
 }
 #characterScreen #charBreakDialog button:disabled { opacity: .48; }
+
+dialog.profile-dialog {
+  box-sizing: border-box;
+  width: min(380px, calc(100% - 26px));
+  max-height: calc(100dvh - 26px);
+  padding: 16px;
+  border: 1px solid #d8b776;
+  border-radius: 12px;
+  background: linear-gradient(155deg, #183b5a, #0a192d 70%);
+  box-shadow: 0 12px 34px #000a, inset 0 0 0 3px #e2bc7929;
+  color: #fff2d5;
+  font-family: system-ui, sans-serif;
+}
+.profile-dialog[open] { display: flex; flex-direction: column; gap: 12px; }
+.profile-dialog::backdrop { background: #050c19d9; }
+.profile-dialog [hidden] { display: none !important; }
+.profile-dialog :is(h3,h4,p,dl,dd) { margin: 0; }
+.profile-dialog h3 { font-family: serif; font-size: 20px; }
+.profile-dialog button {
+  min-height: 44px;
+  padding: 5px 10px;
+  border: 1px solid #bd9e65;
+  border-radius: 6px;
+  background: linear-gradient(#244965, #10263d);
+  color: inherit;
+  font: 650 13px/1.4 system-ui, sans-serif;
+  touch-action: manipulation;
+}
+.profile-dialog form { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.profile-dialog form button { min-width: 84px; }
+.profile-heading { display: grid; grid-template-columns: 66px minmax(0,1fr); align-items: center; gap: 11px; }
+.profile-heading img { width: 66px; aspect-ratio: 1; object-fit: cover; border-radius: 6px; border: 1px solid #b39461; }
+#charDetailRarity { color: #ffe098; }
+#charDetailMeta { color: #d0e8fa; font-size: 13px; }
+#charDetailStats { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; text-align: center; }
+#charDetailStats div { padding: 6px 4px; background: #0815269c; border: 1px solid #bda06d75; border-radius: 5px; }
+#charDetailStats dt { font-size: 12px; color: #b8dff8; }
+#charDetailStats dd { font-size: clamp(16px,5vw,22px); font-weight: 750; overflow-wrap: anywhere; }
+.profile-lore { min-height: 0; overflow-y: auto; padding: 10px; border: 1px solid #bda06d75; border-radius: 6px; background: #08152680; }
+.profile-lore h4 { font-size: 13px; color: #ffe098; margin-bottom: 5px; }
+.profile-lore p { white-space: pre-wrap; color: #edf3fb; font-size: 13px; line-height: 1.65; }
+#homeFavoriteDialogTitle { text-align: center; }
+#homeFavoriteChoices { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 7px; min-height: 0; overflow-y: auto; grid-auto-rows: max-content; align-content: start; }
+#homeFavoriteChoices button { display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 0; font-size: 11px; padding: 4px; overflow-wrap: anywhere; }
+#homeFavoriteChoices img { width: 100%; height: clamp(50px, 17vw, 74px); object-fit: cover; border-radius: 3px; }
+#homeFavoriteChoices button[aria-pressed="true"] { outline: 2px solid #ffe098; outline-offset: -2px; }
+#homeFavoritePickerStatus { font-size: 13px; text-align: center; }
+#homeFavoritePickerStatus:empty { display: none; }

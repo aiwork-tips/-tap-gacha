@@ -718,12 +718,7 @@
     keyNote.textContent=!keysNeeded?'解放完了':!atCap?`Lv ${shortHudNumber(cap)} で解放`
       :short?`欠片あと ${shortHudNumber(cheapest.shards-shards)}個`:'支払いを選択';
     charEl('charBuyKey').disabled=pt<5000;
-    const fbtn=charEl('charFavoriteButton');
-    const isFav=owned && gameSave.favoriteCharacterId===c.id;
-    fbtn.disabled=!owned;
-    fbtn.classList.toggle('is-favorite',isFav);
-    fbtn.querySelector('.char-button-ink').textContent=isFav?'★ お気に入り中':'☆ ホームに設定';
-    fbtn.setAttribute('aria-pressed',String(isFav));
+
   }
   function levelUpCharacter(target,{quiet=false}={}){
     if(saveRecoveryBlocked){if(!quiet)showToast('セーブ保護中です');return 0;}
@@ -1058,23 +1053,68 @@
     }
     renderLoginGift();
   }
+  const favoriteDialog=homeEl('homeFavoriteDialog');
+  const favoriteReset=homeEl('homeFavoriteReset');
+  const favoritePickerStatus=homeEl('homeFavoritePickerStatus');
   function chooseFavorite(id){
-    if(!ownedCharacterById(id)){showToast('所持しているキャラだけ設定できます');return;}
-    gameSave.favoriteCharacterId=(gameSave.favoriteCharacterId===id) ? null : id;
-    saveUnified();
-    refreshHome();renderCharacters();
-    showToast(gameSave.favoriteCharacterId ? 'ホームのお気に入りに設定！' : 'お気に入り設定を解除');
+    if(id!==null&&!ownedCharacterById(id))return;
+    const previous=gameSave.favoriteCharacterId;
+    if((previous??null)!==id){
+      gameSave.favoriteCharacterId=id;
+      if(!saveUnified()){
+        gameSave.favoriteCharacterId=previous;
+        favoritePickerStatus.textContent='表示キャラを保存できませんでした。';
+        return;
+      }
+      refreshHome();
+      showToast(id?'ホームの表示キャラを変更しました':'自動表示に戻しました');
+    }
+    favoriteDialog.close();
   }
+  favoriteReset.addEventListener('click',()=>chooseFavorite(null));
   homeEl('homeChangeFavorite').addEventListener('click',()=>{
-    const fav=shownHomeCharacter();if(fav)selectedCharId=fav.id;
-    showScreen('character');
+    const owned=GACHA_CHARACTERS.filter(character=>collection[character.id]?.owned);
+    const shown=shownHomeCharacter();
+    favoritePickerStatus.textContent=owned.length?'':'仲間を召喚すると選べます。';
+    favoriteReset.hidden=!gameSave.favoriteCharacterId;
+    homeEl('homeFavoriteChoices').replaceChildren(...owned.map(character=>{
+      const button=document.createElement('button');
+      button.type='button';
+      const selected=character.id===shown?.id;
+      button.setAttribute('aria-pressed',String(selected));
+      button.setAttribute('aria-label',character.name+(selected?'（表示中）':''));
+      const portrait=document.createElement('img');
+      portrait.src=character.image;
+      portrait.alt='';
+      const name=document.createElement('span');
+      name.textContent=character.name;
+      button.append(portrait,name);
+      button.addEventListener('click',()=>chooseFavorite(character.id));
+      return button;
+    }));
+    favoriteDialog.showModal();
   });
   document.querySelectorAll('[data-home-go]').forEach(btn=>btn.addEventListener('click',()=>showScreen(btn.dataset.homeGo)));
   document.querySelectorAll('[data-home-planned]').forEach(btn=>btn.addEventListener('click',()=>{
     if(btn.classList.contains('kit-transfer') && rewardPreview)showScreen('party');
     else showToast(btn.dataset.homePlanned+' は次工程で接続');
   }));
-  charEl('charFavoriteButton').addEventListener('click',()=>chooseFavorite(selectedCharId));
+  charEl('charDetailButton').addEventListener('click',()=>{
+    const character=GACHA_CHARACTERS.find(c=>c.id===selectedCharId) || GACHA_CHARACTERS[0];
+    const record=currentRecord(character.id);
+    const stats=record.owned?window.TapGachaBattle.characterStats(character.id,record.level):null;
+    charEl('charDetailName').textContent=character.name;
+    charEl('charDetailPortrait').src=character.image;
+    charEl('charDetailRarity').textContent='★'.repeat(character.rarity);
+    charEl('charDetailMeta').textContent=stats?character.element+'属性 · Lv '+fmt(stats.level):'未所持';
+    charEl('charDetailStats').hidden=!stats;
+    charEl('charDetailHP').textContent=stats?fmt(stats.maxHp):'';
+    charEl('charDetailAttack').textContent=stats?fmt(stats.attack):'';
+    charEl('charDetailLore').textContent=record.owned?character.lore:'このキャラを召喚すると、記録が解放されます。';
+    const dialog=charEl('charDetailDialog');
+    dialog.showModal();
+    dialog.querySelector('.profile-lore').scrollTop=0;
+  });
 
   // Keep login claims inside the same isolated save as the reward preview.
   const LOGIN_GIFTS = [{pt:100},{pt:150},{pt:200},{pt:250},{pt:300},{pt:500},{keys:1}];
@@ -1208,7 +1248,7 @@
   const partyCandidateTemplate = homeEl('partyCandidateTemplate');
   const partyRosterScroll = homeEl('partyRosterScroll');
   const partyRules = window.TapGachaBattle;
-  partyProgress.max=partyRules.campaignStageCount;
+  partyProgress.max=partyRules.stagesPerChapter;
   const partyRoles = ['前衛', '後衛・左', '後衛・右'];
   const partyStatNumber = new Intl.NumberFormat('ja-JP');
   const partyCompactStat = new Intl.NumberFormat('ja-JP',{notation:'compact',maximumFractionDigits:1});
@@ -1238,7 +1278,7 @@
     return Number.isSafeInteger(count)&&count>=0?count:0;
   }
   function recordCampaignClear(stage,difficulty){
-    if(!rewardPreview||stage!==clearedCampaignStages()+1||stage>partyRules.campaignStageCount)return null;
+    if(!rewardPreview||!Number.isSafeInteger(stage)||stage!==clearedCampaignStages()+1)return null;
     const previousCount=gameSave.campaignClearedStages;
     const previousPoints=pt;
     const points=campaignClearRewards[difficulty];
@@ -1251,7 +1291,7 @@
       else gameSave.campaignClearedStages=previousCount;
       return null;
     }
-    return {points,next:stage===partyRules.campaignStageCount?null:stage+1};
+    return {points,next:stage===Number.MAX_SAFE_INTEGER?null:stage+1};
   }
   let partyDraft = [];
   let partySelectedSlot = 0;
@@ -1454,18 +1494,20 @@
     homeEl('partyEmpty').hidden=owned.length>0;
     partyConfirm.disabled=!rewardPreview||saveRecoveryBlocked||partyDraft.length===0;
     const canLaunch=Boolean(partyForBattle());
-    const cleared=Math.min(clearedCampaignStages(),partyRules.campaignStageCount);
+    const cleared=clearedCampaignStages();
     const next=cleared+1;
-    const completed=cleared===partyRules.campaignStageCount;
+    const completed=!Number.isSafeInteger(next);
     partyBattle.disabled=!rewardPreview||completed;
-    partyBattle.textContent=completed?'全ステージ突破':canLaunch?'第'+next+'ステージへ':'お試し戦闘';
+    partyBattle.textContent=completed?'到達上限':canLaunch?'第'+fmt(next)+'ステージへ':'お試し戦闘';
     partyBattle.title=canLaunch?partyBattle.textContent:'アルム・鉄骸兵・クロウルのLv1編成で試す';
     partyDifficulty.disabled=completed;
     partyRoute.hidden=!rewardPreview;
-    partyProgress.value=cleared;
-    partyProgressText.textContent=`${cleared} / ${partyRules.campaignStageCount} 突破`;
+    const chapter=partyRules.chapterForStage(completed?cleared:next);
+    const chapterCleared=cleared%partyRules.stagesPerChapter;
+    partyProgress.value=chapterCleared;
+    partyProgressText.textContent=`第${fmt(chapter)}章 · ${chapterCleared} / ${partyRules.stagesPerChapter}`;
     const encounter=canLaunch&&!completed?partyRules.campaignEncounter(next):null;
-    partyEncounter.textContent=completed?'水晶の回廊 攻略完了'
+    partyEncounter.textContent=completed?'到達上限'
       :encounter?(encounter.boss?'BOSS · ':'')+encounter.name:'お試し編成で出撃できます';
     partyRoute.toggleAttribute('data-boss',Boolean(encounter?.boss));
     partyRoute.toggleAttribute('data-complete',completed);
@@ -1496,7 +1538,7 @@
     if(!rewardPreview||partyBattle.disabled)return;
     const members=partyForBattle();
     const stage=members?clearedCampaignStages()+1:null;
-    if(stage>partyRules.campaignStageCount)return;
+    if(stage!==null&&!Number.isSafeInteger(stage))return;
     const loading=battleStage.load(members||partyRules.sampleParty(),!members,partyDifficulty.value,stage);
     showScreen('battle');
     loading.then(ready=>{
