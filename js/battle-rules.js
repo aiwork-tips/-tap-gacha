@@ -110,6 +110,15 @@
   const animationWindow = 480;
   const burnInterval = 1000;
 
+  function enemyForStage(stage) {
+    return stageEnemies[stage] ?? guardian;
+  }
+
+  function campaignEncounter(stage) {
+    const { name, briefing } = enemyForStage(stage);
+    return { name, boss: Boolean(briefing) };
+  }
+
   function supports(id) {
     return typeof id === 'string' && Object.hasOwn(characters, id);
   }
@@ -157,7 +166,7 @@
     });
     const baseline = difficulties[difficulty];
     const maxHp = Math.round(baseline.maxHp * stageHpGrowth ** (stageNumber - 1));
-    const enemyProfile = stageEnemies[stageNumber] ?? guardian;
+    const enemyProfile = enemyForStage(stageNumber);
     const openingShield = Math.round(maxHp * (enemyProfile.shieldRatio ?? 0));
     const enemy = {
       ...enemyProfile, maxHp, hp: maxHp, attack: Math.round(baseline.attack * stageAttackGrowth ** (stageNumber - 1)),
@@ -390,5 +399,5 @@
     return { state, advanceTo, requestSkill, skillStatus, enemyAttack, enemyAttackPower, enemyEnraged, thunderWarning };
   }
 
-  globalThis.TapGachaBattle = Object.freeze({ supports, sampleParty, characterArt, characterStats, createBattle, campaignStageCount });
+  globalThis.TapGachaBattle = Object.freeze({ supports, sampleParty, characterArt, characterStats, createBattle, campaignStageCount, campaignEncounter });
 })();

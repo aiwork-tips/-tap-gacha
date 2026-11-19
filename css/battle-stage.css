@@ -190,6 +190,12 @@
 }
 .stage-status p { margin: 0; text-align: center; }
 .stage-status time { justify-self: end; color: #b6d4ee; font-variant-numeric: tabular-nums; }
+.stage-status #stageTactic {
+  grid-column: 1 / -1;
+  padding-bottom: 2px;
+  color: #d7c9a4;
+  font-size: 10px;
+}
 .stage-app[data-mode=victory] .stage-status p { color: #ffde8e; }
 .stage-app[data-mode=defeat] .stage-status p { color: #ffc1ad; }
 .stage-party {
@@ -406,6 +412,17 @@
   font: 600 11px/1.35 system-ui;
   font-variant-numeric: tabular-nums;
 }
+.stage-defeat-review {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  align-items: start;
+  gap: 7px;
+  margin-top: 6px;
+  color: #e7e2d8;
+  font: 600 11px/1.35 system-ui;
+}
+.stage-defeat-review strong { color: #ffd6b4; font-variant-numeric: tabular-nums; }
+.stage-defeat-review p { margin: 0; }
 .stage-app[data-mode='victory'] .stage-result-panel {
   --result-accent: #ffe1a6;
   padding: 11px 16px 12px;
@@ -429,6 +446,8 @@
   background: url('../assets/rc38-victory-crest.webp') center / contain no-repeat;
   content: '';
 }
+.stage-app[data-campaign-complete] .stage-result-header h2 { font-size: clamp(18px, 5vw, 26px); }
+.stage-app[data-campaign-complete] .stage-campaign-result { letter-spacing: .04em; }
 .stage-app[data-mode='victory'] .stage-result-actions {
   gap: 6px;
   padding-top: 4px;

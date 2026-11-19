@@ -17,6 +17,17 @@
   const imageLoadTimeout = 12000;
   const skillNoticeDuration = 3000;
 
+  function retryTip({ allies, enemy, result }, usedSkill) {
+    if (result !== 'defeat') return '';
+    if (allies.length < 3) return '空いている枠に仲間を編成すると、手数が増えます。';
+    if (!usedSkill) return 'スキルは手動発動です。戦闘中に光ったボタンをタップ。';
+    if (enemy.hp <= enemy.maxHp * 0.25) return 'あと少し。攻撃スキルを使うか、攻撃役を育成して再挑戦。';
+    if (enemy.shield > 0) return '序盤に攻撃スキルを使い、ボスのシールドを削りましょう。';
+    if (enemy.thunder) return '雷撃の予告を見て、味方の防御や敵の攻撃遅延を使いましょう。';
+    if (enemy.enrage) return '覚醒に備え、前衛の育成や攻撃力を下げるスキルを試しましょう。';
+    return '前衛を育成するか、回復・防御スキルを持つ仲間を編成しましょう。';
+  }
+
   function createController(root, onBack, onClear, onTrain) {
     const get = id => root.querySelector('#' + id);
     const field = get('stageField');
@@ -25,11 +36,13 @@
     const partyCards = get('stageParty');
     const cardTemplate = get('stageCardTemplate');
     const status = get('stageStatus');
+    const tactic = get('stageTactic');
     const result = get('stageResult');
     const resultBack = get('stageResultBack');
     const resultAction = get('stageResultRetry');
     const resultTrain = get('stageResultTrain');
     const campaignResult = get('stageCampaignResult');
+    const defeatReview = get('stageDefeatReview');
     resultBack.hidden = get('stageBack').hidden;
     const elapsed = get('stageElapsed');
     const startButton = get('stageStart');
@@ -151,6 +164,9 @@
       root.dataset.mode = mode;
       const finished = mode === 'victory' || mode === 'defeat';
       result.hidden = !finished;
+      const campaignVictory = stage !== null && mode === 'victory';
+      const campaignComplete = campaignVictory && clear?.next === null;
+      root.toggleAttribute('data-campaign-complete', campaignComplete);
       resultTrain.hidden = !(onTrain && stage !== null && mode === 'defeat');
       startButton.disabled = !battle || mode === 'loading' || mode === 'closed';
       const controlsDisabled = startButton.disabled || mode === 'error';
@@ -169,6 +185,7 @@
       root.toggleAttribute('data-enraged', enraged);
       if (!battle) return;
       const state = battle.state;
+      const enemy = state.enemy;
       const difficultyLabel = state.difficulty === 'training' ? '高難度' : '通常';
       const attack = battle.enemyAttack();
       const attackPower = Math.round(battle.enemyAttackPower());
@@ -232,22 +249,33 @@
       const buttons = { running: '一時停止', paused: '再開', victory: '再戦', defeat: '再戦', error: '読み込みを再試行' };
       setText(startButton, buttons[mode] || '戦闘開始');
       setText(status, text[mode] || '');
+      const tacticText = mode !== 'running' ? '' : thunder !== null ? '雷撃に備えて防御・遅延'
+        : enraged ? '攻撃弱体・回復で前衛を守る'
+        : enemy.openingShield > 0 && enemy.shield > 0 ? '攻撃スキルでシールドを削る' : '';
+      tactic.hidden = !tacticText;
+      setText(tactic, tacticText);
       const battleTime = (Math.floor(state.time / 100) / 10).toFixed(1) + '秒';
       setText(elapsed, battleTime);
       if (finished) {
-        setText(get('stageResultTitle'), mode === 'victory' ? '勝利' : '敗北');
+        setText(get('stageResultTitle'), campaignComplete ? '攻略完了' : mode === 'victory' ? '勝利' : '敗北');
         setText(get('stageResultSurvivors'), survivorSummary);
         setText(get('stageResultTime'), battleTime);
-        const campaignVictory = stage !== null && mode === 'victory';
-        resultAction.hidden = campaignVictory && clear?.next === null;
+        resultAction.hidden = campaignComplete;
         setText(resultAction, campaignVictory
           ? (clear ? (auto ? 'AUTO停止' : '次のステージへ') : '保存をやり直す')
           : '再戦');
         campaignResult.hidden = !campaignVictory;
+        defeatReview.hidden = stage === null || mode !== 'defeat';
+        if (!defeatReview.hidden) {
+          setText(get('stageRemaining'), '敵の残りHP ' + percent(enemy) + '％' +
+            (enemy.shield > 0 ? ' · 盾 ' + formatNumber.format(enemy.shield) : ''));
+          setText(get('stageRetryTip'), retryTip(state, Boolean(latestSkill)));
+        }
         if (campaignVictory) {
           setText(campaignResult, clear
             ? ('+' + formatNumber.format(clear.points) + ' PT獲得 · ' +
-                (clear.next === null ? '全ステージ突破' : '第' + clear.next + 'ステージ' + (auto ? 'へ進みます' : ' 解放')))
+                (campaignComplete ? '全ステージ突破 · ' + stage + ' / ' + rules.campaignStageCount
+                  : '第' + clear.next + 'ステージ' + (auto ? 'へ進みます' : ' 解放')))
             : '進行を保存できませんでした');
         }
       }

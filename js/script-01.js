@@ -1165,6 +1165,10 @@
   const partyBattle = homeEl('partyBattle');
   const partyDifficulty = homeEl('partyDifficulty');
   const partyClearReward = homeEl('partyClearReward');
+  const partyRoute = homeEl('partyRoute');
+  const partyEncounter = homeEl('partyEncounter');
+  const partyProgress = homeEl('partyProgress');
+  const partyProgressText = homeEl('partyProgressText');
   const campaignClearRewards = Object.freeze({normal:50,training:100});
   partyDifficulty.value=gameSave.campaignDifficulty==='training'?'training':'normal';
   const partyStatsDialog = homeEl('partyStatsDialog');
@@ -1172,6 +1176,7 @@
   const partyCandidateTemplate = homeEl('partyCandidateTemplate');
   const partyRosterScroll = homeEl('partyRosterScroll');
   const partyRules = window.TapGachaBattle;
+  partyProgress.max=partyRules.campaignStageCount;
   const partyRoles = ['前衛', '後衛・左', '後衛・右'];
   const partyStatNumber = new Intl.NumberFormat('ja-JP');
   const partyCompactStat = new Intl.NumberFormat('ja-JP',{notation:'compact',maximumFractionDigits:1});
@@ -1417,12 +1422,21 @@
     homeEl('partyEmpty').hidden=owned.length>0;
     partyConfirm.disabled=!rewardPreview||saveRecoveryBlocked||partyDraft.length===0;
     const canLaunch=Boolean(partyForBattle());
-    const next=clearedCampaignStages()+1;
-    const completed=canLaunch&&next>partyRules.campaignStageCount;
+    const cleared=Math.min(clearedCampaignStages(),partyRules.campaignStageCount);
+    const next=cleared+1;
+    const completed=cleared===partyRules.campaignStageCount;
     partyBattle.disabled=!rewardPreview||completed;
     partyBattle.textContent=completed?'全ステージ突破':canLaunch?'第'+next+'ステージへ':'お試し戦闘';
     partyBattle.title=canLaunch?partyBattle.textContent:'アルム・鉄骸兵・クロウルのLv1編成で試す';
     partyDifficulty.disabled=completed;
+    partyRoute.hidden=!rewardPreview;
+    partyProgress.value=cleared;
+    partyProgressText.textContent=`${cleared} / ${partyRules.campaignStageCount} 突破`;
+    const encounter=canLaunch&&!completed?partyRules.campaignEncounter(next):null;
+    partyEncounter.textContent=completed?'水晶の回廊 攻略完了'
+      :encounter?(encounter.boss?'BOSS · ':'')+encounter.name:'お試し編成で出撃できます';
+    partyRoute.toggleAttribute('data-boss',Boolean(encounter?.boss));
+    partyRoute.toggleAttribute('data-complete',completed);
     partyClearReward.hidden=!canLaunch||completed;
     renderPartyClearReward();
   }
