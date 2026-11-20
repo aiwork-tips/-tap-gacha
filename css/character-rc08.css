@@ -780,6 +780,15 @@ dialog.profile-dialog {
   background: linear-gradient(145deg, #1c3d59, #101f34);
 }
 .profile-awakening #charAwakenProgress { color: #ffe098; font-weight: 750; }
+.profile-awakening .awakening-materials {
+  margin: 5px 0;
+  padding: 5px 8px;
+  border-left: 2px solid #bda06d;
+  background: #08152680;
+  overflow-wrap: anywhere;
+}
+.awakening-materials #charAwakenShards { font-weight: 750; color: #fff2d5; }
+.awakening-materials :is(#charAwakenUnlocks, #charAwakenKeys) { font-size: 12px; color: #c9def4; }
 .profile-awakening button { width: 100%; margin-top: 8px; }
 .profile-awakening #charAwakenStatus:not(:empty) { margin-top: 5px; color: #c9ebff; }
 .profile-awakening #charAwakenGain { color: #ffe098; font-weight: 750; font-variant-numeric: tabular-nums; }

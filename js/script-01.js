@@ -494,6 +494,22 @@
     if(level <= 80) return 10;
     return 12;
   };
+  function awakeningMaterialPlan(rec, level, target, keys){
+    let levelShards=0;
+    for(let lv=level;lv<target;lv++)levelShards+=levelCost(lv);
+
+    let unlocks=0, requiredKeys=0;
+    for(let cap=trainingCap(rec);cap<target;cap+=TRAINING_CAP_STEP){
+      const cost=limitBreakKeyCost(cap);
+      if(!cost)return null;
+      requiredKeys+=cost;
+      unlocks++;
+    }
+    const usedKeys=Math.min(requiredKeys,Math.max(0,Math.floor(Number(keys)||0)));
+    const shards=Math.max(0,Math.floor(Number(rec.shards)||0));
+    const missing=Math.max(0,levelShards+requiredKeys*shardsPerKey-shards);
+    return {unlocks,missing,usedKeys,missingWithKeys:Math.max(0,missing-usedKeys*shardsPerKey)};
+  }
   function currentRecord(id){
     const rec = collection[id] || {owned:false,shards:0};
     if(rec.owned && !Number.isFinite(Number(rec.level))) rec.level=1;
@@ -1161,8 +1177,23 @@
     charEl('charAwakening').hidden=!awakening;
     if(!awakening)return;
     const {rank,nextRank,nextLevel,canAwaken,statPercent,nextStatPercent,nextShieldPercent,shieldSeconds}=awakening;
+    const plan=nextLevel!==null&&!canAwaken
+      ?awakeningMaterialPlan(record,stats.level,nextLevel,gameSave.keys):null;
     charEl('charAwakenProgress').textContent=nextRank===null?rank+'次覚醒達成':
       nextRank+'次覚醒 · Lv '+fmt(nextLevel)+(canAwaken?' 到達':' まであと '+fmt(nextLevel-stats.level));
+    charEl('charAwakenMaterials').hidden=!plan;
+    if(plan){
+      const unlockNote=charEl('charAwakenUnlocks');
+      unlockNote.hidden=!plan.unlocks;
+      unlockNote.textContent='上限解放あと'+fmt(plan.unlocks)+'回';
+      charEl('charAwakenShards').textContent=plan.missing
+        ?'欠片だけで育成：あと'+fmt(plan.missing)+'個'
+        :'手持ちの欠片で目標Lvまで育成可';
+      const keyNote=charEl('charAwakenKeys');
+      keyNote.hidden=!plan.usedKeys||!plan.missing;
+      keyNote.textContent='鍵'+fmt(plan.usedKeys)+'本を使う場合：'+
+        (plan.missingWithKeys?'欠片あと'+fmt(plan.missingWithKeys)+'個':'手持ちの素材で育成可');
+    }
     charEl('charAwakenEffect').textContent=nextRank===null?'最大HP・攻撃力 ＋'+statPercent+'％':
       '覚醒後の最大HP・攻撃力 ＋'+nextStatPercent+'％'+(nextShieldPercent===null?'':
       ' · 聖光：回復した味方に'+shieldSeconds+'秒間、最大HPの'+nextShieldPercent+'％分の盾');
