@@ -43,6 +43,7 @@
     const resultTrain = get('stageResultTrain');
     const logDialog = get('stageLogDialog');
     const battleLog = [];
+    const battleTotals = new Map();
     const campaignResult = get('stageCampaignResult');
     const defeatReview = get('stageDefeatReview');
     resultBack.hidden = get('stageBack').hidden;
@@ -359,9 +360,17 @@
     }
 
     function recordBattleEvents(events) {
+      const { allies, enemy } = battle.state;
       for (const event of events) {
-        if (!(event.skill && !event.periodic) && !event.thunder && !event.warded && !event.defeated) continue;
-        const { allies, enemy } = battle.state;
+        const sourceTotals = battleTotals.get(event.from);
+        if (event.kind === 'heal') {
+          sourceTotals.healed += event.amount;
+        } else if (event.kind === 'hit') {
+          if (sourceTotals) sourceTotals.dealt += event.amount;
+          else battleTotals.get(event.to).received += event.amount;
+        }
+        if (!(event.skill && !event.periodic) && !event.thunder && !event.warded && !event.defeated &&
+            !event.enemyShieldBroken && !event.enemyAwakened) continue;
         const caster = allies.find(ally => ally.id === event.from);
         const target = event.to === enemy.id ? enemy : allies.find(ally => ally.id === event.to);
         const add = text => battleLog.push({ time: event.time, text });
@@ -377,6 +386,10 @@
           add(enemy.name + 'の雷撃 → ' + target.name + received);
         } else if (event.warded) {
           add(target.name + 'が結界で攻撃を無効化');
+        }
+        if (event.enemyShieldBroken) add(enemy.name + 'の盾を破壊');
+        if (event.enemyAwakened) {
+          add(enemy.name + 'が覚醒（攻撃力＋' + Math.round((enemy.enrage.multiplier - 1) * 100) + '％）');
         }
         if (event.defeated) {
           add(target.name + (target === enemy ? 'を撃破' : 'が戦闘不能'));
@@ -469,9 +482,11 @@
       latestSkill = null;
       lastLoggedCast = undefined;
       battleLog.length = 0;
+      battleTotals.clear();
       mode = 'loading';
       const images = [];
       battle.state.allies.forEach((ally, index) => {
+        battleTotals.set(ally.id, { dealt: 0, received: 0, healed: 0 });
         const [x, y] = positions[members.length][index];
         images.push(actor(ally, x, y), card(ally));
       });
@@ -561,7 +576,18 @@
       stopAuto();
       render();
       const label = stage === null ? 'お試し戦闘' : '第' + formatNumber.format(stage) + 'ステージ';
-      setText(get('stageLogContext'), label + ' · 最近の主な出来事');
+      setText(get('stageLogContext'), label + ' · ' + (mode === 'victory' ? '勝利' : '敗北'));
+      const totals = get('stageBattleTotals');
+      totals.replaceChildren();
+      for (const ally of battle.state.allies) {
+        const row = totals.insertRow();
+        const name = document.createElement('th');
+        name.scope = 'row';
+        name.textContent = ally.name;
+        row.append(name);
+        const { dealt, received, healed } = battleTotals.get(ally.id);
+        for (const amount of [dealt, received, healed]) row.insertCell().textContent = formatNumber.format(amount);
+      }
       const entries = battleLog.map(event => {
         const entry = document.createElement('li');
         const time = document.createElement('span');
@@ -573,6 +599,8 @@
       });
       const list = get('stageLogEvents');
       list.replaceChildren(...entries);
+      list.hidden = entries.length === 0;
+      get('stageLogEmpty').hidden = entries.length > 0;
       logDialog.showModal();
       list.scrollTop = list.scrollHeight;
     });

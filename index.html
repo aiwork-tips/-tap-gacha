@@ -7,7 +7,7 @@
 <meta content="#071827" name="theme-color"/>
 <meta content="yes" name="apple-mobile-web-app-capable"/>
 <meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
-<title>Ver.11.8 BATTLE-RC55 · タップ育成ガチャ -覚醒-</title>
+<title>Ver.11.8 BATTLE-RC56 · タップ育成ガチャ -覚醒-</title>
 <link rel="preload" as="image" href="assets/rc38-victory-panel.webp">
 <link rel="preload" as="image" href="assets/rc38-victory-crest.webp">
 <!-- Unified Save Rev.3: tapgacha_save_v3 / legacy gV2 preserved read-only -->
@@ -489,7 +489,7 @@
       <div class="shop-bridge"><button type="button" class="shop-to-character" id="shopGoCharacter">キャラ育成へ →</button></div>
       <div class="shop-future">現在購入できるのは「上限解放の鍵」のみです。<br>新アイテムの価格・効果は後日決定します。</div>
     </div>
-    <span class="shop-version">Ver.11.8 · BATTLE-RC55</span>
+    <span class="shop-version">Ver.11.8 · BATTLE-RC56</span>
   </div>
 </section>
 
@@ -499,7 +499,7 @@
 <section class="screen" id="questScreen" aria-label="依頼掲示板">
   <img id="questBackdrop" class="quest-backdrop" alt="" aria-hidden="true" />
   <div class="quest-scrim"></div>
-  <span class="quest-version">Ver.11.8 · BATTLE-RC55</span>
+  <span class="quest-version">Ver.11.8 · BATTLE-RC56</span>
   <div class="quest-shell">
     <header class="quest-top">
       <div class="quest-head"><button id="questBackHome" type="button" class="quest-home">⌂ ホーム</button><h1 class="quest-title">依頼掲示板</h1></div>
@@ -645,6 +645,12 @@
     <dialog class="stage-log-dialog" id="stageLogDialog" aria-labelledby="stageLogTitle">
       <h2 id="stageLogTitle">戦闘ログ</h2>
       <p id="stageLogContext"></p>
+      <table class="stage-battle-totals">
+        <caption>味方の戦闘成績 <small>HPの増減を集計</small></caption>
+        <thead><tr><th scope="col">キャラ</th><th scope="col">与えた<br>ダメージ</th><th scope="col">受けた<br>ダメージ</th><th scope="col">回復量</th></tr></thead>
+        <tbody id="stageBattleTotals"></tbody>
+      </table>
+      <p id="stageLogEmpty" hidden>記録された主な出来事はありません。</p>
       <ol id="stageLogEvents" tabindex="0" aria-label="戦闘の主な出来事"></ol>
       <form method="dialog"><button type="submit" class="stage-button" autofocus>閉じる</button></form>
     </dialog>
@@ -662,7 +668,7 @@
     </div>
     <footer class="stage-note">
       <span id="stageTrialLabel" hidden>お試し編成 · Lv1</span>
-      <span>Ver.11.8 · BATTLE-RC55</span>
+      <span>Ver.11.8 · BATTLE-RC56</span>
     </footer>
     <template id="stageCardTemplate">
       <div class="stage-slot">
@@ -712,7 +718,7 @@
 </dialog>
 
 <div class="toast" id="toast"></div>
-<div id="devBuildLabel" aria-label="開発検証版 Ver.11.8 BATTLE-RC55">Ver.11.8 · BATTLE-RC55</div>
+<div id="devBuildLabel" aria-label="開発検証版 Ver.11.8 BATTLE-RC56">Ver.11.8 · BATTLE-RC56</div>
 </main>
 <script src="js/battle-rules.js"></script>
 <script src="js/battle-stage.js"></script>

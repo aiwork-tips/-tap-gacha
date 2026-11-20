@@ -495,8 +495,34 @@
 .stage-log-dialog h2, .stage-log-dialog p { margin: 0; }
 .stage-log-dialog h2 { font: 700 22px/1.2 serif; }
 .stage-log-dialog p { color: #c8def3; font-size: 12px; }
+.stage-battle-totals {
+  flex: none;
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  background: #081526cc;
+  font-size: clamp(10px, 3vw, 12px);
+}
+.stage-battle-totals caption {
+  padding-bottom: 5px;
+  color: #ffe1a6;
+  font-weight: 700;
+  text-align: left;
+}
+.stage-battle-totals caption small { margin-inline-start: .4em; color: #c8def3; font-weight: 400; }
+.stage-battle-totals th, .stage-battle-totals td {
+  padding: 6px 3px;
+  border-bottom: 1px solid #bda06d42;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+.stage-battle-totals thead { color: #c8def3; }
+.stage-battle-totals thead th:first-child { width: 33%; text-align: left; }
+.stage-battle-totals tbody th { text-align: left; }
+.stage-battle-totals td { text-align: center; font-variant-numeric: tabular-nums; }
+.stage-log-dialog ol[hidden] { display: none; }
 .stage-log-dialog ol {
-  min-height: 0;
+  min-height: 62px;
   max-height: 45dvh;
   overflow-y: auto;
   margin: 0;
@@ -516,5 +542,5 @@
 }
 .stage-log-dialog li + li { border-top: 1px solid #bda06d42; }
 .stage-log-dialog li span:first-child { color: #b8dff8; font-variant-numeric: tabular-nums; }
-.stage-log-dialog form { text-align: center; }
+.stage-log-dialog form { flex: none; text-align: center; }
 .stage-log-dialog form button { min-width: 84px; }

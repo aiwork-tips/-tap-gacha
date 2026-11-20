@@ -280,13 +280,16 @@
       }
       const warded = power > 0 && state.time < (target.wardUntil ?? 0);
       const blocked = warded ? power : Math.min(power, target.shield);
+      const enemyShieldBroken = target === enemy && !warded && target.shield > 0 && blocked === target.shield;
+      const wasEnraged = target === enemy && enemyEnraged();
       if (warded) target.wardUntil = 0;
       else target.shield -= blocked;
       const amount = Math.min(target.hp, power - blocked);
       target.hp -= amount;
       events.push({
         kind: 'hit', from: attacker.id, to: target.id, amount, blocked, skill, periodic, warded,
-        defeated: target.hp === 0, time: state.time
+        defeated: target.hp === 0, enemyShieldBroken, enemyAwakened: target === enemy && !wasEnraged && enemyEnraged(),
+        time: state.time
       });
       if (target.hp === 0 && state.queuedSkill?.id === target.id) state.queuedSkill = null;
       if (enemy.hp === 0) state.result = 'victory';
