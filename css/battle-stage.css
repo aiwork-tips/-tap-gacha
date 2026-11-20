@@ -519,6 +519,21 @@
 .stage-battle-totals thead { color: #c8def3; }
 .stage-battle-totals thead th:first-child { width: 33%; text-align: left; }
 .stage-battle-totals tbody th { text-align: left; }
+.stage-battle-totals tbody button {
+  width: 100%;
+  min-height: 26px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #ffe1a6;
+  font: inherit;
+  text-align: left;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+  touch-action: manipulation;
+}
 .stage-battle-totals td { text-align: center; font-variant-numeric: tabular-nums; }
 .stage-log-dialog ol[hidden] { display: none; }
 .stage-log-dialog ol {

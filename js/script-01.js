@@ -1428,12 +1428,17 @@
     for(const card of partyRoster.children){
       const candidate=card.querySelector('.party-candidate');
       const id=candidate.dataset.partyCharacter;
+      const position=partyDraft.indexOf(id);
+      const name=candidate.querySelector('.party-candidate-name').textContent;
       card.classList.toggle('party-candidate-target',id===target);
-      if(!candidate.disabled)candidate.setAttribute('aria-label',`${candidate.querySelector('.party-candidate-name').textContent}・${partyRoles[partySelectedSlot]}に編成`);
+      candidate.disabled=id===target||saveRecoveryBlocked;
+      const action=id===target?`${partyRoles[position]}に編成中`:position>=0?
+        `${partyRoles[position]}から${partyRoles[partySelectedSlot]}へ入れ替え`:`${partyRoles[partySelectedSlot]}に編成`;
+      candidate.setAttribute('aria-label',`${name}・${action}`);
     }
     const ownedCount=partyRoster.childElementCount;
     homeEl('partyHint').textContent=saveRecoveryBlocked?'セーブの確認が必要です':ownedCount===0?'召喚門から仲間を迎えましょう':
-      ownedCount<=3?'仲間を迎えると、ここで入れ替えられます':`${partyRoles[partySelectedSlot]}を選択中 · 下のキャラをタップで交代`;
+      ownedCount===1?'仲間を迎えると、ここで入れ替えられます':`${partyRoles[partySelectedSlot]}を選択中 · 下のキャラをタップで入れ替え`;
   }
   function renderPartySlot(character,index,activeSlots){
     const button=partySlotTemplate.content.firstElementChild.cloneNode(true);
@@ -1476,12 +1481,13 @@
     const button=card.querySelector('.party-candidate');
     button.dataset.partyCharacter=character.id;
     card.dataset.formed=String(position!==-1);
-    button.disabled=position!==-1||saveRecoveryBlocked;
-    button.setAttribute('aria-label',position!==-1?`${character.name}・${partyRoles[position]}に編成中`:character.name);
+    if(position>=0)card.querySelector('.party-candidate-state').textContent=partyRoles[position];
     button.querySelector('img').src=character.image;
     button.querySelector('.party-candidate-name').textContent=character.name;
     button.addEventListener('click',()=>{
-      if(!rewardPreview||saveRecoveryBlocked||partyDraft.includes(character.id)||!collection[character.id]?.owned)return;
+      if(!rewardPreview||saveRecoveryBlocked||character.id===partyDraft[partySelectedSlot]||!collection[character.id]?.owned)return;
+      const previousPosition=partyDraft.indexOf(character.id);
+      if(previousPosition>=0)partyDraft[previousPosition]=partyDraft[partySelectedSlot];
       partyDraft[partySelectedSlot]=character.id;
       partyFeedback();
       renderParty();

@@ -578,12 +578,21 @@
       const label = stage === null ? 'お試し戦闘' : '第' + formatNumber.format(stage) + 'ステージ';
       setText(get('stageLogContext'), label + ' · ' + (mode === 'victory' ? '勝利' : '敗北'));
       const totals = get('stageBattleTotals');
+      const canTrain = mode === 'defeat' && !resultTrain.hidden;
+      setText(get('stageBattleTotalsHint'), canTrain ? '名前をタップで育成へ' : 'HPの増減を集計');
       totals.replaceChildren();
       for (const ally of battle.state.allies) {
         const row = totals.insertRow();
         const name = document.createElement('th');
         name.scope = 'row';
-        name.textContent = ally.name;
+        if (canTrain) {
+          const train = document.createElement('button');
+          train.type = 'button';
+          train.textContent = ally.name;
+          train.setAttribute('aria-label', ally.name + 'を育成');
+          train.addEventListener('click', () => onTrain(ally.id));
+          name.append(train);
+        } else name.textContent = ally.name;
         row.append(name);
         const { dealt, received, healed } = battleTotals.get(ally.id);
         for (const amount of [dealt, received, healed]) row.insertCell().textContent = formatNumber.format(amount);
