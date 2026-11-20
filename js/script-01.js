@@ -483,7 +483,7 @@
     const needed=limitBreakKeyCost(cap);
     if(!rec.owned||!needed||Number(rec.level||1)<cap)return [];
     const held=Math.min(needed,Math.max(0,Math.floor(Number(gameSave.keys)||0)));
-    return (held ? [held,0] : [0])
+    return (held ? [0,held] : [0])
       .map(keys=>({keys,shards:(needed-keys)*shardsPerKey}))
       .filter(option=>Number.isSafeInteger(option.shards));
   }
@@ -727,13 +727,15 @@
     renderTrainingAction(bulkTrainingButton,trainingPlan(rec,Infinity),state);
     const keysNeeded=limitBreakKeyCost(cap);
     const atCap=owned&&lv>=cap;
-    const cheapest=limitBreakOptions(rec)[0];
-    const short=cheapest&&shards<cheapest.shards;
-    breakButton.disabled=!cheapest||short||saveRecoveryBlocked;
+    const options=limitBreakOptions(rec);
+    const affordable=options.find(option=>shards>=option.shards);
+    breakButton.disabled=!options.length||saveRecoveryBlocked;
     const keyNote=breakButton.querySelector('.char-action-note');
-    keyNote.classList.toggle('char-key-shortfall',Boolean(short));
     keyNote.textContent=!keysNeeded?'解放完了':!atCap?`Lv ${shortHudNumber(cap)} で解放`
-      :short?`欠片あと ${shortHudNumber(cheapest.shards-shards)}個`:'支払いを選択';
+      :saveRecoveryBlocked?'セーブ保護中'
+      :affordable?.keys===0?'欠片だけで解放可'
+      :affordable?.shards?'鍵＋欠片で解放可'
+      :affordable?'鍵だけで解放可':'解放条件を見る';
     charEl('charBuyKey').disabled=pt<5000;
 
   }
@@ -852,18 +854,25 @@
   breakButton.addEventListener('click',()=>{
     const id=selectedCharId;
     const rec=currentRecord(id);
+    const options=limitBreakOptions(rec);
+    if(!options.length||saveRecoveryBlocked)return;
     const cap=trainingCap(rec);
     const shards=Math.max(0,Number(rec.shards)||0);
     charEl('charBreakTarget').textContent=`${charEl('selectedName').textContent} · Lv ${fmt(cap)} → ${fmt(cap+TRAINING_CAP_STEP)}`;
-    charEl('charBreakWallet').textContent=`所持 鍵${fmt(gameSave.keys||0)}本 ／ 欠片${fmt(shards)}個`;
-    charEl('charBreakChoices').replaceChildren(...limitBreakOptions(rec).map(option=>{
+    charEl('charBreakWallet').textContent=`所持 欠片${fmt(shards)}個 ／ 鍵${fmt(gameSave.keys||0)}本`;
+    charEl('charBreakChoices').replaceChildren(...options.map(option=>{
       const button=document.createElement('button');
       button.type='button';
+      const label=document.createElement('span');
+      label.textContent=!option.keys?'欠片だけで解放':option.shards?'鍵と欠片で解放':'鍵だけで解放';
       const costs=[];
       if(option.keys)costs.push(`鍵${fmt(option.keys)}本`);
       if(option.shards)costs.push(`欠片${fmt(option.shards)}個`);
-      button.textContent=costs.join(' ＋ ')+'で解放';
-      button.disabled=shards<option.shards;
+      const missing=option.shards-shards;
+      const note=document.createElement('small');
+      note.textContent=costs.join(' ＋ ')+(missing>0?`（欠片あと ${fmt(missing)}個）`:'');
+      button.append(label,note);
+      button.disabled=missing>0;
       button.addEventListener('click',()=>limitBreakCharacter(id,cap,option));
       return button;
     }));
