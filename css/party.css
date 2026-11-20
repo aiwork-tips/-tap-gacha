@@ -479,6 +479,16 @@
 }
 
 #partyScreen .party-empty { padding: 16px 6px; color: #dbe8f8; text-align: center; font: 500 13px/1.5 var(--party-sans); }
+#partyScreen .party-empty p { margin: 0 0 8px; }
+#partyScreen #partyGoSummon {
+  min-height: 44px;
+  padding: 5px 24px;
+  border: 1px solid #d9b66c;
+  border-radius: 8px;
+  background: linear-gradient(#245778, #0b253e);
+  color: #fff0c0;
+  font: 750 14px/1.2 var(--party-sans);
+}
 #partyScreen .party-footer {
   position: sticky;
   z-index: 5;

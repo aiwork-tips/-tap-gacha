@@ -22,7 +22,7 @@
   const gachaResultEl = document.getElementById('gachaResult');
   const gachaFlashEl = document.getElementById('gachaFlash');
   const ownedCountEl = document.getElementById('ownedCount');
-  const gachaDrawButtons = [...document.querySelectorAll('.gacha-draw')];
+  const gachaDrawButtons = [...document.querySelectorAll('.gacha-draw[data-pulls]')];
 
   // 旧プロトタイプから回収した15体。画像・名前・属性・紹介文・設定文を復元。
   // legacyWeight は記録として保持するが、現在の70/25/5抽選には使用しない。
@@ -1441,6 +1441,16 @@
     partyEntry.querySelector('small').textContent='出撃準備';
   }
   homeEl('partyBackHome').addEventListener('click',()=>showScreen('home'));
+  homeEl('partyGoSummon').addEventListener('click',()=>{
+    showScreen('gacha');
+    gachaDrawButtons.find(button=>!button.disabled)?.focus({preventScroll:true});
+  });
+  const gachaFirstParty=homeEl('gachaFirstParty');
+  gachaFirstParty.addEventListener('click',()=>{
+    if(!rewardPreview||gachaFirstParty.hidden)return;
+    showScreen('party');
+    partyBattle.focus({preventScroll:true});
+  });
   const partyNav = document.querySelector('#homeScreen nav.home-nav').cloneNode(true);
   partyNav.className='party-nav kit-shared-nav';
   partyNav.setAttribute('aria-label','転移門の下部メニュー');
@@ -1562,6 +1572,8 @@
     }
     const ownedCount=partyRoster.childElementCount;
     homeEl('partyHint').textContent=saveRecoveryBlocked?'セーブの確認が必要です':ownedCount===0?'召喚門から仲間を迎えましょう':
+      clearedCampaignStages()===0
+        ?(ownedCount===1?'仲間1体で第1ステージに出撃できます':'上の編成で第1ステージへ · 仲間の入れ替えは下から'):
       ownedCount===1?'仲間を迎えると、ここで入れ替えられます':`${partyRoles[partySelectedSlot]}を選択中 · 下のキャラをタップで入れ替え`;
   }
   function renderPartySlot(character,index,activeSlots){
@@ -1912,6 +1924,7 @@
     }
 
     if(toGacha){
+      if(clearedCampaignStages()>0)gachaFirstParty.hidden=true;
       renderGachaWallet();
       renderOwnedCount();
       updateGachaButtons();
@@ -2146,6 +2159,7 @@
       return;
     }
 
+    const firstSummon=rewardPreview&&!ownedPartyCharacters().length&&clearedCampaignStages()===0;
     ensureQuestState();
     const previousPt=pt;
     const previousPower=tapPower;
@@ -2182,6 +2196,7 @@
 
     if(pulls <= 10) renderSmallResults(results);
     else renderSummary(results,pulls);
+    if(firstSummon)gachaFirstParty.hidden=false;
 
     renderOwnedCount();
     updateGachaButtons();

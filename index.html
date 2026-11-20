@@ -7,7 +7,7 @@
 <meta content="#071827" name="theme-color"/>
 <meta content="yes" name="apple-mobile-web-app-capable"/>
 <meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
-<title>Ver.11.8 BATTLE-RC63 · タップ育成ガチャ -覚醒-</title>
+<title>Ver.11.8 BATTLE-RC64 · タップ育成ガチャ -覚醒-</title>
 <link rel="preload" as="image" href="assets/rc38-victory-panel.webp">
 <link rel="preload" as="image" href="assets/rc38-victory-crest.webp">
 <!-- Unified Save Rev.3: tapgacha_save_v3 / legacy gV2 preserved read-only -->
@@ -168,6 +168,7 @@
     </div>
 
     <div class="gacha-actions">
+      <button id="gachaFirstParty" class="gacha-draw" type="button" hidden><strong>出撃準備へ</strong></button>
       <button class="gacha-draw" data-pulls="1"><strong>1回召喚</strong><span>1 PT</span></button>
       <button class="gacha-draw" data-pulls="10"><strong>10回召喚</strong><span>10 PT・★2以上1体保証</span></button>
       <button class="gacha-draw mass" data-pulls="100"><strong>100回召喚</strong><span>100 PT・★3 1体保証</span></button>
@@ -505,7 +506,7 @@
       <div class="shop-bridge"><button type="button" class="shop-to-character" id="shopGoCharacter">キャラ育成へ →</button></div>
       <div class="shop-future">現在購入できるのは「上限解放の鍵」のみです。<br>新アイテムの価格・効果は後日決定します。</div>
     </div>
-    <span class="shop-version">Ver.11.8 · BATTLE-RC63</span>
+    <span class="shop-version">Ver.11.8 · BATTLE-RC64</span>
   </div>
 </section>
 
@@ -515,7 +516,7 @@
 <section class="screen" id="questScreen" aria-label="依頼掲示板">
   <img id="questBackdrop" class="quest-backdrop" alt="" aria-hidden="true" />
   <div class="quest-scrim"></div>
-  <span class="quest-version">Ver.11.8 · BATTLE-RC63</span>
+  <span class="quest-version">Ver.11.8 · BATTLE-RC64</span>
   <div class="quest-shell">
     <header class="quest-top">
       <div class="quest-head"><button id="questBackHome" type="button" class="quest-home">⌂ ホーム</button><h1 class="quest-title">依頼掲示板</h1></div>
@@ -551,7 +552,10 @@
       <div class="party-heading"><h2>所持キャラクター</h2><span id="partyOwnedCount"></span></div>
       <div class="party-roster-scroll" id="partyRosterScroll" role="region" aria-label="所持キャラクター一覧・縦スクロール" tabindex="0">
         <div class="party-roster" id="partyRoster"></div>
-        <p class="party-empty" id="partyEmpty" hidden>召喚門で仲間を迎えると、ここで編成できます。</p>
+        <div class="party-empty" id="partyEmpty" hidden>
+          <p>仲間を迎えると、自分の編成で出撃できます。</p>
+          <button type="button" id="partyGoSummon">召喚門へ</button>
+        </div>
       </div>
     </div>
     <footer class="party-footer">
@@ -684,7 +688,7 @@
     </div>
     <footer class="stage-note">
       <span id="stageTrialLabel" hidden>お試し編成 · Lv1</span>
-      <span>Ver.11.8 · BATTLE-RC63</span>
+      <span>Ver.11.8 · BATTLE-RC64</span>
     </footer>
     <template id="stageCardTemplate">
       <div class="stage-slot">
@@ -734,7 +738,7 @@
 </dialog>
 
 <div class="toast" id="toast"></div>
-<div id="devBuildLabel" aria-label="開発検証版 Ver.11.8 BATTLE-RC63">Ver.11.8 · BATTLE-RC63</div>
+<div id="devBuildLabel" aria-label="開発検証版 Ver.11.8 BATTLE-RC64">Ver.11.8 · BATTLE-RC64</div>
 </main>
 <script src="js/battle-rules.js"></script>
 <script src="js/battle-stage.js"></script>
