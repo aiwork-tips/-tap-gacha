@@ -166,7 +166,30 @@
     return ['c002', 'c001', 'c003'].map(id => ({ id, level: 1 }));
   }
 
-  function characterSkill(id) {
+  const awakeningMaxRank = 3;
+  const awakeningStatBonus = 5;
+  const awakenedShieldDuration = 4000;
+  const awakenedShieldPercent = rank => 2 + 2 * rank;
+
+  function awakeningInfo(id, level, savedRank) {
+    if (!supports(id)) return null;
+    const interval = characters[id].rarity * 1000;
+    const parsedLevel = Number(level);
+    const eligibleRank = Number.isSafeInteger(parsedLevel) && parsedLevel >= interval ?
+      Math.min(awakeningMaxRank, Math.floor(parsedLevel / interval)) : 0;
+    const rank = Number.isSafeInteger(savedRank) ? Math.max(0, Math.min(savedRank, eligibleRank)) : 0;
+    const nextRank = rank < awakeningMaxRank ? rank + 1 : null;
+    return {
+      rank, nextRank, nextLevel: nextRank === null ? null : nextRank * interval,
+      canAwaken: nextRank !== null && eligibleRank >= nextRank,
+      statPercent: rank * awakeningStatBonus,
+      nextStatPercent: nextRank === null ? null : nextRank * awakeningStatBonus,
+      nextShieldPercent: id === 'c001' && nextRank !== null ? awakenedShieldPercent(nextRank) : null,
+      shieldSeconds: awakenedShieldDuration / 1000
+    };
+  }
+
+  function characterSkill(id, awakeningRank = 0) {
     if (!supports(id)) return null;
     const skill = characters[id].skill;
     const seconds = ms => ms / 1000 + '秒';
@@ -190,18 +213,24 @@
       case 'ward': description = duration + '間、味方それぞれの被弾を1回無効にする。'; break;
       case 'cover': description = '自分のHPを' + power + '回復。' + duration + '以内の敵の次の攻撃をかばう。'; break;
     }
+    if (id === 'c001' && awakeningRank > 0) {
+      description += '回復した味方に' + seconds(awakenedShieldDuration) + '間、最大HPの' +
+        awakenedShieldPercent(awakeningRank) + '％分の盾を付与。';
+    }
     return { name: skill.name, description, cooldown: seconds(skill.cooldown) };
   }
 
-  function characterStats(id, rawLevel) {
+  function characterStats(id, rawLevel, savedRank) {
     if (!supports(id)) return null;
     const profile = characters[id];
     const parsedLevel = Number(rawLevel);
     const level = Number.isSafeInteger(parsedLevel) && parsedLevel > 0 ? parsedLevel : 1;
     // Apply linear growth and rarity before rounding.
-    const multiplier = (level + 24) * (profile.rarity + 4) / 125;
+    const { rank } = awakeningInfo(id, level, savedRank);
+    const multiplier = (level + 24) * (profile.rarity + 4) / 125 * (1 + rank * awakeningStatBonus / 100);
     return {
       level,
+      awakeningRank: rank,
       maxHp: Math.min(Number.MAX_SAFE_INTEGER, Math.round(profile.baseHp * multiplier)),
       attack: Math.min(Number.MAX_SAFE_INTEGER, Math.round(profile.baseAttack * multiplier))
     };
@@ -218,7 +247,7 @@
     }
     const allies = party.map(member => {
       const profile = characters[member.id];
-      const stats = characterStats(member.id, member.level);
+      const stats = characterStats(member.id, member.level, member.awakeningRank);
       return {
         ...profile, id: member.id, ...stats, hp: stats.maxHp,
         shield: 0, shieldUntil: 0, wardUntil: 0, coverUntil: 0, skillReadyAt: 0
@@ -308,12 +337,24 @@
       events.push({ kind: 'heal', from: caster.id, to: target.id, amount, skill: true, time: state.time });
     }
 
+    function grantShield(caster, target, amount, duration, events) {
+      if (target.hp === 0 || target.shield >= amount) return;
+      target.shield = amount;
+      target.shieldUntil = state.time + duration;
+      events.push({ kind: 'shield', from: caster.id, to: target.id, amount, skill: true, time: state.time });
+    }
+
     function resolveSkill(ally, events) {
       if (skillStatus(ally) !== 'ready') return;
       const skill = ally.skill;
       ally.skillReadyAt = state.time + skill.cooldown;
       if (skill.kind === 'heal') {
-        heal(ally, healTarget(), skill.multiplier, events);
+        const target = healTarget();
+        heal(ally, target, skill.multiplier, events);
+        if (ally.id === 'c001' && ally.awakeningRank > 0) {
+          const amount = Math.round(target.maxHp * awakenedShieldPercent(ally.awakeningRank) / 100);
+          grantShield(ally, target, amount, awakenedShieldDuration, events);
+        }
       } else if (skill.kind === 'healAll') {
         for (const target of allies) {
           if (target.hp > 0 && target.hp < target.maxHp) heal(ally, target, skill.multiplier, events);
@@ -335,10 +376,7 @@
       } else if (skill.kind === 'shield') {
         const amount = Math.round(ally.maxHp * skill.multiplier);
         for (const target of allies) {
-          if (target.hp === 0 || target.shield >= amount) continue;
-          target.shield = amount;
-          target.shieldUntil = state.time + skill.duration;
-          events.push({ kind: 'shield', from: ally.id, to: target.id, amount, skill: true, time: state.time });
+          grantShield(ally, target, amount, skill.duration, events);
         }
       } else {
         const multiplier = skill.kind === 'execute' && enemy.hp <= enemy.maxHp * skill.threshold
@@ -460,5 +498,5 @@
     return { state, advanceTo, requestSkill, skillStatus, enemyAttack, enemyAttackPower, enemyEnraged, thunderWarning };
   }
 
-  globalThis.TapGachaBattle = Object.freeze({ supports, sampleParty, characterArt, characterStats, characterSkill, createBattle, stagesPerChapter, chapterForStage, campaignEncounter, campaignEnemyPreview });
+  globalThis.TapGachaBattle = Object.freeze({ supports, sampleParty, characterArt, characterStats, characterSkill, awakeningInfo, createBattle, stagesPerChapter, chapterForStage, campaignEncounter, campaignEnemyPreview });
 })();

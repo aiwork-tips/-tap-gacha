@@ -519,7 +519,7 @@
       clearTimeout(advanceTimer);
       advanceTimer = undefined;
       const previousSuspensions = suspensionCount;
-      const members = battle.state.allies.map(({ id, level }) => ({ id, level }));
+      const members = battle.state.allies.map(({ id, level, awakeningRank }) => ({ id, level, awakeningRank }));
       prepare(members, trial, battle.state.difficulty, stageNumber).then(ready => {
         if (ready && restart && previousSuspensions === suspensionCount && (!requiresAuto || auto)) start();
       });

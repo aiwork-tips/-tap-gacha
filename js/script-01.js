@@ -1099,30 +1099,67 @@
     if(btn.classList.contains('kit-transfer') && rewardPreview)showScreen('party');
     else showToast(btn.dataset.homePlanned+' は次工程で接続');
   }));
-  function renderCharacterSkill(panel,id){
-    const skill=window.TapGachaBattle.characterSkill(id);
+  function renderCharacterSkill(panel,id,awakeningRank){
+    const skill=window.TapGachaBattle.characterSkill(id,awakeningRank);
     panel.hidden=!skill;
     if(!skill)return;
     panel.querySelector('strong').textContent=skill.name;
     panel.querySelector('span').textContent='再使用 '+skill.cooldown;
     panel.querySelector('p').textContent=skill.description;
   }
-  charEl('charDetailButton').addEventListener('click',()=>{
+  const charDetailDialog=charEl('charDetailDialog');
+  const charAwakenButton=charEl('charAwakenButton');
+  function renderCharacterProfile(){
     const character=GACHA_CHARACTERS.find(c=>c.id===selectedCharId) || GACHA_CHARACTERS[0];
     const record=currentRecord(character.id);
-    const stats=record.owned?window.TapGachaBattle.characterStats(character.id,record.level):null;
+    const rules=window.TapGachaBattle;
+    const stats=record.owned?rules.characterStats(character.id,record.level,record.awakeningRank):null;
     charEl('charDetailName').textContent=character.name;
     charEl('charDetailPortrait').src=character.image;
     charEl('charDetailRarity').textContent='★'.repeat(character.rarity);
-    charEl('charDetailMeta').textContent=stats?character.element+'属性 · Lv '+fmt(stats.level):'未所持';
+    charEl('charDetailMeta').textContent=stats?character.element+'属性 · Lv '+fmt(stats.level)+
+      (stats.awakeningRank?' · '+stats.awakeningRank+'次覚醒':''):'未所持';
     charEl('charDetailStats').hidden=!stats;
     charEl('charDetailHP').textContent=stats?fmt(stats.maxHp):'';
     charEl('charDetailAttack').textContent=stats?fmt(stats.attack):'';
-    renderCharacterSkill(charEl('charDetailSkill'),stats?character.id:null);
+    renderCharacterSkill(charEl('charDetailSkill'),stats?character.id:null,stats?.awakeningRank);
     charEl('charDetailLore').textContent=record.owned?character.lore:'このキャラを召喚すると、記録が解放されます。';
-    const dialog=charEl('charDetailDialog');
-    dialog.showModal();
-    dialog.querySelector('.profile-detail-body').scrollTop=0;
+    const awakening=stats&&rules.awakeningInfo(character.id,stats.level,stats.awakeningRank);
+    charEl('charAwakening').hidden=!awakening;
+    if(!awakening)return;
+    const {rank,nextRank,nextLevel,canAwaken,statPercent,nextStatPercent,nextShieldPercent,shieldSeconds}=awakening;
+    charEl('charAwakenProgress').textContent=nextRank===null?rank+'次覚醒達成':
+      nextRank+'次覚醒 · Lv '+fmt(nextLevel)+(canAwaken?' 到達':' まであと '+fmt(nextLevel-stats.level));
+    charEl('charAwakenEffect').textContent=nextRank===null?'最大HP・攻撃力 ＋'+statPercent+'％':
+      '覚醒後の最大HP・攻撃力 ＋'+nextStatPercent+'％'+(nextShieldPercent===null?'':
+      ' · 聖光：回復した味方に'+shieldSeconds+'秒間、最大HPの'+nextShieldPercent+'％分の盾');
+    charAwakenButton.hidden=!canAwaken;
+    charAwakenButton.disabled=saveRecoveryBlocked;
+    if(canAwaken)charAwakenButton.textContent=nextRank+'次覚醒する';
+  }
+  charEl('charDetailButton').addEventListener('click',()=>{
+    charEl('charAwakenStatus').textContent='';
+    renderCharacterProfile();
+    charDetailDialog.showModal();
+    charDetailDialog.querySelector('.profile-detail-body').scrollTop=0;
+  });
+  charAwakenButton.addEventListener('click',()=>{
+    const id=selectedCharId;
+    const record=collection[id];
+    if(!charDetailDialog.open||!record?.owned||saveRecoveryBlocked)return;
+    const awakening=window.TapGachaBattle.awakeningInfo(id,record.level,record.awakeningRank);
+    if(!awakening?.canAwaken)return;
+    const status=charEl('charAwakenStatus');
+    collection[id]={...record,awakeningRank:awakening.nextRank};
+    if(!saveUnified()){
+      collection[id]=record;
+      gameSave.characters=normalizeRosterIds(collection);
+      status.textContent='覚醒を保存できませんでした。';
+      return;
+    }
+    renderCharacterProfile();
+    status.textContent=awakening.nextRank+'次覚醒しました！';
+    if(charAwakenButton.hidden)charDetailDialog.querySelector('form button').focus({preventScroll:true});
   });
 
   // Keep login claims inside the same isolated save as the reward preview.
@@ -1353,10 +1390,11 @@
     if(saveRecoveryBlocked)return null;
     const ids=normalizedParty(partyDraft);
     if(!ids.length||!ids.every(partyRules.supports))return null;
-    return ids.map(id=>({id,level:collection[id].level||1}));
+    return ids.map(id=>({id,level:collection[id].level||1,awakeningRank:collection[id].awakeningRank}));
   }
   function openPartyStats(character,trigger){
-    const stats=partyRules.characterStats(character.id,collection[character.id]?.level);
+    const record=collection[character.id];
+    const stats=partyRules.characterStats(character.id,record?.level,record?.awakeningRank);
     if(!stats||partyStatsDialog.open)return;
     const {sprite,color}=partyRules.characterArt(character.id);
     homeEl('partyStatsSprite').src=sprite;
@@ -1371,7 +1409,7 @@
       partyStatNumber.format(stats.maxHp));
     writeHudText(homeEl('partyStatsAttack'),stats.attack<1e7?partyStatNumber.format(stats.attack):partyDisplayStat(stats.attack),
       partyStatNumber.format(stats.attack));
-    renderCharacterSkill(homeEl('partyStatsSkill'),character.id);
+    renderCharacterSkill(homeEl('partyStatsSkill'),character.id,stats.awakeningRank);
     partyStatsTrigger=trigger;
     partyStatsDialog.showModal();
   }
@@ -1448,7 +1486,8 @@
     button.querySelector('.party-slot-marker').textContent=role;
     button.querySelector('.party-slot-name').textContent=character?.name??'空き枠';
     const image=button.querySelector('.party-slot-art');
-    const stats=character&&partyRules.characterStats(character.id,collection[character.id]?.level);
+    const record=character&&collection[character.id];
+    const stats=character&&partyRules.characterStats(character.id,record?.level,record?.awakeningRank);
     const art=character&&partyRules.characterArt(character.id);
     if(character){
       image.src=art?.sprite??character.image;

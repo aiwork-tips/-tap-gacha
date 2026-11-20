@@ -725,8 +725,15 @@ dialog.profile-dialog {
 #homeFavoritePickerStatus { font-size: 13px; text-align: center; }
 #homeFavoritePickerStatus:empty { display: none; }
 
-.profile-detail-body { min-height: 0; overflow-y: auto; display: grid; gap: 8px; }
+.profile-detail-body { min-height: 0; overflow-y: auto; display: grid; grid-auto-rows: max-content; gap: 8px; }
 .profile-detail-body .profile-lore { overflow-y: visible; }
+.profile-detail-body .profile-awakening {
+  border-color: #dec087a6;
+  background: linear-gradient(145deg, #1c3d59, #101f34);
+}
+.profile-awakening #charAwakenProgress { color: #ffe098; font-weight: 750; }
+.profile-awakening button { width: 100%; margin-top: 8px; }
+.profile-awakening #charAwakenStatus:not(:empty) { margin-top: 5px; color: #c9ebff; }
 .character-skill-info {
   padding: 8px 10px;
   border: 1px solid #bda06d75;
