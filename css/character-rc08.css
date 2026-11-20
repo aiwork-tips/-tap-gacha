@@ -250,6 +250,24 @@
 #characterScreen #charDetailButton .char-button-ink {
   font: 800 clamp(8px, 2.55vw, 13px) / 1.08 var(--char-serif) !important;
 }
+#characterScreen #charQuickAwaken {
+  position: absolute;
+  z-index: 4;
+  top: 9px;
+  left: 6px;
+  width: calc(100% - 12px);
+  min-height: 36px;
+  padding: 3px 1px;
+  border: 1px solid #ffe2a0;
+  border-radius: 7px;
+  background: linear-gradient(#67451b, #342310);
+  box-shadow: 0 0 9px #efc26e80;
+  color: #fff1c9;
+  font: 800 clamp(9px, 2.6vw, 13px)/1.2 var(--char-serif);
+  touch-action: manipulation;
+}
+#characterScreen #charQuickAwaken[hidden] { display: none !important; }
+#characterScreen #charQuickAwaken:disabled { opacity: .6; }
 
 #characterScreen .char-info {
   display: grid !important;

@@ -706,11 +706,11 @@
     const stars='★'.repeat(c.rarity);
     charEl('selectedRarity').textContent=stars;
     charEl('portraitStars').textContent=stars;
-    const profileButton=charEl('charDetailButton');
-    const ready=Boolean(rosterAwakening(c.id,rec)?.canAwaken);
-    profileButton.toggleAttribute('data-awaken-ready',ready);
-    profileButton.querySelector('.char-button-ink').textContent=ready?'覚醒可能':'キャラ詳細';
-    profileButton.setAttribute('aria-label',ready?'覚醒可能・キャラ詳細を開く':'キャラ詳細を開く');
+    const awakening=rosterAwakening(c.id,rec);
+    const quickAwaken=charEl('charQuickAwaken');
+    quickAwaken.hidden=!awakening?.canAwaken;
+    quickAwaken.disabled=saveRecoveryBlocked;
+    if(!quickAwaken.hidden)quickAwaken.textContent=awakening.nextRank+'次覚醒する';
     charEl('selectedName').textContent=c.name;
     charEl('selectedTags').textContent=`${c.element}属性  · ${c.tagline}`;
     writeHudText(charEl('selectedLevel'),owned?`Lv ${lv<100000?lv:shortHudNumber(lv)} / ${cap<100000?cap:shortHudNumber(cap)}`:'未所持',
@@ -1126,6 +1126,13 @@
   }
   const charDetailDialog=charEl('charDetailDialog');
   const charAwakenButton=charEl('charAwakenButton');
+  const charQuickAwaken=charEl('charQuickAwaken');
+  charDetailDialog.addEventListener('close',()=>{
+    if(charQuickAwaken.hidden && characterScreen.classList.contains('active') &&
+      (document.activeElement===document.body || document.activeElement===charQuickAwaken)){
+      charEl('charDetailButton').focus({preventScroll:true});
+    }
+  });
   function renderCharacterProfile(){
     const character=GACHA_CHARACTERS.find(c=>c.id===selectedCharId) || GACHA_CHARACTERS[0];
     const record=currentRecord(character.id);
@@ -1161,10 +1168,10 @@
     charDetailDialog.showModal();
     charDetailDialog.querySelector('.profile-detail-body').scrollTop=0;
   });
-  charAwakenButton.addEventListener('click',()=>{
+  function awakenSelectedCharacter(){
     const id=selectedCharId;
     const record=collection[id];
-    if(!charDetailDialog.open||!record?.owned||saveRecoveryBlocked)return;
+    if(!record?.owned||saveRecoveryBlocked)return;
     const rules=window.TapGachaBattle;
     const awakening=rules.awakeningInfo(id,record.level,record.awakeningRank);
     if(!awakening?.canAwaken)return;
@@ -1173,8 +1180,11 @@
     if(!saveUnified()){
       collection[id]=record;
       gameSave.characters=normalizeRosterIds(collection);
-      status.textContent='覚醒を保存できませんでした。';
-      charEl('charAwakenGain').textContent='';
+      const message='覚醒を保存できませんでした。';
+      if(charDetailDialog.open){
+        status.textContent=message;
+        charEl('charAwakenGain').textContent='';
+      }else showToast(message);
       return;
     }
     const before=rules.characterStats(id,record.level,awakening.rank);
@@ -1183,11 +1193,19 @@
     renderCharacterProfile();
     status.textContent=awakening.nextRank+'次覚醒しました！';
     charEl('charAwakenGain').textContent='最大HP ＋'+fmt(after.maxHp-before.maxHp)+' ／ 攻撃力 ＋'+fmt(after.attack-before.attack);
+    if(!charDetailDialog.open)charDetailDialog.showModal();
+    charEl('charAwakenResult').scrollIntoView({block:'nearest'});
     if(!matchMedia('(prefers-reduced-motion: reduce)').matches){
       charEl('charAwakenResult').animate([{opacity:.6,transform:'translateY(3px)'},{opacity:1,transform:'translateY(0)'}],
         {duration:300,easing:'ease-out'});
     }
     if(charAwakenButton.hidden)charDetailDialog.querySelector('form button').focus({preventScroll:true});
+  }
+  charAwakenButton.addEventListener('click',()=>{
+    if(charDetailDialog.open)awakenSelectedCharacter();
+  });
+  charQuickAwaken.addEventListener('click',()=>{
+    if(!charQuickAwaken.hidden)awakenSelectedCharacter();
   });
 
   // Keep login claims inside the same isolated save as the reward preview.
