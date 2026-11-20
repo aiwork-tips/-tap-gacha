@@ -100,7 +100,7 @@
   const stageEnemies = {10: armoredGuardian, 20: thunderBeast, 30: mirrorDragon};
   const difficulties = Object.freeze({
     normal: Object.freeze({ maxHp: guardian.maxHp, attack: guardian.attack }),
-    training: Object.freeze({ maxHp: 750, attack: 34 })
+    training: Object.freeze({ maxHp: 540, attack: 34 })
   });
   const stagesPerChapter = 30;
   const stageHpGrowth = 1.14;
