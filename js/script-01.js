@@ -529,6 +529,9 @@
     if(saveRecoveryBlocked)return 'protected';
     return trainingPlan(rec,1).count?'ready':'short';
   }
+  function rosterAwakening(id, record){
+    return record?.owned ? window.TapGachaBattle.awakeningInfo(id,record.level,record.awakeningRank) : null;
+  }
   function renderCharacters(){
     const owned=GACHA_CHARACTERS.filter(c=>collection[c.id]?.owned).length;
     const ownedCount=`${owned} / ${GACHA_CHARACTERS.length}`;
@@ -541,19 +544,28 @@
     if(!selectedCharId || !GACHA_CHARACTERS.some(c=>c.id===selectedCharId)){
       selectedCharId=GACHA_CHARACTERS.find(c=>collection[c.id]?.owned)?.id || GACHA_CHARACTERS[0].id;
     }
-    const visible=GACHA_CHARACTERS.filter(c=>rosterFilter.value==='all' ||
-      Boolean(collection[c.id]?.owned)===(rosterFilter.value==='owned'));
+    const filter=rosterFilter.value;
+    const visible=GACHA_CHARACTERS.filter(c=>{
+      const record=collection[c.id];
+      if(filter==='awakening')return rosterAwakening(c.id,record)?.canAwaken;
+      return filter==='all'||Boolean(record?.owned)===(filter==='owned');
+    });
     if(rosterSort.value==='level')visible.sort((a,b)=>rosterLevel(b.id)-rosterLevel(a.id));
     if(rosterSort.value==='rarity')visible.sort((a,b)=>b.rarity-a.rarity);
-    charEl('charRosterEmpty').hidden=visible.length>0;
+    const empty=charEl('charRosterEmpty');
+    empty.hidden=visible.length>0;
+    empty.textContent=filter==='awakening'?'覚醒可能なキャラはいません':'条件に合うキャラがいません';
     charEl('characterGrid').innerHTML=visible.map(c=>{
       const rec=currentRecord(c.id), owned=!!rec.owned;
       const state=trainingState(rec);
+      const awakening=rosterAwakening(c.id,rec);
+      const badge=awakening?.canAwaken?'覚醒可能':awakening?.rank?awakening.rank+'次覚醒':'';
       const label=state==='max'?'MAX':owned?'Lv'+shortHudNumber(rec.level||1):trainingStateLabels.locked;
       const mark=state==='ready'?'<span aria-hidden="true">↑</span>':state==='capped'
         ? '<svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M5 7V5a3 3 0 0 1 6 0v2h2v7H3V7zm2 0h2V5a1 1 0 0 0-2 0z"/></svg>' : '';
-      return `<button type="button" class="char-tile char-gilt ${owned?'':'locked'} ${c.rarity===3?'r3':''} ${c.id===selectedCharId?'selected':''}" data-character-id="${c.id}" aria-label="${c.name}" aria-description="${label}、${trainingStateLabels[state]}">
+      return `<button type="button" class="char-tile char-gilt ${owned?'':'locked'} ${c.rarity===3?'r3':''} ${c.id===selectedCharId?'selected':''}" data-character-id="${c.id}" aria-label="${c.name}" aria-description="${label}、${trainingStateLabels[state]}${badge?'、'+badge:''}">
         <img loading="lazy" src="${c.image}" alt=""><em>${'★'.repeat(c.rarity)}</em>
+        ${badge?`<span class="char-awaken-mark" data-ready="${awakening.canAwaken}" aria-hidden="true">${badge}</span>`:''}
         <small data-training-state="${state}">${label}${mark}</small>${owned && gameSave.favoriteCharacterId===c.id?'<i class="fav-pin">♥</i>':''}
       </button>`;
     }).join('');
@@ -694,6 +706,11 @@
     const stars='★'.repeat(c.rarity);
     charEl('selectedRarity').textContent=stars;
     charEl('portraitStars').textContent=stars;
+    const profileButton=charEl('charDetailButton');
+    const ready=Boolean(rosterAwakening(c.id,rec)?.canAwaken);
+    profileButton.toggleAttribute('data-awaken-ready',ready);
+    profileButton.querySelector('.char-button-ink').textContent=ready?'覚醒可能':'キャラ詳細';
+    profileButton.setAttribute('aria-label',ready?'覚醒可能・キャラ詳細を開く':'キャラ詳細を開く');
     charEl('selectedName').textContent=c.name;
     charEl('selectedTags').textContent=`${c.element}属性  · ${c.tagline}`;
     writeHudText(charEl('selectedLevel'),owned?`Lv ${lv<100000?lv:shortHudNumber(lv)} / ${cap<100000?cap:shortHudNumber(cap)}`:'未所持',
@@ -1139,6 +1156,7 @@
   }
   charEl('charDetailButton').addEventListener('click',()=>{
     charEl('charAwakenStatus').textContent='';
+    charEl('charAwakenGain').textContent='';
     renderCharacterProfile();
     charDetailDialog.showModal();
     charDetailDialog.querySelector('.profile-detail-body').scrollTop=0;
@@ -1147,7 +1165,8 @@
     const id=selectedCharId;
     const record=collection[id];
     if(!charDetailDialog.open||!record?.owned||saveRecoveryBlocked)return;
-    const awakening=window.TapGachaBattle.awakeningInfo(id,record.level,record.awakeningRank);
+    const rules=window.TapGachaBattle;
+    const awakening=rules.awakeningInfo(id,record.level,record.awakeningRank);
     if(!awakening?.canAwaken)return;
     const status=charEl('charAwakenStatus');
     collection[id]={...record,awakeningRank:awakening.nextRank};
@@ -1155,10 +1174,19 @@
       collection[id]=record;
       gameSave.characters=normalizeRosterIds(collection);
       status.textContent='覚醒を保存できませんでした。';
+      charEl('charAwakenGain').textContent='';
       return;
     }
+    const before=rules.characterStats(id,record.level,awakening.rank);
+    const after=rules.characterStats(id,record.level,awakening.nextRank);
+    renderCharacters();
     renderCharacterProfile();
     status.textContent=awakening.nextRank+'次覚醒しました！';
+    charEl('charAwakenGain').textContent='最大HP ＋'+fmt(after.maxHp-before.maxHp)+' ／ 攻撃力 ＋'+fmt(after.attack-before.attack);
+    if(!matchMedia('(prefers-reduced-motion: reduce)').matches){
+      charEl('charAwakenResult').animate([{opacity:.6,transform:'translateY(3px)'},{opacity:1,transform:'translateY(0)'}],
+        {duration:300,easing:'ease-out'});
+    }
     if(charAwakenButton.hidden)charDetailDialog.querySelector('form button').focus({preventScroll:true});
   });
 

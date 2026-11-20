@@ -590,6 +590,26 @@
   line-height: 1;
 }
 #characterScreen .char-tile .fav-pin { right: 3px; }
+#characterScreen .char-tile .char-awaken-mark {
+  position: absolute;
+  inset: auto 2px clamp(13px, 4vw, 20px);
+  z-index: 2;
+  width: fit-content;
+  max-width: calc(100% - 4px);
+  margin-inline: auto;
+  padding: 2px 3px;
+  border: 1px solid #7cbade;
+  border-radius: 3px;
+  background: #112e4b;
+  color: #d4f2ff;
+  font: 800 clamp(8px, 2.1vw, 10px)/1 system-ui, sans-serif;
+  white-space: nowrap;
+}
+#characterScreen .char-tile .char-awaken-mark[data-ready=true] {
+  border-color: #ffde8e;
+  background: #4f3212;
+  color: #ffefad;
+}
 #characterScreen .char-tile small {
   position: absolute;
   inset: auto 0 0;
@@ -734,6 +754,7 @@ dialog.profile-dialog {
 .profile-awakening #charAwakenProgress { color: #ffe098; font-weight: 750; }
 .profile-awakening button { width: 100%; margin-top: 8px; }
 .profile-awakening #charAwakenStatus:not(:empty) { margin-top: 5px; color: #c9ebff; }
+.profile-awakening #charAwakenGain { color: #ffe098; font-weight: 750; font-variant-numeric: tabular-nums; }
 .character-skill-info {
   padding: 8px 10px;
   border: 1px solid #bda06d75;
