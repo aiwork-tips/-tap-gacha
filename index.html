@@ -7,7 +7,7 @@
 <meta content="#071827" name="theme-color"/>
 <meta content="yes" name="apple-mobile-web-app-capable"/>
 <meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
-<title>Ver.11.8 BATTLE-RC64 · タップ育成ガチャ -覚醒-</title>
+<title>Ver.11.8 BATTLE-RC65 · タップ育成ガチャ -覚醒-</title>
 <link rel="preload" as="image" href="assets/rc38-victory-panel.webp">
 <link rel="preload" as="image" href="assets/rc38-victory-crest.webp">
 <!-- Unified Save Rev.3: tapgacha_save_v3 / legacy gV2 preserved read-only -->
@@ -168,6 +168,7 @@
     </div>
 
     <div class="gacha-actions">
+      <p id="gachaStarterTip" hidden>3体編成を目指すなら10回召喚がおすすめ</p>
       <button id="gachaFirstParty" class="gacha-draw" type="button" hidden><strong>出撃準備へ</strong></button>
       <button class="gacha-draw" data-pulls="1"><strong>1回召喚</strong><span>1 PT</span></button>
       <button class="gacha-draw" data-pulls="10"><strong>10回召喚</strong><span>10 PT・★2以上1体保証</span></button>
@@ -506,7 +507,7 @@
       <div class="shop-bridge"><button type="button" class="shop-to-character" id="shopGoCharacter">キャラ育成へ →</button></div>
       <div class="shop-future">現在購入できるのは「上限解放の鍵」のみです。<br>新アイテムの価格・効果は後日決定します。</div>
     </div>
-    <span class="shop-version">Ver.11.8 · BATTLE-RC64</span>
+    <span class="shop-version">Ver.11.8 · BATTLE-RC65</span>
   </div>
 </section>
 
@@ -516,7 +517,7 @@
 <section class="screen" id="questScreen" aria-label="依頼掲示板">
   <img id="questBackdrop" class="quest-backdrop" alt="" aria-hidden="true" />
   <div class="quest-scrim"></div>
-  <span class="quest-version">Ver.11.8 · BATTLE-RC64</span>
+  <span class="quest-version">Ver.11.8 · BATTLE-RC65</span>
   <div class="quest-shell">
     <header class="quest-top">
       <div class="quest-head"><button id="questBackHome" type="button" class="quest-home">⌂ ホーム</button><h1 class="quest-title">依頼掲示板</h1></div>
@@ -654,6 +655,7 @@
           <strong id="stageRemaining"></strong>
           <p id="stageRetryTip"></p>
         </div>
+        <button type="button" class="stage-button" id="stageResultSummon" hidden>仲間を召喚する</button>
         <div class="stage-result-actions">
           <button type="button" class="stage-button" id="stageResultBack">編成へ</button>
           <button type="button" class="stage-button" id="stageResultTrain" hidden>育成へ</button>
@@ -688,7 +690,7 @@
     </div>
     <footer class="stage-note">
       <span id="stageTrialLabel" hidden>お試し編成 · Lv1</span>
-      <span>Ver.11.8 · BATTLE-RC64</span>
+      <span>Ver.11.8 · BATTLE-RC65</span>
     </footer>
     <template id="stageCardTemplate">
       <div class="stage-slot">
@@ -738,7 +740,7 @@
 </dialog>
 
 <div class="toast" id="toast"></div>
-<div id="devBuildLabel" aria-label="開発検証版 Ver.11.8 BATTLE-RC64">Ver.11.8 · BATTLE-RC64</div>
+<div id="devBuildLabel" aria-label="開発検証版 Ver.11.8 BATTLE-RC65">Ver.11.8 · BATTLE-RC65</div>
 </main>
 <script src="js/battle-rules.js"></script>
 <script src="js/battle-stage.js"></script>

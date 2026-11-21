@@ -28,7 +28,7 @@
     return '前衛を育成するか、回復・防御スキルを持つ仲間を編成しましょう。';
   }
 
-  function createController(root, onBack, onClear, onTrain) {
+  function createController(root, onBack, onClear, onTrain, onSummon) {
     const get = id => root.querySelector('#' + id);
     const field = get('stageField');
     const actors = get('stageActors');
@@ -41,6 +41,7 @@
     const resultBack = get('stageResultBack');
     const resultAction = get('stageResultRetry');
     const resultTrain = get('stageResultTrain');
+    const resultSummon = get('stageResultSummon');
     const logDialog = get('stageLogDialog');
     const battleLog = [];
     const battleTotals = new Map();
@@ -173,6 +174,7 @@
       const chapterClear = campaignVictory && clear && stage % rules.stagesPerChapter === 0;
       root.toggleAttribute('data-campaign-complete', Boolean(chapterClear || campaignComplete));
       resultTrain.hidden = !(onTrain && stage !== null && mode === 'defeat');
+      resultSummon.hidden = !(onSummon && stage === 1 && mode === 'defeat' && battle.state.allies.length < 3);
       startButton.disabled = !battle || mode === 'loading' || mode === 'closed';
       const controlsDisabled = startButton.disabled || mode === 'error';
       resetButton.disabled = controlsDisabled;
@@ -615,6 +617,9 @@
     });
     resultTrain.addEventListener('click', () => {
       if (!resultTrain.hidden && mode === 'defeat') onTrain(battle.state.allies[0].id);
+    });
+    resultSummon.addEventListener('click', () => {
+      if (!resultSummon.hidden) onSummon();
     });
     get('stageBack').addEventListener('click', onBack);
     function suspendBattle() {

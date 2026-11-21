@@ -1364,6 +1364,17 @@ button{font:inherit;color:inherit}
 .gacha-rate,.gacha-book{font-size:clamp(9px,2.3vw,12px)}
 .gacha-stage{border:1px solid #82c7ecad;border-radius:10px;background:radial-gradient(circle at 50% 45%,#1762a12e,#041b3dd6 72%);box-shadow:inset 0 0 34px #47b9ff3d,0 5px 14px #0211257a}
 .gacha-actions{gap:8px}
+#gachaScreen #gachaStarterTip {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 5px 8px;
+  border: 1px solid #d9b66c;
+  border-radius: 6px;
+  background: #102f50;
+  color: #fff0c0;
+  text-align: center;
+  font: 700 12px/1.4 system-ui, sans-serif;
+}
 #gachaScreen #gachaFirstParty {
   grid-column: 1 / -1;
   height: 44px;

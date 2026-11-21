@@ -387,6 +387,15 @@
   white-space: nowrap;
 }
 .stage-result-actions { display: flex; justify-content: flex-end; gap: 7px; padding-top: 8px; }
+.stage-app #stageResultSummon {
+  width: 100%;
+  min-height: 44px;
+  margin-top: 8px;
+  border: 1px solid #d1b987;
+  border-radius: 4px;
+  background: linear-gradient(#634917, #36260d);
+  color: #fff0c0;
+}
 .stage-result-actions button {
   flex: 1;
   border: 1px solid #8996a1;

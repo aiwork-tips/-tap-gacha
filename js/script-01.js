@@ -1405,6 +1405,10 @@
       trainingFromDefeat=true;
       showScreen('character');
       charEl('charBackHome').focus({preventScroll:true});
+    },
+    () => {
+      showScreen('gacha', {fromFirstDefeat:true});
+      gachaDrawButtons.find(button=>button.dataset.pulls==='10'&&!button.disabled)?.focus({preventScroll:true});
     }
   );
   function clearedCampaignStages(){
@@ -1446,9 +1450,13 @@
     gachaDrawButtons.find(button=>!button.disabled)?.focus({preventScroll:true});
   });
   const gachaFirstParty=homeEl('gachaFirstParty');
+  const gachaStarterTip=homeEl('gachaStarterTip');
+  let summoningAfterDefeat=false;
   gachaFirstParty.addEventListener('click',()=>{
     if(!rewardPreview||gachaFirstParty.hidden)return;
-    showScreen('party');
+    const keepPartyDraft=summoningAfterDefeat;
+    if(keepPartyDraft)partyDraft=normalizedParty(partyDraft,true);
+    showScreen('party',{keepPartyDraft});
     partyBattle.focus({preventScroll:true});
   });
   const partyNav = document.querySelector('#homeScreen nav.home-nav').cloneNode(true);
@@ -1861,7 +1869,7 @@
     else showToast(name + pendingSuffix);
   }
 
-  function showScreen(which, {keepPartyDraft=false}={}){
+  function showScreen(which, {keepPartyDraft=false,fromFirstDefeat=false}={}){
     const toHome = which === 'home';
     const toTap = which === 'tap';
     const toGacha = which === 'gacha';
@@ -1873,6 +1881,8 @@
     const toBattle = which === 'battle' && rewardPreview;
     const returningFromBattle = battleScreen.classList.contains('active');
     if(returningFromBattle&&!toBattle)battleStage.close();
+    if(fromFirstDefeat||(!toGacha&&summoningAfterDefeat))gachaFirstParty.hidden=true;
+    summoningAfterDefeat=toGacha&&(fromFirstDefeat||summoningAfterDefeat);
 
     if(!toCharacter){
       trainingFromDefeat=false;
@@ -2006,6 +2016,9 @@
       const pulls = Number(btn.dataset.pulls);
       btn.disabled = pt < pulls;
     });
+    const owned=ownedPartyCharacters().length;
+    gachaStarterTip.hidden=!rewardPreview||clearedCampaignStages()>0||pt<10||
+      (owned>0&&!(summoningAfterDefeat&&owned<3));
   }
 
   function rollRarity(){
@@ -2196,7 +2209,7 @@
 
     if(pulls <= 10) renderSmallResults(results);
     else renderSummary(results,pulls);
-    if(firstSummon)gachaFirstParty.hidden=false;
+    if(firstSummon||summoningAfterDefeat)gachaFirstParty.hidden=false;
 
     renderOwnedCount();
     updateGachaButtons();
