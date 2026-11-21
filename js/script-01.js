@@ -473,7 +473,7 @@
     short:'欠片不足', protected:'セーブ保護中', locked:'未所持'
   };
   let selectedCharId = null;
-  let trainingFromDefeat = false;
+  let trainingFromBattle = false;
   const charEl = id => document.getElementById(id);
   const shardsPerKey = 50;
   const breakDialog = charEl('charBreakDialog');
@@ -895,7 +895,7 @@
     breakDialog.showModal();
   });
   charEl('charBackHome').addEventListener('click',()=>{
-    if(trainingFromDefeat){
+    if(trainingFromBattle){
       showScreen('party', {keepPartyDraft:true});
       partyBattle.focus({preventScroll:true});
     }else showScreen('home');
@@ -1402,7 +1402,7 @@
     leadId => {
       selectedCharId=leadId;
       if(rosterFilter.value==='locked')rosterFilter.value='owned';
-      trainingFromDefeat=true;
+      trainingFromBattle=true;
       showScreen('character');
       charEl('charBackHome').focus({preventScroll:true});
     },
@@ -1415,21 +1415,33 @@
     const count=gameSave.campaignClearedStages;
     return Number.isSafeInteger(count)&&count>=0?count:0;
   }
-  function recordCampaignClear(stage,difficulty){
+  function recordCampaignClear(stage,difficulty,members){
     if(!rewardPreview||!Number.isSafeInteger(stage)||stage!==clearedCampaignStages()+1)return null;
     const previousCount=gameSave.campaignClearedStages;
     const previousPoints=pt;
+    const previousCollection=collection;
+    const previousCharacters=gameSave.characters;
     const points=campaignClearRewards[difficulty];
+    const shards=stage===3?9:0;
+    if(shards){
+      collection={...collection};
+      for(const {id} of members){
+        const record=collection[id];
+        if(record?.owned)collection[id]={...record,shards:Math.max(0,Number(record.shards)||0)+shards};
+      }
+    }
     gameSave.campaignClearedStages=stage;
     pt+=points;
     if(!saveUnified()){
       pt=previousPoints;
       gameSave.points=previousPoints;
+      collection=previousCollection;
+      gameSave.characters=previousCharacters;
       if(previousCount===undefined)delete gameSave.campaignClearedStages;
       else gameSave.campaignClearedStages=previousCount;
       return null;
     }
-    return {points,next:stage===Number.MAX_SAFE_INTEGER?null:stage+1};
+    return {points,shards,next:stage===Number.MAX_SAFE_INTEGER?null:stage+1};
   }
   let partyDraft = [];
   let partySelectedSlot = 0;
@@ -1885,7 +1897,7 @@
     summoningAfterDefeat=toGacha&&(fromFirstDefeat||summoningAfterDefeat);
 
     if(!toCharacter){
-      trainingFromDefeat=false;
+      trainingFromBattle=false;
       stopTrainingHold();
     }
     home.classList.toggle('active',toHome);
@@ -1908,7 +1920,7 @@
     if(toShop) renderShop();
     else clearTimeout(shopRewardResetTimer);
     if(toCharacter){
-      charEl('charBackHomeLabel').textContent=trainingFromDefeat?'編成へ':'ホーム';
+      charEl('charBackHomeLabel').textContent=trainingFromBattle?'編成へ':'ホーム';
       renderCharacters();
     }
     if(toDex){

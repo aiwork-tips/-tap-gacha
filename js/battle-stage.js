@@ -46,6 +46,7 @@
     const battleLog = [];
     const battleTotals = new Map();
     const campaignResult = get('stageCampaignResult');
+    const trainingReward = get('stageTrainingReward');
     const defeatReview = get('stageDefeatReview');
     resultBack.hidden = get('stageBack').hidden;
     const elapsed = get('stageElapsed');
@@ -173,7 +174,12 @@
       const campaignComplete = campaignVictory && clear?.next === null;
       const chapterClear = campaignVictory && clear && stage % rules.stagesPerChapter === 0;
       root.toggleAttribute('data-campaign-complete', Boolean(chapterClear || campaignComplete));
-      resultTrain.hidden = !(onTrain && stage !== null && mode === 'defeat');
+      const earnedTrainingReward = campaignVictory && Boolean(clear?.shards);
+      trainingReward.hidden = !earnedTrainingReward;
+      if (earnedTrainingReward) {
+        setText(trainingReward, '初クリア報酬 · 出撃メンバーに欠片 各' + formatNumber.format(clear.shards) + '個');
+      }
+      resultTrain.hidden = !(onTrain && ((stage !== null && mode === 'defeat') || earnedTrainingReward));
       resultSummon.hidden = !(onSummon && stage === 1 && mode === 'defeat' && battle.state.allies.length < 3);
       startButton.disabled = !battle || mode === 'loading' || mode === 'closed';
       const controlsDisabled = startButton.disabled || mode === 'error';
@@ -410,7 +416,7 @@
     }
 
     function saveClear() {
-      clear = onClear(stage, battle.state.difficulty);
+      clear = onClear(stage, battle.state.difficulty, battle.state.allies);
       if (auto && clear?.next != null) {
         advanceTimer = setTimeout(() => {
           if (document.hidden) {
@@ -616,7 +622,7 @@
       list.scrollTop = list.scrollHeight;
     });
     resultTrain.addEventListener('click', () => {
-      if (!resultTrain.hidden && mode === 'defeat') onTrain(battle.state.allies[0].id);
+      if (!resultTrain.hidden) onTrain(battle.state.allies[0].id);
     });
     resultSummon.addEventListener('click', () => {
       if (!resultSummon.hidden) onSummon();
