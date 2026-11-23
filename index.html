@@ -7,7 +7,7 @@
 <meta content="#071827" name="theme-color"/>
 <meta content="yes" name="apple-mobile-web-app-capable"/>
 <meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
-<title>Ver.11.8 BATTLE-RC69 · タップ育成ガチャ -覚醒-</title>
+<title>Ver.11.8 BATTLE-RC70 · タップ育成ガチャ -覚醒-</title>
 <link rel="preload" as="image" href="assets/rc38-victory-panel.webp">
 <link rel="preload" as="image" href="assets/rc38-victory-crest.webp">
 <!-- Unified Save Rev.3: tapgacha_save_v3 / legacy gV2 preserved read-only -->
@@ -48,7 +48,7 @@
   <div class="kit-event" aria-label="蒼空の花嫁 イベント準備中">
     <img alt="" src="assets/6c9cd8782a411a4d62c7.webp" draggable="false"><div><small>EVENT • 準備中</small><strong>蒼空の花嫁</strong></div>
   </div>
-  <button type="button" class="kit-transfer" data-home-planned="転移門" aria-label="転移門（準備中）"><img alt="" src="assets/d881ecdbf5cfd6d41381.webp"><span>転移門<small>準備中</small></span></button>
+  <button type="button" class="kit-transfer" data-home-go="party" aria-label="転移門・出撃準備"><img alt="" src="assets/d881ecdbf5cfd6d41381.webp"><span>転移門<small>出撃準備</small></span></button>
   <!-- Independent favorite character layer. Card illustration, not a baked-in background character. -->
   <div class="kit-character-aura" aria-hidden="true"></div>
   <div class="kit-favorite dynamic-home-favorite" aria-label="お気に入りキャラ">
@@ -518,7 +518,7 @@
       <div class="shop-bridge"><button type="button" class="shop-to-character" id="shopGoCharacter">キャラ育成へ →</button></div>
       <div class="shop-future">現在購入できるのは「上限解放の鍵」のみです。<br>新アイテムの価格・効果は後日決定します。</div>
     </div>
-    <span class="shop-version">Ver.11.8 · BATTLE-RC69</span>
+    <span class="shop-version">Ver.11.8 · BATTLE-RC70</span>
   </div>
 </section>
 
@@ -528,7 +528,7 @@
 <section class="screen" id="questScreen" aria-label="依頼掲示板">
   <img id="questBackdrop" class="quest-backdrop" alt="" aria-hidden="true" />
   <div class="quest-scrim"></div>
-  <span class="quest-version">Ver.11.8 · BATTLE-RC69</span>
+  <span class="quest-version">Ver.11.8 · BATTLE-RC70</span>
   <div class="quest-shell">
     <header class="quest-top">
       <div class="quest-head"><button id="questBackHome" type="button" class="quest-home">⌂ ホーム</button><h1 class="quest-title">依頼掲示板</h1></div>
@@ -667,7 +667,10 @@
           </dl>
         </div>
         <p id="stageCampaignResult" class="stage-campaign-result" role="status" hidden></p>
-        <p id="stageTrainingReward" class="stage-campaign-result" hidden></p>
+        <div id="stageTrainingReward" class="stage-training-reward" hidden>
+          <p id="stageTrainingRewardText"></p>
+          <button type="button" class="stage-button" id="stageRewardTrain" hidden>育成へ</button>
+        </div>
         <div class="stage-defeat-review" id="stageDefeatReview" hidden>
           <strong id="stageRemaining"></strong>
           <p id="stageRetryTip"></p>
@@ -712,7 +715,7 @@
     </div>
     <footer class="stage-note">
       <span id="stageTrialLabel" hidden>お試し編成 · Lv1</span>
-      <span>Ver.11.8 · BATTLE-RC69</span>
+      <span>Ver.11.8 · BATTLE-RC70</span>
     </footer>
     <template id="stageCardTemplate">
       <div class="stage-slot">
@@ -762,7 +765,7 @@
 </dialog>
 
 <div class="toast" id="toast"></div>
-<div id="devBuildLabel" aria-label="開発検証版 Ver.11.8 BATTLE-RC69">Ver.11.8 · BATTLE-RC69</div>
+<div id="devBuildLabel" aria-label="Ver.11.8 BATTLE-RC70">Ver.11.8 · BATTLE-RC70</div>
 </main>
 <script src="js/battle-rules.js"></script>
 <script src="js/battle-stage.js"></script>

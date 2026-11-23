@@ -28,7 +28,7 @@
     return '前衛を育成するか、回復・防御スキルを持つ仲間を編成しましょう。';
   }
 
-  function createController(root, onBack, onClear, onTrain, onSummon, canTrainMember, countBossCandidates) {
+  function createController(root, onBack, onClear, onTrain, onSummon, canTrainMember, countBossCandidates, saveFailureMessage) {
     const get = id => root.querySelector('#' + id);
     const field = get('stageField');
     const actors = get('stageActors');
@@ -47,6 +47,7 @@
     const battleTotals = new Map();
     const campaignResult = get('stageCampaignResult');
     const trainingReward = get('stageTrainingReward');
+    const rewardTrain = get('stageRewardTrain');
     const defeatReview = get('stageDefeatReview');
     const bossAdvicePanel = get('stageBossAdvice');
     resultBack.hidden = get('stageBack').hidden;
@@ -193,10 +194,11 @@
       const earlyDefeat = campaignDefeat && stage >= 4 && stage <= 10 && canTrainMember;
       const trainableAlly = earlyDefeat && battle.state.allies.find(ally => canTrainMember(ally.id));
       trainingReward.hidden = !earnedTrainingReward;
+      rewardTrain.hidden = !onTrain;
       if (earnedTrainingReward) {
-        setText(trainingReward, '初クリア報酬 · 出撃メンバーに欠片 各' + formatNumber.format(clear.shards) + '個');
+        setText(get('stageTrainingRewardText'), '出撃した仲間に欠片を各' + formatNumber.format(clear.shards) + '個獲得');
       }
-      resultTrain.hidden = !(onTrain && (earnedTrainingReward || (campaignDefeat && (!earlyDefeat || trainableAlly))));
+      resultTrain.hidden = !(onTrain && campaignDefeat && (!earlyDefeat || trainableAlly));
       resultSummon.hidden = !(onSummon && campaignDefeat &&
         ((stage === 1 && battle.state.allies.length < 3) || (earlyDefeat && !trainableAlly)));
       setText(resultSummon, stage === 1 ? '仲間を召喚する' : '召喚門へ');
@@ -281,7 +283,8 @@
       const buttons = { running: '一時停止', paused: '再開', victory: '再戦', defeat: '再戦', error: '読み込みを再試行' };
       setText(startButton, buttons[mode] || '戦闘開始');
       setText(status, text[mode] || '');
-      const tacticText = mode !== 'running' ? '' : thunder !== null ? '雷撃に備えて防御・遅延'
+      const tacticText = mode === 'ready' && stage !== null && stage <= 4 ? 'AUTO中もスキルはタップで発動'
+        : mode !== 'running' ? '' : thunder !== null ? '雷撃に備えて防御・遅延'
         : enraged ? '攻撃弱体・回復で前衛を守る'
         : enemy.openingShield > 0 && enemy.shield > 0 ? '攻撃スキルでシールドを削る' : '';
       tactic.hidden = !tacticText;
@@ -315,7 +318,7 @@
                 (chapterClear ? '第' + formatNumber.format(rules.chapterForStage(stage)) + '章突破 · ' : '') +
                 (campaignComplete ? '到達上限'
                   : '第' + formatNumber.format(clear.next) + 'ステージ' + (auto ? 'へ進みます' : ' 解放')))
-            : '進行を保存できませんでした');
+            : (saveFailureMessage?.() || '進行を保存できませんでした'));
         }
       }
       get('stageTrialLabel').hidden = !trial;
@@ -652,6 +655,10 @@
       const target = mode === 'defeat' && stage >= 4 && stage <= 10 && canTrainMember
         ? allies.find(ally => canTrainMember(ally.id)) : allies[0];
       if (target) onTrain(target.id);
+    });
+    rewardTrain.addEventListener('click', () => {
+      if (trainingReward.hidden || rewardTrain.hidden) return;
+      onTrain(battle.state.allies[0].id);
     });
     resultSummon.addEventListener('click', () => {
       if (!resultSummon.hidden) onSummon(stage);

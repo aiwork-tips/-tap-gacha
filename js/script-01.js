@@ -96,12 +96,15 @@
 
   let saveRecoveryBlocked = false;
   let saveWriteError = null;
+  let previousLiveSave = rewardPreview ? null : saveStorage.getItem(SAVE_KEY);
+  let saveChangedInAnotherTab = false;
   function validSaveNumber(v, min){
     return typeof v === 'number' && Number.isFinite(v) && v >= min;
   }
   function buildUnifiedSave(){
-    const rawUnified = saveStorage.getItem(SAVE_KEY) ??
-      (rewardPreview ? localStorage.getItem(LIVE_SAVE_KEY) : null);
+    const rawUnified = rewardPreview
+      ? (saveStorage.getItem(SAVE_KEY) ?? localStorage.getItem(LIVE_SAVE_KEY))
+      : previousLiveSave;
     const existing = safeJsonParse(rawUnified);
     if(rawUnified !== null && (!existing || Array.isArray(existing) || typeof existing !== 'object')){
       saveRecoveryBlocked = true; // 破損した原本を絶対に上書きしない
@@ -325,8 +328,15 @@
       return false;
     }
     try{
+      const nextSave = JSON.stringify(gameSave);
+      if(!rewardPreview && saveStorage.getItem(SAVE_KEY)!==previousLiveSave){
+        saveChangedInAnotherTab = true;
+        return false;
+      }
       // 正本を先に確定。ミラー書き込み失敗は正本を壊さない。
-      saveStorage.setItem(SAVE_KEY, JSON.stringify(gameSave));
+      saveStorage.setItem(SAVE_KEY, nextSave);
+      if(!rewardPreview)previousLiveSave=nextSave;
+      saveChangedInAnotherTab=false;
     }catch(e){
       saveWriteError = e;
       console.error('統合セーブの保存に失敗しました。',e);
@@ -1138,8 +1148,7 @@
   });
   document.querySelectorAll('[data-home-go]').forEach(btn=>btn.addEventListener('click',()=>showScreen(btn.dataset.homeGo)));
   document.querySelectorAll('[data-home-planned]').forEach(btn=>btn.addEventListener('click',()=>{
-    if(btn.classList.contains('kit-transfer') && rewardPreview)showScreen('party');
-    else showToast(btn.dataset.homePlanned+' は次工程で接続');
+    showToast(btn.dataset.homePlanned+' は次工程で接続');
   }));
   function renderCharacterSkill(panel,id,awakeningRank){
     const skill=window.TapGachaBattle.characterSkill(id,awakeningRank);
@@ -1419,14 +1428,15 @@
       return trainingPlan(record,1).count>0||
         limitBreakOptions(record).some(option=>option.shards<=Number(record.shards||0));
     },
-    stage => partyCounterCandidates(stage).length
+    stage => partyCounterCandidates(stage).length,
+    campaignSaveConflict
   );
   function clearedCampaignStages(){
     const count=gameSave.campaignClearedStages;
     return Number.isSafeInteger(count)&&count>=0?count:0;
   }
   function recordCampaignClear(stage,difficulty,members){
-    if(!rewardPreview||!Number.isSafeInteger(stage)||stage!==clearedCampaignStages()+1)return null;
+    if(!Number.isSafeInteger(stage)||stage!==clearedCampaignStages()+1)return null;
     const previousCount=gameSave.campaignClearedStages;
     const previousPoints=pt;
     const previousCollection=collection;
@@ -1456,6 +1466,10 @@
   let partyDraft = [];
   let partySelectedSlot = 0;
   let partyCounterMode = false;
+  const saveConflictText = '別のタブでセーブが更新されました。ページを再読み込みしてください。';
+  function campaignSaveConflict(){
+    return saveChangedInAnotherTab ? saveConflictText : '';
+  }
   const partyCounterPanel = homeEl('partyCounterPanel');
   const partyCounterList = homeEl('partyCounterList');
   const partyBossShowCandidates = homeEl('partyBossShowCandidates');
@@ -1464,11 +1478,6 @@
     clearTimeout(partyFeedbackTimer);
     partyResult.textContent=message;
     if(temporary)partyFeedbackTimer=setTimeout(()=>{partyResult.textContent='';},2600);
-  }
-  const partyEntry = document.querySelector('.kit-transfer');
-  if(rewardPreview){
-    partyEntry.setAttribute('aria-label','転移門・出撃準備');
-    partyEntry.querySelector('small').textContent='出撃準備';
   }
   homeEl('partyBackHome').addEventListener('click',()=>showScreen('home'));
   homeEl('partyGoSummon').addEventListener('click',()=>{
@@ -1479,7 +1488,7 @@
   const gachaStarterTip=homeEl('gachaStarterTip');
   let summoningAfterDefeat=false;
   gachaFirstParty.addEventListener('click',()=>{
-    if(!rewardPreview||gachaFirstParty.hidden)return;
+    if(gachaFirstParty.hidden)return;
     const keepPartyDraft=summoningAfterDefeat;
     if(keepPartyDraft)partyDraft=normalizedParty(partyDraft,true);
     showScreen('party',{keepPartyDraft});
@@ -1654,8 +1663,10 @@
       candidate.setAttribute('aria-label',`${name}・${action}`);
     }
     const ownedCount=partyRoster.childElementCount;
+    const cleared=clearedCampaignStages();
     homeEl('partyHint').textContent=saveRecoveryBlocked?'セーブの確認が必要です':ownedCount===0?'召喚門から仲間を迎えましょう':
-      clearedCampaignStages()===0
+      cleared<4&&ownedCount>1&&partySelectedSlot===0?'前衛はHPの高い仲間がおすすめ · 下のキャラで入れ替え':
+      cleared===0
         ?(ownedCount===1?'仲間1体で第1ステージに出撃できます':'上の編成で第1ステージへ · 仲間の入れ替えは下から'):
       ownedCount===1?'仲間を迎えると、ここで入れ替えられます':`${partyRoles[partySelectedSlot]}を選択中 · 下のキャラをタップで入れ替え`;
   }
@@ -1696,7 +1707,7 @@
     return button;
   }
   function swapPartyCharacter(id){
-    if(!rewardPreview||saveRecoveryBlocked||id===partyDraft[partySelectedSlot]||!collection[id]?.owned)return;
+    if(saveRecoveryBlocked||id===partyDraft[partySelectedSlot]||!collection[id]?.owned)return;
     const previousPosition=partyDraft.indexOf(id);
     if(previousPosition>=0)partyDraft[previousPosition]=partyDraft[partySelectedSlot];
     partyDraft[partySelectedSlot]=id;
@@ -1731,16 +1742,16 @@
     homeEl('partyCount').textContent=`${partyDraft.length} / 3体`;
     homeEl('partyOwnedCount').textContent=`所持 ${owned.length}体`;
     homeEl('partyEmpty').hidden=owned.length>0;
-    partyConfirm.disabled=!rewardPreview||saveRecoveryBlocked||partyDraft.length===0;
+    partyConfirm.disabled=saveRecoveryBlocked||partyDraft.length===0;
     const canLaunch=Boolean(partyForBattle());
     const cleared=clearedCampaignStages();
     const next=cleared+1;
     const completed=!Number.isSafeInteger(next);
-    partyBattle.disabled=!rewardPreview||completed;
+    partyBattle.disabled=completed;
     partyBattle.textContent=completed?'到達上限':canLaunch?'第'+fmt(next)+'ステージへ':'お試し戦闘';
     partyBattle.title=canLaunch?partyBattle.textContent:'アルム・鉄骸兵・クロウルのLv1編成で試す';
     partyDifficulty.disabled=completed;
-    partyRoute.hidden=!rewardPreview;
+    partyRoute.hidden=false;
     const chapter=partyRules.chapterForStage(completed?cleared:next);
     const chapterCleared=cleared%partyRules.stagesPerChapter;
     partyProgress.value=chapterCleared;
@@ -1806,12 +1817,12 @@
       if(previous===undefined)delete gameSave.campaignDifficulty;
       else gameSave.campaignDifficulty=previous;
       partyDifficulty.value=previous==='training'?'training':'normal';
-      partyFeedback('難度を保存できませんでした。');
+      partyFeedback(campaignSaveConflict()||'難度を保存できませんでした。');
     }else partyFeedback();
     renderPartyClearReward();
   });
   partyBattle.addEventListener('click',()=>{
-    if(!rewardPreview||partyBattle.disabled)return;
+    if(partyBattle.disabled)return;
     const members=partyForBattle();
     const stage=members?clearedCampaignStages()+1:null;
     if(stage!==null&&!Number.isSafeInteger(stage))return;
@@ -1822,7 +1833,7 @@
     });
   });
   partyConfirm.addEventListener('click',()=>{
-    if(!rewardPreview||saveRecoveryBlocked)return;
+    if(saveRecoveryBlocked)return;
     const valid=normalizedParty(partyDraft);
     if(!valid.length||valid.length!==Math.min(3,ownedPartyCharacters().length)){
       partyDraft=normalizedParty(partyDraft,true);renderParty();return;
@@ -1832,7 +1843,7 @@
     gameSave.partyIds=valid;
     if(!saveUnified()){
       if(hadPrevious)gameSave.partyIds=previous;else delete gameSave.partyIds;
-      partyFeedback('保存できませんでした。もう一度お試しください。');return;
+      partyFeedback(campaignSaveConflict()||'保存できませんでした。もう一度お試しください。');return;
     }
     partyFeedback(`${valid.length}体の編成を保存しました`,true);
   });
@@ -1972,8 +1983,8 @@
     const toDex = which === 'dex';
     const toShop = which === 'shop';
     const toQuest = which === 'quest';
-    const toParty = which === 'party' && rewardPreview;
-    const toBattle = which === 'battle' && rewardPreview;
+    const toParty = which === 'party';
+    const toBattle = which === 'battle';
     const returningFromBattle = battleScreen.classList.contains('active');
     if(returningFromBattle&&!toBattle)battleStage.close();
     if(fromBattleDefeat)gachaFirstParty.hidden=clearedCampaignStages()===0;
@@ -2113,7 +2124,7 @@
       btn.disabled = pt < pulls;
     });
     const owned=ownedPartyCharacters().length;
-    gachaStarterTip.hidden=!rewardPreview||clearedCampaignStages()>0||pt<10||
+    gachaStarterTip.hidden=clearedCampaignStages()>0||pt<10||
       (owned>0&&!(summoningAfterDefeat&&owned<3));
   }
 
@@ -2268,7 +2279,7 @@
       return;
     }
 
-    const firstSummon=rewardPreview&&!ownedPartyCharacters().length&&clearedCampaignStages()===0;
+    const firstSummon=!ownedPartyCharacters().length&&clearedCampaignStages()===0;
     ensureQuestState();
     const previousPt=pt;
     const previousPower=tapPower;
