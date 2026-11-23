@@ -158,17 +158,31 @@
     return { name, sprite, maxHp, attack, trait };
   }
 
-  function campaignBossAdvice(stage, members) {
-    const { advice, counterSkills } = enemyForStage(stage);
-    if (!advice) return null;
-    const skills = members.flatMap(({ id, level, awakeningRank }) => {
+  const counterRoles = {
+    hit: '攻撃', combo: '連撃', weaken: '攻撃力低下', burn: '燃焼', delay: '攻撃遅延',
+    curse: '被スキルダメージ増加', execute: '攻撃', shield: 'シールド',
+    ward: '被弾無効', cover: 'かばう', heal: '回復', healAll: '全体回復'
+  };
+
+  function campaignBossCounters(stage, members) {
+    const { counterSkills } = enemyForStage(stage);
+    if (!counterSkills) return [];
+    return members.flatMap(({ id, level, awakeningRank }) => {
       if (!supports(id)) return [];
       const { name, skill } = characters[id];
       const awakenedShield = id === 'c001' && counterSkills.includes('shield') &&
         awakeningInfo(id, level, awakeningRank).rank > 0;
       if (!counterSkills.includes(skill.kind) && !awakenedShield) return [];
-      return [{ name, skill: skill.name }];
+      return [{ id, name, skill: skill.name, role: awakenedShield
+        ? (counterSkills.includes('heal') ? '回復・シールド' : 'シールド')
+        : counterRoles[skill.kind] }];
     });
+  }
+
+  function campaignBossAdvice(stage, members) {
+    const { advice } = enemyForStage(stage);
+    if (!advice) return null;
+    const skills = campaignBossCounters(stage, members).map(({ name, skill }) => ({ name, skill }));
     return { advice, skills };
   }
 
@@ -518,5 +532,5 @@
     return { state, advanceTo, requestSkill, skillStatus, enemyAttack, enemyAttackPower, enemyEnraged, thunderWarning };
   }
 
-  globalThis.TapGachaBattle = Object.freeze({ supports, sampleParty, characterArt, characterStats, characterSkill, awakeningInfo, createBattle, stagesPerChapter, chapterForStage, campaignEncounter, campaignEnemyPreview, campaignBossAdvice });
+  globalThis.TapGachaBattle = Object.freeze({ supports, sampleParty, characterArt, characterStats, characterSkill, awakeningInfo, createBattle, stagesPerChapter, chapterForStage, campaignEncounter, campaignEnemyPreview, campaignBossAdvice, campaignBossCounters });
 })();

@@ -28,7 +28,7 @@
     return '前衛を育成するか、回復・防御スキルを持つ仲間を編成しましょう。';
   }
 
-  function createController(root, onBack, onClear, onTrain, onSummon, canTrainMember) {
+  function createController(root, onBack, onClear, onTrain, onSummon, canTrainMember, countBossCandidates) {
     const get = id => root.querySelector('#' + id);
     const field = get('stageField');
     const actors = get('stageActors');
@@ -48,6 +48,7 @@
     const campaignResult = get('stageCampaignResult');
     const trainingReward = get('stageTrainingReward');
     const defeatReview = get('stageDefeatReview');
+    const bossAdvicePanel = get('stageBossAdvice');
     resultBack.hidden = get('stageBack').hidden;
     const elapsed = get('stageElapsed');
     const startButton = get('stageStart');
@@ -74,6 +75,7 @@
     let clear = null;
     let auto = false;
     let advanceTimer;
+    let bossCandidateCount = 0;
 
     function cancelFrame() {
       if (frame) cancelAnimationFrame(frame);
@@ -176,6 +178,18 @@
       root.toggleAttribute('data-campaign-complete', Boolean(chapterClear || campaignComplete));
       const earnedTrainingReward = campaignVictory && Boolean(clear?.shards);
       const campaignDefeat = stage !== null && mode === 'defeat';
+      const bossAdvice = campaignDefeat ? rules.campaignBossAdvice(stage, []) : null;
+      bossCandidateCount = bossAdvice ? (countBossCandidates?.(stage) ?? 0) : 0;
+      bossAdvicePanel.hidden = !bossAdvice;
+      resultBack.toggleAttribute('data-counter-action', bossCandidateCount > 0);
+      setText(resultBack, bossCandidateCount ? '対策候補を見て編成へ' : '編成へ');
+      if (bossAdvice) {
+        const count = get('stageBossCandidateCount');
+        setText(get('stageBossAdviceTitle'), battle.state.enemy.name + 'への対策');
+        setText(get('stageBossAdviceTip'), bossAdvice.advice);
+        count.hidden = bossCandidateCount === 0;
+        setText(count, '編成外の対策候補 ' + bossCandidateCount + '体');
+      }
       const earlyDefeat = campaignDefeat && stage >= 4 && stage <= 10 && canTrainMember;
       const trainableAlly = earlyDefeat && battle.state.allies.find(ally => canTrainMember(ally.id));
       trainingReward.hidden = !earnedTrainingReward;
@@ -287,12 +301,12 @@
         if (!defeatReview.hidden) {
           setText(get('stageRemaining'), '敵の残りHP ' + percent(enemy) + '％' +
             (enemy.shield > 0 ? ' · 盾 ' + formatNumber.format(enemy.shield) : ''));
-          let tip = retryTip(state, Boolean(latestSkill));
+          let tip = bossAdvice ? '' : retryTip(state, Boolean(latestSkill));
           if (earlyDefeat) {
             tip = trainableAlly ? trainableAlly.name + 'を手持ちの素材で育成できます。'
               : '召喚で重複した仲間は欠片になります。';
-            if (stage === 10) tip += '開幕の盾は攻撃スキルで先に削りましょう。';
           }
+          get('stageRetryTip').hidden = !tip;
           setText(get('stageRetryTip'), tip);
         }
         if (campaignVictory) {
@@ -588,7 +602,7 @@
       runningAnimations.forEach(animation => animation.updatePlaybackRate(speed));
       render();
     });
-    resultBack.addEventListener('click', onBack);
+    resultBack.addEventListener('click', () => onBack(bossCandidateCount > 0));
     resultAction.addEventListener('click', resultClick);
     get('stageResultLog').addEventListener('click', () => {
       if (mode !== 'victory' && mode !== 'defeat') return;
@@ -642,7 +656,7 @@
     resultSummon.addEventListener('click', () => {
       if (!resultSummon.hidden) onSummon(stage);
     });
-    get('stageBack').addEventListener('click', onBack);
+    get('stageBack').addEventListener('click', () => onBack(false));
     function suspendBattle() {
       suspensionCount++;
       stopAuto();

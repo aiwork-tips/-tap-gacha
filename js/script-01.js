@@ -1394,9 +1394,11 @@
   const battleScreen = homeEl('battleStageScreen');
   const battleStage = window.TapGachaBattleStage.createController(
     battleScreen.querySelector('.stage-app'),
-    () => {
+    showCounters => {
+      partyCounterMode=showCounters;
       showScreen('party');
-      partyBattle.focus({preventScroll:true});
+      if(showCounters&&!partyCounterPanel.hidden)focusPartyCounters();
+      else partyBattle.focus({preventScroll:true});
     },
     recordCampaignClear,
     leadId => {
@@ -1416,7 +1418,8 @@
       if(saveRecoveryBlocked||!record.owned)return false;
       return trainingPlan(record,1).count>0||
         limitBreakOptions(record).some(option=>option.shards<=Number(record.shards||0));
-    }
+    },
+    stage => partyCounterCandidates(stage).length
   );
   function clearedCampaignStages(){
     const count=gameSave.campaignClearedStages;
@@ -1452,6 +1455,10 @@
   }
   let partyDraft = [];
   let partySelectedSlot = 0;
+  let partyCounterMode = false;
+  const partyCounterPanel = homeEl('partyCounterPanel');
+  const partyCounterList = homeEl('partyCounterList');
+  const partyBossShowCandidates = homeEl('partyBossShowCandidates');
   let partyFeedbackTimer;
   function partyFeedback(message='',temporary=false){
     clearTimeout(partyFeedbackTimer);
@@ -1505,6 +1512,7 @@
   function beginParty(){
     partyDraft=normalizedParty(gameSave.partyIds,true);
     partySelectedSlot=0;
+    partyCounterMode=false;
     partyFeedback();
     renderParty();
     partyRosterScroll.scrollTop=0;
@@ -1515,6 +1523,54 @@
     if(!ids.length||!ids.every(partyRules.supports))return null;
     return ids.map(id=>({id,level:collection[id].level||1,awakeningRank:collection[id].awakeningRank}));
   }
+  function partyCounterCandidates(stage){
+    if(saveRecoveryBlocked)return [];
+    const reserves=ownedPartyCharacters().filter(({id})=>!partyDraft.includes(id));
+    return partyRules.campaignBossCounters(stage,reserves.map(({id})=>({
+      id,level:collection[id].level,awakeningRank:collection[id].awakeningRank
+    })));
+  }
+  function focusPartyCounters(){
+    partyRosterScroll.scrollTop=0;
+    homeEl('partyCounterTitle').focus({preventScroll:true});
+  }
+  function renderPartyCounters(stage){
+    const candidates=partyCounterMode&&stage!==null?partyCounterCandidates(stage):[];
+    const showCandidates=candidates.length>0;
+    partyCounterPanel.hidden=!showCandidates;
+    partyRoster.hidden=showCandidates;
+    partyCounterList.replaceChildren(...candidates.map(({id,name,skill,role})=>{
+      const item=document.createElement('li');
+      const button=document.createElement('button');
+      button.type='button';
+      button.dataset.counterCharacter=id;
+      const image=document.createElement('img');
+      image.src=GACHA_CHARACTERS.find(character=>character.id===id).image;
+      image.alt='';
+      const details=document.createElement('span');
+      const label=document.createElement('strong');
+      const skillLabel=document.createElement('small');
+      label.textContent=name;
+      skillLabel.textContent=skill+' · '+role;
+      details.append(label,skillLabel);
+      button.append(image,details);
+      button.addEventListener('click',()=>swapPartyCharacter(id));
+      item.append(button);
+      return item;
+    }));
+  }
+  homeEl('partyShowAllOwned').addEventListener('click',()=>{
+    partyCounterMode=false;
+    renderParty();
+    partyRosterScroll.scrollTop=0;
+    partyRosterScroll.focus({preventScroll:true});
+  });
+  partyBossShowCandidates.addEventListener('click',()=>{
+    partyCounterMode=true;
+    renderParty();
+    homeEl('partyEnemyDialog').close();
+    focusPartyCounters();
+  });
   function openPartyStats(character,trigger){
     const record=collection[character.id];
     const stats=partyRules.characterStats(character.id,record?.level,record?.awakeningRank);
@@ -1639,6 +1695,17 @@
     });
     return button;
   }
+  function swapPartyCharacter(id){
+    if(!rewardPreview||saveRecoveryBlocked||id===partyDraft[partySelectedSlot]||!collection[id]?.owned)return;
+    const previousPosition=partyDraft.indexOf(id);
+    if(previousPosition>=0)partyDraft[previousPosition]=partyDraft[partySelectedSlot];
+    partyDraft[partySelectedSlot]=id;
+    partyFeedback();
+    renderParty();
+    const slot=partySlots.children[partySelectedSlot];
+    slot.classList.add('party-slot-arriving');
+    slot.focus({preventScroll:true});
+  }
   function renderPartyCandidate(character){
     const position=partyDraft.indexOf(character.id);
     const card=partyCandidateTemplate.content.firstElementChild.cloneNode(true);
@@ -1648,17 +1715,7 @@
     if(position>=0)card.querySelector('.party-candidate-state').textContent=partyRoles[position];
     button.querySelector('img').src=character.image;
     button.querySelector('.party-candidate-name').textContent=character.name;
-    button.addEventListener('click',()=>{
-      if(!rewardPreview||saveRecoveryBlocked||character.id===partyDraft[partySelectedSlot]||!collection[character.id]?.owned)return;
-      const previousPosition=partyDraft.indexOf(character.id);
-      if(previousPosition>=0)partyDraft[previousPosition]=partyDraft[partySelectedSlot];
-      partyDraft[partySelectedSlot]=character.id;
-      partyFeedback();
-      renderParty();
-      const slot=partySlots.children[partySelectedSlot];
-      slot.classList.add('party-slot-arriving');
-      slot.focus({preventScroll:true});
-    });
+    button.addEventListener('click',()=>swapPartyCharacter(character.id));
     const detail=card.querySelector('.party-candidate-detail');
     detail.setAttribute('aria-label',`${character.name}のステータス詳細`);
     detail.addEventListener('click',()=>openPartyStats(character,detail));
@@ -1689,6 +1746,7 @@
     partyProgress.value=chapterCleared;
     partyProgressText.textContent=`第${fmt(chapter)}章 · ${chapterCleared} / ${partyRules.stagesPerChapter}`;
     const encounter=canLaunch&&!completed?partyRules.campaignEncounter(next):null;
+    renderPartyCounters(encounter?.boss?next:null);
     partyEncounterLabel.hidden=Boolean(encounter);
     partyEncounterLabel.textContent=completed?'到達上限':'お試し編成で出撃できます';
     partyEnemyDetails.hidden=!encounter;
@@ -1716,6 +1774,9 @@
     trait.hidden=!enemy.trait;
     trait.querySelector('p').textContent=enemy.trait;
     const advice=partyRules.campaignBossAdvice(stage,partyForBattle()??[]);
+    const count=advice?partyCounterCandidates(stage).length:0;
+    partyBossShowCandidates.hidden=count===0;
+    partyBossShowCandidates.textContent=`編成外の対策候補を見る（${count}体）`;
     const body=trait.parentElement;
     body.hidden=!enemy.trait&&!advice;
     homeEl('partyBossAdvice').hidden=!advice;

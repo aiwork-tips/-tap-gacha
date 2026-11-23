@@ -7,7 +7,7 @@
 <meta content="#071827" name="theme-color"/>
 <meta content="yes" name="apple-mobile-web-app-capable"/>
 <meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
-<title>Ver.11.8 BATTLE-RC68 · タップ育成ガチャ -覚醒-</title>
+<title>Ver.11.8 BATTLE-RC69 · タップ育成ガチャ -覚醒-</title>
 <link rel="preload" as="image" href="assets/rc38-victory-panel.webp">
 <link rel="preload" as="image" href="assets/rc38-victory-crest.webp">
 <!-- Unified Save Rev.3: tapgacha_save_v3 / legacy gV2 preserved read-only -->
@@ -385,12 +385,13 @@
       <p></p>
     </section>
     <section class="character-skill-info" id="partyBossAdvice" hidden>
-      <strong>攻略ヒント</strong>
+      <strong class="boss-tactics-heading">攻略ヒント</strong>
       <p id="partyBossTip"></p>
       <div id="partyBossCounters" hidden>
         <h4 id="partyBossCountersTitle">今の編成で使える対策スキル</h4>
         <ul id="partyBossSkills" aria-labelledby="partyBossCountersTitle"></ul>
       </div>
+      <button type="button" id="partyBossShowCandidates" class="boss-tactics-button" hidden></button>
     </section>
   </div>
   <form method="dialog"><button type="submit" autofocus>閉じる</button></form>
@@ -517,7 +518,7 @@
       <div class="shop-bridge"><button type="button" class="shop-to-character" id="shopGoCharacter">キャラ育成へ →</button></div>
       <div class="shop-future">現在購入できるのは「上限解放の鍵」のみです。<br>新アイテムの価格・効果は後日決定します。</div>
     </div>
-    <span class="shop-version">Ver.11.8 · BATTLE-RC68</span>
+    <span class="shop-version">Ver.11.8 · BATTLE-RC69</span>
   </div>
 </section>
 
@@ -527,7 +528,7 @@
 <section class="screen" id="questScreen" aria-label="依頼掲示板">
   <img id="questBackdrop" class="quest-backdrop" alt="" aria-hidden="true" />
   <div class="quest-scrim"></div>
-  <span class="quest-version">Ver.11.8 · BATTLE-RC68</span>
+  <span class="quest-version">Ver.11.8 · BATTLE-RC69</span>
   <div class="quest-shell">
     <header class="quest-top">
       <div class="quest-head"><button id="questBackHome" type="button" class="quest-home">⌂ ホーム</button><h1 class="quest-title">依頼掲示板</h1></div>
@@ -562,6 +563,11 @@
     <div class="party-inventory">
       <div class="party-heading"><h2>所持キャラクター</h2><span id="partyOwnedCount"></span></div>
       <div class="party-roster-scroll" id="partyRosterScroll" role="region" aria-label="所持キャラクター一覧・縦スクロール" tabindex="0">
+        <section id="partyCounterPanel" class="party-counter-panel" aria-labelledby="partyCounterTitle" hidden>
+          <h3 id="partyCounterTitle" class="boss-tactics-heading" tabindex="-1">編成外の対策候補</h3>
+          <ul id="partyCounterList"></ul>
+          <button type="button" id="partyShowAllOwned" class="boss-tactics-button">すべての所持キャラを見る</button>
+        </section>
         <div class="party-roster" id="partyRoster"></div>
         <div class="party-empty" id="partyEmpty" hidden>
           <p>仲間を迎えると、自分の編成で出撃できます。</p>
@@ -666,6 +672,11 @@
           <strong id="stageRemaining"></strong>
           <p id="stageRetryTip"></p>
         </div>
+        <div id="stageBossAdvice" class="stage-boss-advice" hidden>
+          <strong id="stageBossAdviceTitle" class="boss-tactics-heading"></strong>
+          <p id="stageBossAdviceTip"></p>
+          <p id="stageBossCandidateCount" hidden></p>
+        </div>
         <button type="button" class="stage-button" id="stageResultSummon" hidden>仲間を召喚する</button>
         <div class="stage-result-actions">
           <button type="button" class="stage-button" id="stageResultBack">編成へ</button>
@@ -701,7 +712,7 @@
     </div>
     <footer class="stage-note">
       <span id="stageTrialLabel" hidden>お試し編成 · Lv1</span>
-      <span>Ver.11.8 · BATTLE-RC68</span>
+      <span>Ver.11.8 · BATTLE-RC69</span>
     </footer>
     <template id="stageCardTemplate">
       <div class="stage-slot">
@@ -751,7 +762,7 @@
 </dialog>
 
 <div class="toast" id="toast"></div>
-<div id="devBuildLabel" aria-label="開発検証版 Ver.11.8 BATTLE-RC68">Ver.11.8 · BATTLE-RC68</div>
+<div id="devBuildLabel" aria-label="開発検証版 Ver.11.8 BATTLE-RC69">Ver.11.8 · BATTLE-RC69</div>
 </main>
 <script src="js/battle-rules.js"></script>
 <script src="js/battle-stage.js"></script>

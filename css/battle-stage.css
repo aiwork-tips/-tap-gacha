@@ -432,6 +432,39 @@
 }
 .stage-defeat-review strong { color: #ffd6b4; font-variant-numeric: tabular-nums; }
 .stage-defeat-review p { margin: 0; }
+.boss-tactics-heading {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.boss-tactics-heading::before {
+  content: '';
+  flex: 0 0 30px;
+  height: 24px;
+  background: url('../assets/rc69-boss-crest.webp') center / contain no-repeat;
+}
+.stage-boss-advice {
+  margin-top: 7px;
+  padding: 4px 8px 6px;
+  border: 1px solid #bd9c638a;
+  border-radius: 5px;
+  background: linear-gradient(145deg, #1c3c58, #101f34);
+  font: 600 12px/1.4 system-ui, sans-serif;
+}
+.stage-boss-advice strong { color: #ffe2a3; }
+.stage-boss-advice p { margin: 2px 0 0; }
+.stage-boss-advice #stageBossCandidateCount { color: #b8def9; }
+.stage-result-actions:has([data-counter-action]) { flex-wrap: wrap; }
+.stage-result-actions #stageResultBack[data-counter-action] {
+  flex: 1 0 100%;
+  border-color: #e9c47c;
+  background: linear-gradient(#ffe0a0, #cba15d);
+  color: #192437;
+}
+.stage-app[data-mode='defeat'] .stage-result-actions:has([data-counter-action]) #stageResultRetry {
+  background: #202c42;
+  color: #ffe7b4;
+}
 .stage-app[data-mode='victory'] .stage-result-panel {
   --result-accent: #ffe1a6;
   padding: 11px 16px 12px;
