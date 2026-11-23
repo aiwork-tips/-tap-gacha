@@ -1715,7 +1715,22 @@
     const trait=homeEl('partyEnemyTrait');
     trait.hidden=!enemy.trait;
     trait.querySelector('p').textContent=enemy.trait;
+    const advice=partyRules.campaignBossAdvice(stage,partyForBattle()??[]);
+    const body=trait.parentElement;
+    body.hidden=!enemy.trait&&!advice;
+    homeEl('partyBossAdvice').hidden=!advice;
+    if(advice){
+      homeEl('partyBossTip').textContent=advice.advice;
+      const list=homeEl('partyBossSkills');
+      list.replaceChildren(...advice.skills.map(({name,skill})=>{
+        const item=document.createElement('li');
+        item.textContent=name+'「'+skill+'」';
+        return item;
+      }));
+      homeEl('partyBossCounters').hidden=!advice.skills.length;
+    }
     homeEl('partyEnemyDialog').showModal();
+    body.scrollTop=0;
   });
   partyDifficulty.addEventListener('change',()=>{
     const difficulty=partyDifficulty.value;

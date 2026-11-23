@@ -85,17 +85,23 @@
   const armoredGuardian = {
     ...guardian, name: '重装の守護者',
     sprite: 'assets/rc46-armored-guardian.webp', color: '#8ddcfa',
-    shieldRatio: 0.3, briefing: '戦闘開始時にシールドを展開'
+    shieldRatio: 0.3, briefing: '戦闘開始時にシールドを展開',
+    advice: '戦闘序盤に攻撃スキルを使い、開幕の盾を先に削りましょう。',
+    counterSkills: ['hit', 'combo', 'weaken', 'burn', 'delay', 'curse', 'execute']
   };
   const thunderBeast = {
     ...guardian, name: '雷鳴の魔獣',
     sprite: 'assets/rc47-thunder-beast.webp', color: '#ffdc75',
-    thunder: { every: 3, warning: 2000, multiplier: 1.7 }, briefing: '3回目の攻撃ごとに強力な雷撃'
+    thunder: { every: 3, warning: 2000, multiplier: 1.7 }, briefing: '3回目の攻撃ごとに強力な雷撃',
+    advice: '雷撃の予告が出たら、防御や攻撃遅延のスキルを合わせましょう。',
+    counterSkills: ['shield', 'ward', 'cover', 'delay', 'weaken']
   };
   const mirrorDragon = {
     ...guardian, name: '鏡晶竜',
     sprite: 'assets/rc48-mirror-dragon.webp', color: '#e5b3ff',
-    enrage: { threshold: 0.5, multiplier: 1.25 }, briefing: '残りHP50%で覚醒し、攻撃力が上昇'
+    enrage: { threshold: 0.5, multiplier: 1.25 }, briefing: '残りHP50%で覚醒し、攻撃力が上昇',
+    advice: '敵のHPが半分になる前に前衛を守り、覚醒後は回復や攻撃力低下でしのぎましょう。',
+    counterSkills: ['shield', 'ward', 'cover', 'heal', 'healAll', 'weaken']
   };
   const stageEnemies = {10: armoredGuardian, 20: thunderBeast, 30: mirrorDragon};
   const difficulties = Object.freeze({
@@ -150,6 +156,20 @@
       trait = '残りHPが' + Math.round(enrage.threshold * 100) + '%以下で覚醒し、攻撃力が' + Math.round((enrage.multiplier - 1) * 100) + '%上がる。';
     }
     return { name, sprite, maxHp, attack, trait };
+  }
+
+  function campaignBossAdvice(stage, members) {
+    const { advice, counterSkills } = enemyForStage(stage);
+    if (!advice) return null;
+    const skills = members.flatMap(({ id, level, awakeningRank }) => {
+      if (!supports(id)) return [];
+      const { name, skill } = characters[id];
+      const awakenedShield = id === 'c001' && counterSkills.includes('shield') &&
+        awakeningInfo(id, level, awakeningRank).rank > 0;
+      if (!counterSkills.includes(skill.kind) && !awakenedShield) return [];
+      return [{ name, skill: skill.name }];
+    });
+    return { advice, skills };
   }
 
   function supports(id) {
@@ -498,5 +518,5 @@
     return { state, advanceTo, requestSkill, skillStatus, enemyAttack, enemyAttackPower, enemyEnraged, thunderWarning };
   }
 
-  globalThis.TapGachaBattle = Object.freeze({ supports, sampleParty, characterArt, characterStats, characterSkill, awakeningInfo, createBattle, stagesPerChapter, chapterForStage, campaignEncounter, campaignEnemyPreview });
+  globalThis.TapGachaBattle = Object.freeze({ supports, sampleParty, characterArt, characterStats, characterSkill, awakeningInfo, createBattle, stagesPerChapter, chapterForStage, campaignEncounter, campaignEnemyPreview, campaignBossAdvice });
 })();

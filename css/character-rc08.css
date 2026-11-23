@@ -775,6 +775,20 @@ dialog.profile-dialog {
 
 .profile-detail-body { min-height: 0; overflow-y: auto; display: grid; grid-auto-rows: max-content; gap: 8px; }
 .profile-detail-body .profile-lore { overflow-y: visible; }
+#partyBossAdvice { border-color: #dec087a6; background: linear-gradient(145deg, #1c3d59, #101f34); }
+#partyBossCounters {
+  display: block;
+  margin: 6px 0 0;
+  padding-top: 5px;
+  border-top: 1px solid #bda06d75;
+}
+#partyBossCountersTitle { margin: 0 0 3px; color: #b8dff8; font: 650 11px/1.45 system-ui, sans-serif; }
+#partyBossSkills {
+  margin: 0;
+  padding-inline-start: 18px;
+  color: #ffe098;
+  font: 650 12px/1.45 system-ui, sans-serif;
+}
 .profile-detail-body .profile-awakening {
   border-color: #dec087a6;
   background: linear-gradient(145deg, #1c3d59, #101f34);
