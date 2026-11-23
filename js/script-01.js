@@ -1406,9 +1406,16 @@
       showScreen('character');
       charEl('charBackHome').focus({preventScroll:true});
     },
-    () => {
-      showScreen('gacha', {fromFirstDefeat:true});
-      gachaDrawButtons.find(button=>button.dataset.pulls==='10'&&!button.disabled)?.focus({preventScroll:true});
+    stage => {
+      showScreen('gacha', {fromBattleDefeat:true});
+      if(stage===1)gachaDrawButtons.find(button=>button.dataset.pulls==='10'&&!button.disabled)?.focus({preventScroll:true});
+      else gachaFirstParty.focus({preventScroll:true});
+    },
+    id => {
+      const record=currentRecord(id);
+      if(saveRecoveryBlocked||!record.owned)return false;
+      return trainingPlan(record,1).count>0||
+        limitBreakOptions(record).some(option=>option.shards<=Number(record.shards||0));
     }
   );
   function clearedCampaignStages(){
@@ -1881,7 +1888,7 @@
     else showToast(name + pendingSuffix);
   }
 
-  function showScreen(which, {keepPartyDraft=false,fromFirstDefeat=false}={}){
+  function showScreen(which, {keepPartyDraft=false,fromBattleDefeat=false}={}){
     const toHome = which === 'home';
     const toTap = which === 'tap';
     const toGacha = which === 'gacha';
@@ -1893,8 +1900,9 @@
     const toBattle = which === 'battle' && rewardPreview;
     const returningFromBattle = battleScreen.classList.contains('active');
     if(returningFromBattle&&!toBattle)battleStage.close();
-    if(fromFirstDefeat||(!toGacha&&summoningAfterDefeat))gachaFirstParty.hidden=true;
-    summoningAfterDefeat=toGacha&&(fromFirstDefeat||summoningAfterDefeat);
+    if(fromBattleDefeat)gachaFirstParty.hidden=clearedCampaignStages()===0;
+    else if(!toGacha&&summoningAfterDefeat)gachaFirstParty.hidden=true;
+    summoningAfterDefeat=toGacha&&(fromBattleDefeat||summoningAfterDefeat);
 
     if(!toCharacter){
       trainingFromBattle=false;
@@ -1946,7 +1954,7 @@
     }
 
     if(toGacha){
-      if(clearedCampaignStages()>0)gachaFirstParty.hidden=true;
+      if(clearedCampaignStages()>0&&!summoningAfterDefeat)gachaFirstParty.hidden=true;
       renderGachaWallet();
       renderOwnedCount();
       updateGachaButtons();

@@ -28,7 +28,7 @@
     return '前衛を育成するか、回復・防御スキルを持つ仲間を編成しましょう。';
   }
 
-  function createController(root, onBack, onClear, onTrain, onSummon) {
+  function createController(root, onBack, onClear, onTrain, onSummon, canTrainMember) {
     const get = id => root.querySelector('#' + id);
     const field = get('stageField');
     const actors = get('stageActors');
@@ -175,12 +175,17 @@
       const chapterClear = campaignVictory && clear && stage % rules.stagesPerChapter === 0;
       root.toggleAttribute('data-campaign-complete', Boolean(chapterClear || campaignComplete));
       const earnedTrainingReward = campaignVictory && Boolean(clear?.shards);
+      const campaignDefeat = stage !== null && mode === 'defeat';
+      const earlyDefeat = campaignDefeat && stage >= 4 && stage <= 10 && canTrainMember;
+      const trainableAlly = earlyDefeat && battle.state.allies.find(ally => canTrainMember(ally.id));
       trainingReward.hidden = !earnedTrainingReward;
       if (earnedTrainingReward) {
         setText(trainingReward, '初クリア報酬 · 出撃メンバーに欠片 各' + formatNumber.format(clear.shards) + '個');
       }
-      resultTrain.hidden = !(onTrain && ((stage !== null && mode === 'defeat') || earnedTrainingReward));
-      resultSummon.hidden = !(onSummon && stage === 1 && mode === 'defeat' && battle.state.allies.length < 3);
+      resultTrain.hidden = !(onTrain && (earnedTrainingReward || (campaignDefeat && (!earlyDefeat || trainableAlly))));
+      resultSummon.hidden = !(onSummon && campaignDefeat &&
+        ((stage === 1 && battle.state.allies.length < 3) || (earlyDefeat && !trainableAlly)));
+      setText(resultSummon, stage === 1 ? '仲間を召喚する' : '召喚門へ');
       startButton.disabled = !battle || mode === 'loading' || mode === 'closed';
       const controlsDisabled = startButton.disabled || mode === 'error';
       resetButton.disabled = controlsDisabled;
@@ -282,7 +287,13 @@
         if (!defeatReview.hidden) {
           setText(get('stageRemaining'), '敵の残りHP ' + percent(enemy) + '％' +
             (enemy.shield > 0 ? ' · 盾 ' + formatNumber.format(enemy.shield) : ''));
-          setText(get('stageRetryTip'), retryTip(state, Boolean(latestSkill)));
+          let tip = retryTip(state, Boolean(latestSkill));
+          if (earlyDefeat) {
+            tip = trainableAlly ? trainableAlly.name + 'を手持ちの素材で育成できます。'
+              : '召喚で重複した仲間は欠片になります。';
+            if (stage === 10) tip += '開幕の盾は攻撃スキルで先に削りましょう。';
+          }
+          setText(get('stageRetryTip'), tip);
         }
         if (campaignVictory) {
           setText(campaignResult, clear
@@ -622,10 +633,14 @@
       list.scrollTop = list.scrollHeight;
     });
     resultTrain.addEventListener('click', () => {
-      if (!resultTrain.hidden) onTrain(battle.state.allies[0].id);
+      if (resultTrain.hidden) return;
+      const allies = battle.state.allies;
+      const target = mode === 'defeat' && stage >= 4 && stage <= 10 && canTrainMember
+        ? allies.find(ally => canTrainMember(ally.id)) : allies[0];
+      if (target) onTrain(target.id);
     });
     resultSummon.addEventListener('click', () => {
-      if (!resultSummon.hidden) onSummon();
+      if (!resultSummon.hidden) onSummon(stage);
     });
     get('stageBack').addEventListener('click', onBack);
     function suspendBattle() {
