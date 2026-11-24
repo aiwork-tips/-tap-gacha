@@ -1,0 +1,41 @@
+#homeScreen .home-adventure {
+  position: absolute;
+  top: calc(22.6% + 16px);
+  left: 4%;
+  right: 17%;
+  z-index: 32;
+  display: grid;
+  grid-template-columns: 29px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 6px;
+  padding: 1px 3px 1px 5px;
+  border: 1px solid #c4a471;
+  border-radius: 6px;
+  background: linear-gradient(145deg, #193953, #07192e 76%);
+  box-shadow: 0 2px 8px #061222b0, inset 0 0 0 1px #c4a47128;
+  color: #f3e8ce;
+}
+#homeScreen .home-adventure[hidden] { display: none; }
+.home-adventure > img { width: 29px; height: 28px; object-fit: contain; }
+.home-adventure h2,
+.home-adventure p { margin: 0; overflow-wrap: anywhere; }
+.home-adventure h2 { font: 750 11px/1.35 "Yu Mincho", serif; color: #ffe2a2; }
+.home-adventure p { font: 650 11px/1.35 system-ui, sans-serif; }
+.home-adventure button {
+  min-height: 44px;
+  padding: 4px 10px;
+  border: 1px solid #dda95f;
+  border-radius: 5px;
+  background: linear-gradient(155deg, #285f90, #112b59 70%);
+  color: #fff2ce;
+  font: 750 12px/1.2 system-ui, sans-serif;
+  white-space: nowrap;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.home-adventure button:focus-visible { outline: 2px solid #adf1ff; outline-offset: 1px; }
+@media (max-width: 360px) {
+  #homeScreen .home-adventure { grid-template-columns: 21px minmax(0, 1fr) auto; gap: 4px; }
+  .home-adventure > img { width: 21px; }
+  .home-adventure button { padding-inline: 6px; }
+}

@@ -1081,6 +1081,47 @@
     return ownedCharacterById(gameSave.favoriteCharacterId) ||
       GACHA_CHARACTERS.find(c=>collection[c.id]?.owned) || null;
   }
+  function adventureSummonStep(hint){
+    return pt<1
+      ? {screen:'tap',hint:'タップで召喚用のPTを集めよう',label:'覚醒核へ'}
+      : {screen:'gacha',hint,label:'召喚門へ'};
+  }
+  function firstAdventure(){
+    const cleared=clearedCampaignStages();
+    if(saveRecoveryBlocked||cleared>=4)return null;
+    const owned=ownedPartyCharacters();
+    if(!owned.length)return adventureSummonStep('召喚門で仲間を迎えよう');
+    if(cleared<3){
+      return {screen:'party',hint:`第${cleared+1}ステージに挑戦しよう`,label:'出撃準備へ'};
+    }
+    if(owned.some(({id})=>Number(collection[id].level)>1))return null;
+    const savedParty=normalizedParty(gameSave.partyIds,true);
+    const target=[...new Set([...savedParty,...owned.map(({id})=>id)])]
+      .find(id=>trainingPlan(collection[id],1).count>0);
+    return target
+      ? {screen:'character',hint:'欠片で仲間のレベルを上げよう',label:'育成へ',target}
+      : adventureSummonStep('召喚で仲間の欠片を集めよう');
+  }
+  function renderFirstAdventure(){
+    const step=firstAdventure();
+    homeEl('homeAdventure').hidden=!step;
+    if(!step)return;
+    homeEl('homeAdventureHint').textContent=step.hint;
+    homeEl('homeAdventureAction').textContent=step.label;
+  }
+  homeEl('homeAdventureAction').addEventListener('click',()=>{
+    const step=firstAdventure();
+    if(!step)return;
+    if(step.target){
+      partyDraft=normalizedParty(gameSave.partyIds,true);
+      partySelectedSlot=0;
+      partyCounterMode=false;
+      openCampaignTraining(step.target);
+      return;
+    }
+    showScreen(step.screen);
+    if(step.screen==='party')partyBattle.focus({preventScroll:true});
+  });
   function refreshHome(){
     refreshHomeNumbers();
     const rank = Number(gameSave.playerRank);
@@ -1103,6 +1144,7 @@
       homeEl('homeFavoriteStars').textContent='☆';
       homeEl('homeFavoriteLevel').textContent='';
     }
+    renderFirstAdventure();
     renderLoginGift();
   }
   const favoriteDialog=homeEl('homeFavoriteDialog');
@@ -1410,13 +1452,7 @@
       else partyBattle.focus({preventScroll:true});
     },
     recordCampaignClear,
-    leadId => {
-      selectedCharId=leadId;
-      if(rosterFilter.value==='locked')rosterFilter.value='owned';
-      trainingFromBattle=true;
-      showScreen('character');
-      charEl('charBackHome').focus({preventScroll:true});
-    },
+    openCampaignTraining,
     stage => {
       showScreen('gacha', {fromBattleDefeat:true});
       if(stage===1)gachaDrawButtons.find(button=>button.dataset.pulls==='10'&&!button.disabled)?.focus({preventScroll:true});
@@ -1431,6 +1467,13 @@
     stage => partyCounterCandidates(stage).length,
     campaignSaveConflict
   );
+  function openCampaignTraining(leadId){
+    selectedCharId=leadId;
+    if(rosterFilter.value==='locked')rosterFilter.value='owned';
+    trainingFromBattle=true;
+    showScreen('character');
+    charEl('charBackHome').focus({preventScroll:true});
+  }
   function clearedCampaignStages(){
     const count=gameSave.campaignClearedStages;
     return Number.isSafeInteger(count)&&count>=0?count:0;
@@ -1987,8 +2030,6 @@
     const toBattle = which === 'battle';
     const returningFromBattle = battleScreen.classList.contains('active');
     if(returningFromBattle&&!toBattle)battleStage.close();
-    if(fromBattleDefeat)gachaFirstParty.hidden=clearedCampaignStages()===0;
-    else if(!toGacha&&summoningAfterDefeat)gachaFirstParty.hidden=true;
     summoningAfterDefeat=toGacha&&(fromBattleDefeat||summoningAfterDefeat);
 
     if(!toCharacter){
@@ -2041,7 +2082,6 @@
     }
 
     if(toGacha){
-      if(clearedCampaignStages()>0&&!summoningAfterDefeat)gachaFirstParty.hidden=true;
       renderGachaWallet();
       renderOwnedCount();
       updateGachaButtons();
@@ -2124,7 +2164,9 @@
       btn.disabled = pt < pulls;
     });
     const owned=ownedPartyCharacters().length;
-    gachaStarterTip.hidden=clearedCampaignStages()>0||pt<10||
+    const cleared=clearedCampaignStages();
+    gachaFirstParty.hidden=saveRecoveryBlocked||owned===0||(cleared>0&&!summoningAfterDefeat);
+    gachaStarterTip.hidden=cleared>0||pt<10||
       (owned>0&&!(summoningAfterDefeat&&owned<3));
   }
 
@@ -2279,7 +2321,6 @@
       return;
     }
 
-    const firstSummon=!ownedPartyCharacters().length&&clearedCampaignStages()===0;
     ensureQuestState();
     const previousPt=pt;
     const previousPower=tapPower;
@@ -2316,8 +2357,6 @@
 
     if(pulls <= 10) renderSmallResults(results);
     else renderSummary(results,pulls);
-    if(firstSummon||summoningAfterDefeat)gachaFirstParty.hidden=false;
-
     renderOwnedCount();
     updateGachaButtons();
     flashGacha(hasStar3);
