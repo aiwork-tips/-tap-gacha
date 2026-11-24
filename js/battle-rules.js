@@ -163,6 +163,21 @@
     curse: '被スキルダメージ増加', execute: '攻撃', shield: 'シールド',
     ward: '被弾無効', cover: 'かばう', heal: '回復', healAll: '全体回復'
   };
+  const skillEffects = {
+    hit: '敵にダメージを与える。',
+    combo: '敵に連続攻撃でダメージを与える。',
+    weaken: '敵にダメージを与え、攻撃力を下げる。',
+    burn: '敵にダメージを与え、燃焼で追加ダメージを与える。',
+    delay: '敵にダメージを与え、次の攻撃を遅らせる。',
+    curse: '敵にダメージを与え、敵が受けるスキルと燃焼のダメージを増やす。',
+    execute: '敵にダメージを与える。敵の残りHPが少ないと威力が上がる。',
+    shield: '味方全体にダメージを吸収する盾を付与する。',
+    ward: '味方それぞれの被弾を一度無効にする。',
+    cover: '自分のHPを回復し、敵の次の攻撃をかばう。',
+    heal: '残りHPの割合が最も低い味方を回復する。',
+    healAll: '戦闘不能の味方を除き、味方全体を回復する。',
+    rally: '味方全体の通常攻撃を強化する。'
+  };
 
   function campaignBossCounters(stage, members) {
     const { counterSkills } = enemyForStage(stage);
@@ -251,7 +266,10 @@
       description += '回復した味方に' + seconds(awakenedShieldDuration) + '間、最大HPの' +
         awakenedShieldPercent(awakeningRank) + '％分の盾を付与。';
     }
-    return { name: skill.name, description, cooldown: seconds(skill.cooldown) };
+    const awakenedShield = id === 'c001' && awakeningRank > 0;
+    const category = awakenedShield ? '回復・シールド' : skill.kind === 'rally' ? '通常攻撃強化' : counterRoles[skill.kind];
+    const effect = skillEffects[skill.kind] + (awakenedShield ? '回復した味方に盾も付与する。' : '');
+    return { name: skill.name, description, cooldown: seconds(skill.cooldown), category, effect };
   }
 
   function characterStats(id, rawLevel, savedRank) {

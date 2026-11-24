@@ -7,7 +7,7 @@
 <meta content="#071827" name="theme-color"/>
 <meta content="yes" name="apple-mobile-web-app-capable"/>
 <meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
-<title>Ver.11.8 BATTLE-RC71 · タップ育成ガチャ -覚醒-</title>
+<title>Ver.11.8 BATTLE-RC72 · タップ育成ガチャ -覚醒-</title>
 <link rel="preload" as="image" href="assets/rc38-victory-panel.webp">
 <link rel="preload" as="image" href="assets/rc38-victory-crest.webp">
 <!-- Unified Save Rev.3: tapgacha_save_v3 / legacy gV2 preserved read-only -->
@@ -292,7 +292,13 @@
     </div>
     <dialog id="charBreakDialog" aria-labelledby="charBreakTitle">
       <h3 id="charBreakTitle">上限解放</h3>
-      <p id="charBreakTarget"></p>
+      <div class="char-break-hero">
+        <img id="charBreakSprite" alt="" draggable="false">
+        <div class="char-break-character">
+          <p id="charBreakTarget"></p>
+          <p class="char-break-level"><span id="charBreakCurrent"></span><span aria-hidden="true">→</span><strong id="charBreakNext"></strong></p>
+        </div>
+      </div>
       <p id="charBreakWallet"></p>
       <div id="charBreakChoices"></div>
       <form method="dialog"><button type="submit" autofocus>キャンセル</button></form>
@@ -526,7 +532,7 @@
       <div class="shop-bridge"><button type="button" class="shop-to-character" id="shopGoCharacter">キャラ育成へ →</button></div>
       <div class="shop-future">現在購入できるのは「上限解放の鍵」のみです。<br>新アイテムの価格・効果は後日決定します。</div>
     </div>
-    <span class="shop-version">Ver.11.8 · BATTLE-RC71</span>
+    <span class="shop-version">Ver.11.8 · BATTLE-RC72</span>
   </div>
 </section>
 
@@ -536,7 +542,7 @@
 <section class="screen" id="questScreen" aria-label="依頼掲示板">
   <img id="questBackdrop" class="quest-backdrop" alt="" aria-hidden="true" />
   <div class="quest-scrim"></div>
-  <span class="quest-version">Ver.11.8 · BATTLE-RC71</span>
+  <span class="quest-version">Ver.11.8 · BATTLE-RC72</span>
   <div class="quest-shell">
     <header class="quest-top">
       <div class="quest-head"><button id="questBackHome" type="button" class="quest-home">⌂ ホーム</button><h1 class="quest-title">依頼掲示板</h1></div>
@@ -569,7 +575,17 @@
       <p class="party-hint" id="partyHint" aria-live="polite"></p>
     </div>
     <div class="party-inventory">
-      <div class="party-heading"><h2>所持キャラクター</h2><span id="partyOwnedCount"></span></div>
+      <div class="party-heading">
+        <h2>所持キャラクター</h2>
+        <div class="party-roster-controls">
+          <span id="partyOwnedCount"></span>
+          <select id="partyRosterSort" aria-label="所持キャラクターの並び替え">
+            <option value="level">レベル順</option>
+            <option value="hp">HP順</option>
+            <option value="attack">攻撃順</option>
+          </select>
+        </div>
+      </div>
       <div class="party-roster-scroll" id="partyRosterScroll" role="region" aria-label="所持キャラクター一覧・縦スクロール" tabindex="0">
         <section id="partyCounterPanel" class="party-counter-panel" aria-labelledby="partyCounterTitle" hidden>
           <h3 id="partyCounterTitle" class="boss-tactics-heading" tabindex="-1">編成外の対策候補</h3>
@@ -582,6 +598,7 @@
           <button type="button" id="partyGoSummon">召喚門へ</button>
         </div>
       </div>
+      <div class="party-skill-preview" role="status" hidden><strong></strong><p></p></div>
     </div>
     <footer class="party-footer">
       <div class="party-route" id="partyRoute" hidden>
@@ -643,11 +660,13 @@
   <template id="partyCandidateTemplate">
     <div class="party-candidate-card">
       <button type="button" class="party-candidate">
-        <span class="party-candidate-portrait">
-          <img alt="" draggable="false" loading="lazy">
-          <span class="party-candidate-state">編成中</span>
+        <span class="party-candidate-portrait"><img alt="" draggable="false" loading="lazy"></span>
+        <span class="party-candidate-profile">
+          <span class="party-candidate-name"></span>
+          <span class="party-candidate-stats"><span>HP <b></b></span><span>攻撃 <b></b></span></span>
         </span>
-        <span class="party-candidate-name"></span>
+        <span class="party-candidate-skill"><strong></strong><small></small></span>
+        <span class="party-candidate-state"></span>
       </button>
       <button type="button" class="party-candidate-detail" aria-haspopup="dialog"><span>詳細</span></button>
     </div>
@@ -723,7 +742,7 @@
     </div>
     <footer class="stage-note">
       <span id="stageTrialLabel" hidden>お試し編成 · Lv1</span>
-      <span>Ver.11.8 · BATTLE-RC71</span>
+      <span>Ver.11.8 · BATTLE-RC72</span>
     </footer>
     <template id="stageCardTemplate">
       <div class="stage-slot">
@@ -773,7 +792,7 @@
 </dialog>
 
 <div class="toast" id="toast"></div>
-<div id="devBuildLabel" aria-label="Ver.11.8 BATTLE-RC71">Ver.11.8 · BATTLE-RC71</div>
+<div id="devBuildLabel" aria-label="Ver.11.8 BATTLE-RC72">Ver.11.8 · BATTLE-RC72</div>
 </main>
 <script src="js/battle-rules.js"></script>
 <script src="js/battle-stage.js"></script>

@@ -884,7 +884,11 @@
     if(!options.length||saveRecoveryBlocked)return;
     const cap=trainingCap(rec);
     const shards=Math.max(0,Number(rec.shards)||0);
-    charEl('charBreakTarget').textContent=`${charEl('selectedName').textContent} · Lv ${fmt(cap)} → ${fmt(cap+TRAINING_CAP_STEP)}`;
+    const character=GACHA_CHARACTERS.find(entry=>entry.id===id);
+    charEl('charBreakSprite').src=window.TapGachaBattle.characterArt(id)?.sprite||character.image;
+    charEl('charBreakTarget').textContent=character.name;
+    charEl('charBreakCurrent').textContent=`Lv ${fmt(cap)}`;
+    charEl('charBreakNext').textContent=`Lv ${fmt(cap+TRAINING_CAP_STEP)}`;
     charEl('charBreakWallet').textContent=`所持 欠片${fmt(shards)}個 ／ 鍵${fmt(gameSave.keys||0)}本`;
     charEl('charBreakChoices').replaceChildren(...options.map(option=>{
       const button=document.createElement('button');
@@ -1432,6 +1436,14 @@
   const partySlotTemplate = homeEl('partySlotTemplate');
   const partyCandidateTemplate = homeEl('partyCandidateTemplate');
   const partyRosterScroll = homeEl('partyRosterScroll');
+  const partyRosterSort = homeEl('partyRosterSort');
+  const partySkillPreview = partyScreen.querySelector('.party-skill-preview');
+  let partySkillPreviewTimer;
+  partyRosterSort.addEventListener('change',()=>{
+    renderParty();
+    partyRosterScroll.scrollTop=0;
+  });
+  partyRosterScroll.addEventListener('scroll',clearPartySkillPreview);
   const partyRules = window.TapGachaBattle;
   partyProgress.max=partyRules.stagesPerChapter;
   const partyRoles = ['前衛', '後衛・左', '後衛・右'];
@@ -1591,6 +1603,7 @@
     const showCandidates=candidates.length>0;
     partyCounterPanel.hidden=!showCandidates;
     partyRoster.hidden=showCandidates;
+    partyRosterSort.hidden=showCandidates||partyRoster.childElementCount<2;
     partyCounterList.replaceChildren(...candidates.map(({id,name,skill,role})=>{
       const item=document.createElement('li');
       const button=document.createElement('button');
@@ -1627,6 +1640,7 @@
     const record=collection[character.id];
     const stats=partyRules.characterStats(character.id,record?.level,record?.awakeningRank);
     if(!stats||partyStatsDialog.open)return;
+    clearPartySkillPreview();
     const {sprite,color}=partyRules.characterArt(character.id);
     homeEl('partyStatsSprite').src=sprite;
     partyStatsDialog.style.setProperty('--party-character-color',color);
@@ -1644,6 +1658,18 @@
     partyStatsTrigger=trigger;
     partyStatsDialog.showModal();
   }
+  function clearPartySkillPreview(){
+    clearTimeout(partySkillPreviewTimer);
+    partySkillPreview.hidden=true;
+  }
+  function showPartySkillPreview(card,skill){
+    if(!skill||!card.isConnected||!partyScreen.classList.contains('active'))return;
+    clearPartySkillPreview();
+    partySkillPreview.querySelector('strong').textContent=skill.name;
+    partySkillPreview.querySelector('p').textContent=skill.effect;
+    partySkillPreview.hidden=false;
+    partySkillPreviewTimer=setTimeout(clearPartySkillPreview,4000);
+  }
   function bindPartyLongPress(card,onLongPress){
     let press;
     let suppressClick=false;
@@ -1651,28 +1677,41 @@
       if(!event.isPrimary||event.button!==0)return;
       suppressClick=false;
       if(event.target.closest('.party-candidate-detail'))return;
-      press={id:event.pointerId,x:event.clientX,y:event.clientY,started:performance.now(),moved:false};
+      clearPartySkillPreview();
+      press={id:event.pointerId,x:event.clientX,y:event.clientY,moved:false,timer:setTimeout(()=>{
+        suppressClick=true;
+        onLongPress();
+      },500)};
     });
     function updateMovement(event){
       if(press?.id!==event.pointerId)return;
-      if(Math.hypot(event.clientX-press.x,event.clientY-press.y)>10)press.moved=true;
+      if(Math.hypot(event.clientX-press.x,event.clientY-press.y)>10){
+        press.moved=true;
+        clearTimeout(press.timer);
+        clearPartySkillPreview();
+      }
     }
     card.addEventListener('pointermove',updateMovement);
     card.addEventListener('pointerup',event=>{
       if(press?.id!==event.pointerId)return;
       updateMovement(event);
-      const held=!press.moved&&performance.now()-press.started>=500;
-      suppressClick=held||press.moved;
+      clearTimeout(press.timer);
+      suppressClick||=press.moved;
       press=undefined;
-      if(held)onLongPress();
     });
     card.addEventListener('pointercancel',event=>{
       if(press?.id!==event.pointerId)return;
       suppressClick=true;
+      clearTimeout(press.timer);
+      clearPartySkillPreview();
       press=undefined;
     });
     card.addEventListener('pointerleave',event=>{
-      if(press?.id===event.pointerId&&event.pointerType==='mouse')press.moved=true;
+      if(press?.id!==event.pointerId||event.pointerType!=='mouse')return;
+      clearTimeout(press.timer);
+      clearPartySkillPreview();
+      press=undefined;
+      suppressClick=true;
     });
     card.addEventListener('contextmenu',event=>{
       if(!event.target.closest('.party-candidate-detail'))event.preventDefault();
@@ -1700,7 +1739,7 @@
       const position=partyDraft.indexOf(id);
       const name=candidate.querySelector('.party-candidate-name').textContent;
       card.classList.toggle('party-candidate-target',id===target);
-      candidate.disabled=id===target||saveRecoveryBlocked;
+      candidate.setAttribute('aria-disabled',String(id===target||saveRecoveryBlocked));
       const action=id===target?`${partyRoles[position]}に編成中`:position>=0?
         `${partyRoles[position]}から${partyRoles[partySelectedSlot]}へ入れ替え`:`${partyRoles[partySelectedSlot]}に編成`;
       candidate.setAttribute('aria-label',`${name}・${action}`);
@@ -1760,27 +1799,41 @@
     slot.classList.add('party-slot-arriving');
     slot.focus({preventScroll:true});
   }
-  function renderPartyCandidate(character){
+  function renderPartyCandidate(character,stats){
     const position=partyDraft.indexOf(character.id);
     const card=partyCandidateTemplate.content.firstElementChild.cloneNode(true);
     const button=card.querySelector('.party-candidate');
     button.dataset.partyCharacter=character.id;
     card.dataset.formed=String(position!==-1);
-    if(position>=0)card.querySelector('.party-candidate-state').textContent=partyRoles[position];
+    card.querySelector('.party-candidate-state').textContent=position>=0?partyRoles[position]:'編成';
     button.querySelector('img').src=character.image;
     button.querySelector('.party-candidate-name').textContent=character.name;
+    button.querySelectorAll('.party-candidate-stats b').forEach((item,index)=>{
+      const value=index===0?stats.maxHp:stats.attack;
+      writeHudText(item,partyDisplayStat(value),partyStatNumber.format(value));
+    });
+    const skill=partyRules.characterSkill(character.id,stats.awakeningRank);
+    button.querySelector('.party-candidate-skill strong').textContent=skill?.name||'スキルなし';
+    button.querySelector('.party-candidate-skill small').textContent=skill?.category||'';
     button.addEventListener('click',()=>swapPartyCharacter(character.id));
     const detail=card.querySelector('.party-candidate-detail');
     detail.setAttribute('aria-label',`${character.name}のステータス詳細`);
     detail.addEventListener('click',()=>openPartyStats(character,detail));
-    bindPartyLongPress(card,()=>openPartyStats(character,detail));
+    bindPartyLongPress(card,()=>showPartySkillPreview(card,skill));
     return card;
   }
   function renderParty(){
+    clearPartySkillPreview();
     const owned=ownedPartyCharacters();
     const activeSlots=Math.min(3,owned.length);
     partySlots.replaceChildren(...partyRoles.map((_,index)=>renderPartySlot(owned.find(c=>c.id===partyDraft[index]),index,activeSlots)));
-    partyRoster.replaceChildren(...owned.map(renderPartyCandidate));
+    const sortBy={level:'level',hp:'maxHp',attack:'attack'}[partyRosterSort.value];
+    const roster=owned.map(character=>{
+      const {level,awakeningRank}=collection[character.id];
+      return {character,stats:partyRules.characterStats(character.id,level,awakeningRank)};
+    });
+    roster.sort((a,b)=>b.stats[sortBy]-a.stats[sortBy]);
+    partyRoster.replaceChildren(...roster.map(({character,stats})=>renderPartyCandidate(character,stats)));
     updatePartySelection();
     homeEl('partyCount').textContent=`${partyDraft.length} / 3体`;
     homeEl('partyOwnedCount').textContent=`所持 ${owned.length}体`;

@@ -682,47 +682,105 @@
 
 #characterScreen #charBreakDialog {
   box-sizing: border-box;
-  width: min(360px, calc(100% - 28px));
-  max-height: calc(100dvh - 28px);
-  padding: 18px;
-  border: 1px solid #e2bc79;
+  width: min(420px, calc(100% - 14px));
+  max-height: calc(100dvh - 20px);
+  margin: auto;
+  padding: 24px 24px 26px;
+  border: 0;
   border-radius: 12px;
-  background: linear-gradient(160deg, #183957, #09172b);
-  box-shadow: 0 12px 36px #0009, inset 0 0 0 3px #e2bc7929;
+  background: #09172b url('../assets/rc72-limit-break.webp') center / 100% 100% no-repeat;
+  box-shadow: 0 12px 38px #000c;
   color: #fff2d5;
   text-align: center;
+  overflow-y: auto;
 }
-#characterScreen #charBreakDialog::backdrop { background: #040c1bd9; }
-#charBreakDialog h3 { margin: 0 0 10px; font-size: 21px; }
-#charBreakDialog p { margin: 6px 0; font-size: 13px; }
-#charBreakWallet { color: #c9def4; }
-#charBreakChoices { display: grid; gap: 8px; margin-block: 14px 10px; }
+#characterScreen #charBreakDialog::backdrop { background: #030a18c9; }
+#charBreakDialog h3 {
+  display: grid;
+  place-items: center;
+  width: min(250px, 100%);
+  min-height: 48px;
+  margin: 0 auto;
+  background: url('../assets/rc34-portal-plaque.webp') center / 100% 100% no-repeat;
+  font: 750 clamp(22px, 6vw, 30px)/1.12 'Yu Mincho', 'Hiragino Mincho ProN', serif;
+  text-shadow: 0 2px 4px #000;
+}
+#charBreakDialog .char-break-hero {
+  display: grid;
+  grid-template-columns: minmax(80px, 39%) minmax(0, 1fr);
+  align-items: center;
+  gap: 4px;
+  margin: 6px 0 9px;
+}
+#charBreakSprite {
+  display: block;
+  width: 100%;
+  height: clamp(106px, 35vw, 156px);
+  object-fit: contain;
+  filter: drop-shadow(0 1px 6px #ffce6047);
+}
+#charBreakTarget {
+  margin: 0 0 9px;
+  font: 750 clamp(16px, 5vw, 23px)/1.25 'Yu Mincho', 'Hiragino Mincho ProN', serif;
+  overflow-wrap: anywhere;
+}
+#charBreakDialog .char-break-level {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 3px 6px;
+  margin: 0;
+  padding-top: 8px;
+  border-top: 1px solid #d9b16d75;
+  color: #fff2cf;
+  font: 700 clamp(14px, 4.8vw, 21px)/1.2 system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+#charBreakNext { color: #ffdb79; }
+#charBreakWallet {
+  margin: 0;
+  padding: 8px 5px;
+  border-block: 1px solid #ceb0747d;
+  background: #07172db5;
+  color: #d7ecff;
+  font: 700 13px/1.45 system-ui, sans-serif;
+  overflow-wrap: anywhere;
+}
+#charBreakChoices { display: grid; gap: 6px; margin-block: 8px 4px; }
 #characterScreen #charBreakDialog button {
   min-height: 44px;
   padding: 6px 12px;
-  border: 1px solid #d7ad69;
+  border: 1px solid #cba368;
   border-radius: 6px;
-  background: linear-gradient(#285579, #142d44);
+  background: linear-gradient(#244467, #101d32);
   color: #fff0c5;
   font: 700 14px/1.3 system-ui, sans-serif;
 }
 #characterScreen #charBreakDialog form button {
-  border-color: #a4b6c970;
-  background: #101d30;
+  width: min(156px, 100%);
+  margin-top: 3px;
 }
 #characterScreen #charBreakChoices button {
   display: grid;
   justify-items: center;
   align-content: center;
-  gap: 3px;
-  min-height: 50px;
+  gap: 2px;
+  min-height: 58px;
+  padding-inline: 23px;
+  border: 0;
+  background: url('../assets/rc23-party-confirm.webp') center / 100% 100% no-repeat;
   overflow-wrap: anywhere;
 }
-#charBreakChoices small { color: #c9def4; font-size: 12px; }
+#charBreakChoices small { color: #ffe39a; font-size: 12px; }
 #characterScreen #charBreakChoices button:disabled {
-  border-color: #8194ab;
+  border: 1px solid #8194ab;
   background: #101d30;
   color: #d3dbe7;
+}
+#charBreakChoices button:disabled small { color: #cad6e5; }
+@media (max-height: 540px) {
+  #characterScreen #charBreakDialog { padding-block: 16px 20px; }
+  #charBreakSprite { height: 95px; }
 }
 
 dialog.profile-dialog {
