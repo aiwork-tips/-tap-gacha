@@ -32,7 +32,7 @@ html = f"""<!doctype html>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#07192e">
 <link rel="icon" href="data:,">
-<title>水晶の回廊 · BATTLE-RC72</title>
+<title>水晶の回廊 · BATTLE-RC73</title>
 <style>
 html,body{{margin:0;height:100%;background:#07192e}}
 #battleStageScreen{{height:100dvh}}

@@ -1431,6 +1431,7 @@
   const partyProgress = homeEl('partyProgress');
   const partyProgressText = homeEl('partyProgressText');
   const campaignClearRewards = Object.freeze({normal:50,training:100});
+  const campaignShardRewards = Object.freeze({3:9,5:15,8:15,12:30,16:45,19:60});
   partyDifficulty.value=gameSave.campaignDifficulty==='training'?'training':'normal';
   const partyStatsDialog = homeEl('partyStatsDialog');
   const partySlotTemplate = homeEl('partySlotTemplate');
@@ -1497,7 +1498,7 @@
     const previousCollection=collection;
     const previousCharacters=gameSave.characters;
     const points=campaignClearRewards[difficulty];
-    const shards=stage===3?9:0;
+    const shards=campaignShardRewards[stage]??0;
     if(shards){
       collection={...collection};
       for(const {id} of members){
